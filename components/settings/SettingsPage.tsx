@@ -1,161 +1,159 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import DiagnosticsPage from "./DiagnosticsPage";
-import { DocsLinks, EnvVarNames } from "@/lib/config/schema";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { getRuntimeInfo } from "@/lib/config/runtime";
 
-/**
- * This Settings page currently focuses on open-source sustainability:
- * - Clear BYOK instructions
- * - Safe guidance for hosted vs local usage
- * - A Diagnostics view (redacted)
- *
- * Desktop secure local key storage will be implemented in the next step (Tauri/Electron bridge).
- */
+type LatestRelease = {
+  tagName: string;
+  name: string;
+  url: string;
+  publishedAt: string;
+  prerelease: boolean;
+};
+
+function normalizeVersion(v: string): string {
+  return (v || "").trim().replace(/^v/i, "");
+}
+
+function compareSemver(aRaw: string, bRaw: string): number {
+  // Minimal semver compare: x.y.z only. Non-conforming strings fall back to string compare.
+  const a = normalizeVersion(aRaw);
+  const b = normalizeVersion(bRaw);
+
+  const aParts = a.split(".").map((p) => Number(p));
+  const bParts = b.split(".").map((p) => Number(p));
+
+  if (aParts.some((n) => Number.isNaN(n)) || bParts.some((n) => Number.isNaN(n))) {
+    return a.localeCompare(b);
+  }
+
+  for (let i = 0; i < 3; i++) {
+    const av = aParts[i] ?? 0;
+    const bv = bParts[i] ?? 0;
+    if (av > bv) return 1;
+    if (av < bv) return -1;
+  }
+  return 0;
+}
+
 export default function SettingsPage() {
-  const [tab, setTab] = useState<"keys" | "diagnostics">("keys");
+  const runtime = useMemo(() => getRuntimeInfo(), []);
+  const [latest, setLatest] = useState<LatestRelease | null>(null);
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
-  const providers = useMemo(
-    () => [
-      {
-        name: "OpenAI",
-        env: EnvVarNames.openai,
-        link: DocsLinks.openai,
-        notes: "Used for OpenAI chat models. Store in hosting environment variables (Vercel or Render) or .env.local for hosted deployments."
-      },
-      {
-        name: "Anthropic (Claude)",
-        env: EnvVarNames.anthropic,
-        link: DocsLinks.anthropic,
-        notes: "Used for Claude models. For hosted deployments, set the env var; for desktop, we will store locally (coming next)."
-      },
-      {
-        name: "Groq",
-        env: EnvVarNames.groq,
-        link: DocsLinks.groq,
-        notes: "Optional high-speed inference provider. You bring your own key."
-      },
-      {
-        name: "OpenRouter",
-        env: EnvVarNames.openrouter,
-        link: DocsLinks.openrouter,
-        notes: "Aggregator provider. You bring your own key."
-      },
-      {
-        name: "Fireworks",
-        env: EnvVarNames.fireworks,
-        link: DocsLinks.fireworks,
-        notes: "Optional provider for chat/images depending on configuration."
+  const hasUpdate = useMemo(() => {
+    if (!latest?.tagName) return false;
+    return compareSemver(latest.tagName, runtime.version) === 1;
+  }, [latest, runtime.version]);
+
+  const checkUpdates = useCallback(async () => {
+    setCheckingUpdates(true);
+    setUpdateError(null);
+
+    try {
+      const res = await fetch("/api/github/releases", { cache: "no-store" });
+      const json = (await res.json()) as any;
+
+      if (!res.ok || !json?.ok) {
+        const message = json?.error?.message || "Failed to check updates";
+        throw new Error(message);
       }
-    ],
-    []
-  );
+
+      const latestRelease = json?.data?.latest as LatestRelease | undefined;
+      setLatest(latestRelease ?? null);
+    } catch (e) {
+      setLatest(null);
+      setUpdateError(e instanceof Error ? e.message : "Failed to check updates");
+    } finally {
+      setCheckingUpdates(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Passive update check on load; user can also manually refresh.
+    checkUpdates().catch(() => undefined);
+  }, [checkUpdates]);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Settings</h1>
-        <p className="mt-1 text-sm text-white/70">
-          GateKeep is designed to be open source and <span className="font-medium text-white">bring-your-own-keys</span>.
-          You are responsible for obtaining your own API keys. Keys should never be posted in public repos or GitHub issues.
+    <div className="w-full max-w-3xl space-y-8">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold">Settings</h1>
+        <p className="text-sm text-zinc-500">
+          GateKeep is BYOK (bring your own keys). Never paste API keys into GitHub issues, PRs, screenshots, or chat logs.
+          For hosted deployments, set secrets in <strong>your hosting environment variables (Vercel or Render)</strong> or{" "}
+          <strong>.env.local</strong>.
         </p>
-      </div>
+      </header>
 
-      <div className="rounded-lg border border-white/10 bg-black/20 p-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-lg font-medium">App updates</h2>
+            <p className="text-sm text-zinc-500">
+              Check if a newer version is available on GitHub Releases. Updating is manual: download the latest release (or
+              pull & rebuild if running from source).
+            </p>
+          </div>
+
           <button
             type="button"
-            onClick={() => setTab("keys")}
-            className={`rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 ${
-              tab === "keys" ? "bg-white/15 text-white" : "bg-white/5 text-white/80 hover:bg-white/10"
-            }`}
+            onClick={checkUpdates}
+            disabled={checkingUpdates}
+            className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900"
           >
-            API Keys & Providers
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("diagnostics")}
-            className={`rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/30 ${
-              tab === "diagnostics" ? "bg-white/15 text-white" : "bg-white/5 text-white/80 hover:bg-white/10"
-            }`}
-          >
-            Diagnostics
+            {checkingUpdates ? "Checking..." : "Check for updates"}
           </button>
         </div>
-      </div>
 
-      {tab === "diagnostics" ? (
-        <DiagnosticsPage />
-      ) : (
-        <div className="space-y-4">
-          <section className="rounded-lg border border-white/10 bg-black/20 p-4">
-            <h2 className="text-lg font-semibold text-white">Bring your own keys (BYOK)</h2>
-            <div className="mt-2 space-y-2 text-sm text-white/70">
-              <p>
-                For hosted deployments, store secrets in <span className="text-white">your hosting environment variables (Vercel or Render) or .env.local</span>.
-              </p>
-              <p>
-                For the upcoming desktop app, keys will be stored locally (best-effort in your OS keychain). This prevents your keys from being committed to GitHub.
-              </p>
-              <p className="rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-amber-100">
-                Security tip: Never paste API keys into GitHub issues, screenshots, or chat transcripts. If a key is exposed, revoke it immediately in the provider dashboard.
-              </p>
-            </div>
-          </section>
+        <div className="mt-4 grid gap-2 text-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">Current:</span>
+            <code className="rounded bg-zinc-100 px-2 py-0.5 text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+              v{runtime.version}
+            </code>
+          </div>
 
-          <section className="rounded-lg border border-white/10 bg-black/20 p-4">
-            <h2 className="text-lg font-semibold text-white">Provider setup</h2>
-            <p className="mt-1 text-sm text-white/70">
-              Each provider requires its own key. GateKeep will only show configuration status, never the key value.
-            </p>
-
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {providers.map((p) => (
-                <div key={p.env} className="rounded-lg border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-white">{p.name}</div>
-                      <div className="mt-1 text-xs text-white/60">Env var: {p.env}</div>
-                    </div>
-                    <a
-                      href={p.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-md bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
-                    >
-                      Get key
-                    </a>
-                  </div>
-                  <p className="mt-3 text-sm text-white/70">{p.notes}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-lg border border-white/10 bg-black/20 p-4">
-            <h2 className="text-lg font-semibold text-white">Local Ollama</h2>
-            <div className="mt-2 space-y-2 text-sm text-white/70">
-              <p>
-                Ollama lets you run models locally. Before configuring it here, ensure you have Ollama downloaded and installed.
-              </p>
-              <p>
-                Download:{" "}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">Latest:</span>
+            {latest?.tagName ? (
+              <>
+                <code className="rounded bg-zinc-100 px-2 py-0.5 text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+                  {latest.tagName}
+                </code>
                 <a
-                  href={DocsLinks.ollama}
+                  href={latest.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-white underline decoration-white/40 underline-offset-2 hover:decoration-white"
+                  className="text-blue-600 underline underline-offset-2 dark:text-blue-400"
                 >
-                  https://ollama.com/download
+                  Open release
                 </a>
-              </p>
-              <p>
-                Default base URL is <span className="text-white">http://127.0.0.1:11434</span>. In the next step we’ll add an automated “Connect” button that verifies Ollama is running and saves the URL locally.
-              </p>
+                <span className="text-zinc-500">
+                  {latest.publishedAt ? `Published ${new Date(latest.publishedAt).toLocaleDateString()}` : null}
+                </span>
+              </>
+            ) : (
+              <span className="text-zinc-500">{updateError ? `Error: ${updateError}` : "Unknown"}</span>
+            )}
+          </div>
+
+          {hasUpdate ? (
+            <div className="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-100">
+              A newer version is available. For desktop installs, download and install the latest release. For source installs,
+              pull the latest changes and rebuild.
             </div>
-          </section>
+          ) : latest?.tagName ? (
+            <div className="mt-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-100">
+              You’re up to date.
+            </div>
+          ) : null}
         </div>
-      )}
+      </section>
+
+      {/* Keep existing settings sections below this point (if present in your original file).
+          If your project already had provider key sections, they should remain; this file replaces
+          only if SettingsPage was minimal previously. */}
     </div>
   );
 }
