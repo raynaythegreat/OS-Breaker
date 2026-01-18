@@ -13,13 +13,13 @@
     "@anthropic-ai/sdk": "^0.27.3",
     "next": "14.2.5",
     "openai": "^4.56.0",
-    "react": "18.3.1",
+    "react": "19.2.3",
     "react-dom": "18.3.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
-    "@types/react": "^18.3.3",
+    "@types/react": "^19.2.8",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
