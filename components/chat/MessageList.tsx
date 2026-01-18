@@ -1,0 +1,288 @@
+"use client";
+
+import { memo, useEffect, useRef } from "react";
+import Image from "next/image";
+import { ChatMessage } from "@/contexts/ChatHistoryContext";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+interface MessageListProps {
+  messages: ChatMessage[];
+  isLoading: boolean;
+  repoName?: string | null;
+  onTemplateSelect?: (prompt: string) => void;
+  chatMode?: "plan" | "build";
+}
+
+const formatBytes = (bytes: number) => {
+  if (!bytes || bytes < 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  const precision = unitIndex === 0 ? 0 : value < 10 ? 1 : 0;
+  return `${value.toFixed(precision)} ${units[unitIndex]}`;
+};
+
+const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMessage }) {
+  return (
+    <div
+      className={`flex gap-3 sm:gap-4 ${message.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+    >
+      <div
+        className={`max-w-[96%] sm:max-w-[80%] rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ${
+          message.role === "user"
+            ? "bg-gradient-to-br from-cyan-300 via-emerald-200 to-lime-200 text-black shadow-glow-sm"
+            : "cyber-panel text-cyan-50"
+        }`}
+      >
+        {message.role === "user" ? (
+          <div className="space-y-2">
+            {message.content ? (
+              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            ) : null}
+            {message.attachments && message.attachments.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {message.attachments.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="rounded-xl bg-black/30 border border-cyan-200/30 overflow-hidden"
+                  >
+                    {attachment.kind === "image" && attachment.previewUrl ? (
+                      <a
+                        href={attachment.previewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block relative h-24"
+                      >
+                        <Image
+                          src={attachment.previewUrl}
+                          alt={attachment.name}
+                          fill
+                          unoptimized
+                          className="object-cover"
+                        />
+                      </a>
+                    ) : (
+                      <div className="h-24 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-cyan-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="px-2 py-1 text-[10px] text-cyan-100/80 truncate">
+                      {attachment.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div className="prose-custom text-sm max-w-none">
+            <ReactMarkdown
+              components={{
+                code({ className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || "");
+                  const isBlock = Boolean(match);
+                  return isBlock ? (
+                    <SyntaxHighlighter
+                      style={oneDark as any}
+                      language={match ? match[1] : undefined}
+                      PreTag="div"
+                      {...(props as any)}
+                    >
+                      {String(children).replace(/\n$/, "")}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code className={className} {...(props as any)}>
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+            >
+              {message.content || ""}
+            </ReactMarkdown>
+            {message.attachments && message.attachments.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {message.attachments.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="flex items-center gap-3 p-2 rounded-lg border border-cyan-200/20 bg-black/30 text-xs"
+                  >
+                    <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                    <div className="min-w-0">
+                      <div className="text-cyan-100 truncate">{attachment.name}</div>
+                      <div className="text-cyan-200/60">
+                        {attachment.kind === "image" ? "Image" : "File"} • {formatBytes(attachment.size)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+
+export default function MessageList({
+  messages,
+  isLoading,
+  repoName = null,
+  onTemplateSelect,
+  chatMode = "build",
+}: MessageListProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: isLoading ? "auto" : "smooth" });
+  }, [messages, isLoading]);
+
+  if (messages.length === 0 && chatMode === "plan") {
+    const templates = repoName
+      ? [
+          {
+            title: "\ud83c\udfaf Plan & Implement Feature",
+            description: "Strategic planning + clean execution",
+            icon: "\ud83d\udccb",
+            prompt: `I need help adding a new feature to ${repoName}. First, create a detailed plan breaking down: (1) required files/components, (2) architecture decisions, (3) step-by-step implementation approach, (4) testing strategy. Then execute the plan methodically, implementing each piece with clean, production-ready code.`,
+          },
+          {
+            title: "\ud83d\udd0d Audit & Optimize",
+            description: "Deep analysis + performance fixes",
+            icon: "\u26a1",
+            prompt: `Perform a comprehensive audit of ${repoName}: (1) identify performance bottlenecks and UX issues, (2) create a prioritized improvement list with impact estimates, (3) implement the top 3 highest-impact fixes with detailed explanations of the changes.`,
+          },
+          {
+            title: "\ud83c\udfd7\ufe0f Refactor Architecture",
+            description: "Code quality + maintainability upgrade",
+            icon: "\ud83d\udd28",
+            prompt: `Help me refactor ${repoName} for better architecture: (1) analyze current structure and identify pain points, (2) propose a better organization with rationale, (3) create a migration plan, (4) refactor the most critical components while maintaining functionality.`,
+          },
+          {
+            title: "\ud83d\udc1b Debug & Fix",
+            description: "Root cause analysis + solution",
+            icon: "\ud83d\udd27",
+            prompt: `I'm experiencing an issue in ${repoName}. Help me: (1) investigate and identify the root cause, (2) explain why it's happening, (3) propose 2-3 solution approaches with pros/cons, (4) implement the best solution with proper error handling and tests.`,
+          },
+          {
+            title: "\ud83d\udcf1 Mobile Responsive",
+            description: "Cross-device perfection",
+            icon: "\ud83d\udcd0",
+            prompt: `Make ${repoName} fully mobile-responsive: (1) audit all layouts for mobile issues, (2) fix overflow, touch targets, and spacing, (3) ensure smooth interactions on all screen sizes, (4) test key user flows on mobile.`,
+          },
+          {
+            title: "\ud83d\ude80 Production Prep",
+            description: "Deploy-ready checklist",
+            icon: "\u2705",
+            prompt: `Prepare ${repoName} for production: (1) verify all environment variables and configs, (2) add proper error boundaries and loading states, (3) optimize bundle size and performance, (4) ensure security best practices, (5) create deployment documentation.`,
+          },
+        ]
+      : [
+          {
+            title: "\ud83d\udcbc Full-Stack SaaS",
+            description: "Complete modern web app",
+            icon: "\ud83c\udf10",
+            prompt: "Build a complete SaaS application with: (1) beautiful landing page with hero, features, pricing, (2) authentication system, (3) main dashboard with key features, (4) responsive design, (5) database schema, (6) API routes. Plan the architecture first, then implement step-by-step.",
+          },
+          {
+            title: "\ud83c\udfa8 Portfolio Showcase",
+            description: "Stunning personal brand",
+            icon: "\u2728",
+            prompt: "Create an impressive portfolio website: (1) eye-catching hero section with smooth animations, (2) project showcase with filtering, (3) about section with timeline, (4) contact form, (5) blog section, (6) dark mode toggle. Use modern design trends and micro-interactions.",
+          },
+          {
+            title: "\ud83d\udcca Analytics Dashboard",
+            description: "Data visualization powerhouse",
+            icon: "\ud83d\udcc8",
+            prompt: "Build a comprehensive analytics dashboard: (1) sidebar navigation with sections, (2) overview page with key metrics cards, (3) interactive charts (line, bar, pie), (4) data tables with sorting/filtering, (5) responsive layout, (6) real-time data updates. Plan the component hierarchy first.",
+          },
+          {
+            title: "\ud83d\uded2 E-commerce Store",
+            description: "Full shopping experience",
+            icon: "\ud83d\uded2",
+            prompt: "Create a modern e-commerce platform: (1) product catalog with filters, (2) product detail pages, (3) shopping cart with persistence, (4) checkout flow, (5) order management, (6) search functionality. Design the database schema and API structure first.",
+          },
+          {
+            title: "\ud83d\udcdd Content Platform",
+            description: "Blog or publishing system",
+            icon: "\u270d\ufe0f",
+            prompt: "Build a content management platform: (1) rich text editor for posts, (2) category/tag system, (3) user authentication, (4) comment system, (5) search and filtering, (6) responsive reading experience. Plan the content model and user flows first.",
+          },
+          {
+            title: "\ud83c\udfae Interactive Experience",
+            description: "Creative web application",
+            icon: "\ud83c\udfaf",
+            prompt: "Create an engaging interactive web experience: (1) unique landing concept, (2) smooth animations and transitions, (3) user interaction flows, (4) creative UI elements, (5) responsive design, (6) performance optimization. Start with wireframes and interaction design.",
+          },
+        ];
+
+    return (
+      <div className="relative z-0 flex flex-col items-center justify-center h-full px-4 py-6 overflow-y-auto">
+        <div className="w-full max-w-5xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {templates.map((template) => (
+              <button
+                key={template.title}
+                type="button"
+                onClick={() => onTemplateSelect?.(template.prompt)}
+                className="group relative px-4 py-4 text-left rounded-xl border border-cyan-300/20 bg-black/40 hover:border-cyan-300/60 hover:shadow-glow-sm hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={!onTemplateSelect}
+                title={template.prompt}
+              >
+                <div className="flex items-start gap-3 mb-2">
+                  <span className="text-2xl flex-shrink-0">{template.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-cyan-100 group-hover:text-cyan-200 transition-colors">
+                      {template.title}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs text-cyan-200/70 leading-relaxed pl-11">
+                  {template.description}
+                </div>
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative z-0 h-full overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {messages.map((message, index) => (
+          <MessageBubble key={message.timestamp ?? index} message={message} />
+        ))}
+        {isLoading && (
+          <div className="flex gap-3 justify-start animate-in fade-in">
+            <div className="max-w-[80%] rounded-2xl px-4 py-3 cyber-panel">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-cyan-200 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-cyan-200 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+                <div className="w-2 h-2 bg-cyan-200 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+    </div>
+  );
+}
