@@ -5,7 +5,7 @@ const SettingsPage = () => {
   return (
     <div>
       <GettingStarted />
-      {/* Rest of the settings page content */}
+      {/* Rest of the Settings page content */}
     </div>
   );
 };
