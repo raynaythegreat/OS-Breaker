@@ -1,46 +1,46 @@
-# GateKeep (AI-Gatekeep)
+# GateKeep
 
-GateKeep is an open-source AI assistant focused on **web development workflows**: planning changes, generating production-ready code, and helping you apply commits directly to GitHub repositories. It’s designed around a **BYOK (Bring Your Own Keys)** model—users provide their own API keys locally or via their hosting environment.
+GateKeep is an open-source AI assistant for web development workflows: planning changes, generating production-ready code, and helping you apply commits directly to GitHub repositories.
 
-## Key features
+## Getting Started
 
-### AI chat for web dev workflows
-- Multi-provider chat (provider availability depends on your configuration)
-- Production-ready outputs with complete file contents (no placeholders)
-- Safety-first defaults and clear guidance around secrets
+### Desktop Installation
 
-### GitHub repository integration
-- Browse repositories and repository context
-- Generate structured file changes that can be applied/committed
-- History/session support (where enabled in the UI)
+1. Download the latest release for your platform:
+   - [Windows (.exe)](https://github.com/raynaythegreat/AI-Gatekeep/releases/latest)
+   - [macOS (.dmg)](https://github.com/raynaythegreat/AI-Gatekeep/releases/latest)
+   - [Linux (.AppImage or .deb)](https://github.com/raynaythegreat/AI-Gatekeep/releases/latest)
+2. Run the installer and follow the prompts.
+3. On first launch, configure your API keys under Settings.
 
-### Deployments (Vercel + Render)
-- Recommends a default provider based on repo signals
-  - Prefer **Vercel** for Next.js and typical frontend/SSR apps
-  - Prefer **Render** for long-running servers (WebSockets), background jobs/queues, or persistent services
-- Deployment configuration helpers for both providers
+### Configuring API Keys (BYOK)
 
-### Local-first + BYOK (Bring Your Own Keys)
-- Users are responsible for obtaining and managing their own API keys
-- Keys should be stored in:
-  - **your hosting environment variables (Vercel or Render) or `.env.local`** for hosted/self-hosted deployments
-  - (Desktop support can store locally on-device; see roadmap below)
-- GateKeep never asks you to paste secrets into GitHub issues, PRs, or chat transcripts
+1. Obtain API keys for your desired AI providers (OpenAI, Anthropic, etc.).
+2. In GateKeep, go to **Settings** > **API Keys**.
+3. Enter your keys; they will be stored securely locally (desktop) or in your hosting environment variables (Vercel or Render) or `.env.local` (web).
 
-### Ollama local model support
-- Supports using a locally-running Ollama instance (when configured)
-- Recommended: install Ollama and ensure it is running before connecting/configuring
+### Optional: Local Ollama Setup
 
-### Diagnostics
-- A diagnostics view to help confirm:
-  - runtime mode
-  - which providers appear configured (redacted)
-  - helpful environment/config information (without exposing secrets)
+1. Install [Ollama](https://ollama.ai/download) and ensure it's running.
+2. In GateKeep, go to **Settings** > **Local Ollama**.
+3. Click "Connect" to link GateKeep with your local Ollama instance.
 
-## Getting started (local development)
+## Key Features
 
-### Prerequisites
-- Node.js 18+ recommended
-- npm (or your preferred package manager)
+- AI chat for web development tasks
+- GitHub repository integration (browse, commit, deploy)
+- Vercel and Render deployment guidance
+- BYOK (Bring Your Own Keys) for AI providers
+- Local Ollama support for offline usage
+- Diagnostics page for troubleshooting
 
-### Install
+## Development
+
+For local development:
+1. Clone this repository.
+2. Run `npm install`.
+3. Start the development server with `npm run dev`.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
