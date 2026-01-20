@@ -706,11 +706,14 @@ export async function POST(request: NextRequest) {
     });
 
     const openrouterApiKey =
+      request.headers.get("x-openrouter-key") ||
       process.env.OPENROUTER_API_KEY ||
       process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
     const groqApiKey =
+      request.headers.get("x-groq-key") ||
       process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
     const fireworksApiKey =
+      request.headers.get("x-fireworks-key") ||
       process.env.FIREWORKS_API_KEY || process.env.FIREWORKS_IMAGE_API_KEY;
     const fireworksBaseUrl =
       process.env.FIREWORKS_CHAT_BASE_URL?.trim() ||
@@ -719,13 +722,13 @@ export async function POST(request: NextRequest) {
     const appUrl = resolveAppUrl(request);
 
     const rawProviderKey = {
-      claude: process.env.CLAUDE_API_KEY,
-      openai: process.env.OPENAI_API_KEY,
-      gemini: process.env.GEMINI_API_KEY,
+      claude: request.headers.get("x-anthropic-key") || process.env.CLAUDE_API_KEY,
+      openai: request.headers.get("x-openai-key") || process.env.OPENAI_API_KEY,
+      gemini: request.headers.get("x-gemini-key") || process.env.GEMINI_API_KEY,
       openrouter: openrouterApiKey,
-      ollama: process.env.OLLAMA_API_KEY,
+      ollama: process.env.OLLAMA_API_KEY, // Ollama usually doesn't use a key, but if set
       groq: groqApiKey,
-      opencodezen: process.env.OPENCODE_API_KEY,
+      opencodezen: request.headers.get("x-opencode-key") || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
     }[provider];
     const providerKey =
@@ -1042,7 +1045,9 @@ export async function POST(request: NextRequest) {
               }
             }
           } else if (provider === "ollama") {
+            const clientOllamaUrl = body.ollamaUrl?.trim();
             const baseUrl =
+              clientOllamaUrl ||
               process.env.OLLAMA_BASE_URL ||
               process.env.NEXT_PUBLIC_OLLAMA_BASE_URL ||
               (!getRuntimeEnv().onCloud ? "http://localhost:11434" : "");

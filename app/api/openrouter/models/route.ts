@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +20,9 @@ interface OpenRouterModelsResponse {
   data?: OpenRouterModel[];
 }
 
-function buildShortDescription(_model: OpenRouterModel): string {
-  return "Free";
+function buildShortDescription(model: OpenRouterModel): string {
+  const isFree = isFreeModel(model);
+  return isFree ? "Free" : "Premium";
 }
 
 function isFreeModel(model: OpenRouterModel): boolean {
@@ -34,8 +35,10 @@ function isFreeModel(model: OpenRouterModel): boolean {
   );
 }
 
-export async function GET() {
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  const headerKey = request.headers.get("x-openrouter-key");
+  const apiKey = headerKey || (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null) || process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/models", {
@@ -54,14 +57,18 @@ export async function GET() {
     const data = (await response.json()) as OpenRouterModelsResponse;
     const models = (data.data || [])
       .filter((model) => model && typeof model.id === "string")
-      .filter(isFreeModel)
       .map((model) => ({
         id: model.id,
         name: model.name || model.id,
         description: buildShortDescription(model),
         contextLength: model.context_length ?? null,
+        tier: isFreeModel(model) ? "free" : "premium",
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => {
+        // Sort free first, then alphabetically
+        if (a.tier !== b.tier) return a.tier === "free" ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
 
     return NextResponse.json({ models });
   } catch (error) {

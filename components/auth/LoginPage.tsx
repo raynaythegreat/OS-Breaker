@@ -50,7 +50,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <div className="w-16 h-16 rounded-2xl bg-black/60 border border-cyan-300/40 flex items-center justify-center shadow-glow mx-auto mb-4">
             <GlassesLogo className="w-9 h-9 text-cyan-100" />
           </div>
-          <h1 className="text-2xl font-bold text-white font-display">GateKeep</h1>
+          <h1 className="text-2xl font-bold text-white font-display">OS Breaker</h1>
           <p className="text-cyan-200/70 mt-2">Secure access to your AI command center</p>
         </div>
 

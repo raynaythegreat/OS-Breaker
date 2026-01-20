@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +14,10 @@ interface GroqModelsResponse {
 }
 
 const FALLBACK_GROQ_MODELS = [
-  { id: "llama-3.1-70b-versatile", name: "Llama 3.1 70B Versatile", description: "Fast, high quality" },
-  { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant", description: "Fast + cheap" },
-  { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B 32k", description: "Long context" },
-  { id: "gemma2-9b-it", name: "Gemma 2 9B IT", description: "Solid general chat" },
+  { id: "llama-3.1-70b-versatile", name: "Llama 3.1 70B Versatile", description: "Fast, high quality", tier: "premium" },
+  { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant", description: "Fast + cheap", tier: "premium" },
+  { id: "mixtral-8x7b-32768", name: "Mixtral 8x7B 32k", description: "Long context", tier: "premium" },
+  { id: "gemma2-9b-it", name: "Gemma 2 9B IT", description: "Solid general chat", tier: "premium" },
 ] as const;
 
 function buildFallbackModels() {
@@ -25,6 +25,7 @@ function buildFallbackModels() {
     id: m.id,
     name: m.name,
     description: m.description,
+    tier: m.tier,
   }));
 }
 
@@ -43,10 +44,13 @@ function isLikelyChatModel(modelId: string): boolean {
   return !NON_CHAT_MODEL_HINTS.some((needle) => lower.includes(needle));
 }
 
-export async function GET() {
-  const apiKey = process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  const headerKey = request.headers.get("x-groq-key");
+  const apiKey = headerKey || (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null) || process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
+
   const warning =
-    !process.env.GROQ_API_KEY && process.env.NEXT_PUBLIC_GROQ_API_KEY
+    !apiKey && !process.env.GROQ_API_KEY && process.env.NEXT_PUBLIC_GROQ_API_KEY
       ? "NEXT_PUBLIC_GROQ_API_KEY is set; move it to GROQ_API_KEY to avoid exposing your key to the browser."
       : null;
 
@@ -79,6 +83,7 @@ export async function GET() {
         id: model.id,
         name: model.id,
         description: "Groq",
+        tier: "premium",
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
 

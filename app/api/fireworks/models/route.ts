@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -46,9 +46,15 @@ function parseEnvList(value: string | undefined): FireworksModel[] {
     .map((id) => ({ id, name: id, description: "Fireworks" }));
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  const headerKey = request.headers.get("x-fireworks-key");
   const apiKey =
-    process.env.FIREWORKS_API_KEY || process.env.FIREWORKS_IMAGE_API_KEY;
+    headerKey ||
+    (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null) ||
+    process.env.FIREWORKS_API_KEY ||
+    process.env.FIREWORKS_IMAGE_API_KEY;
+
   const baseUrl =
     process.env.FIREWORKS_BASE_URL?.trim() ||
     "https://api.fireworks.ai/inference/v1";

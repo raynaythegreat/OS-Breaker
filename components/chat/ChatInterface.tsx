@@ -790,88 +790,6 @@ function buildDeployFailureKey(failure: DeployFailure): string {
 
 // Model groups for the selector
 const MODEL_GROUPS: Record<string, ModelOption[]> = {
-  "Claude (Anthropic)": [
-    {
-      id: "claude-3.5-haiku",
-      name: "Claude 3.5 Haiku",
-      description: "Fast & efficient",
-      provider: "claude",
-    },
-    {
-      id: "claude-3.5-sonnet",
-      name: "Claude 3.5 Sonnet",
-      description: "Great for code",
-      provider: "claude",
-    },
-    {
-      id: "claude-opus-4",
-      name: "Claude Opus 4",
-      description: "Most capable",
-      provider: "claude",
-    },
-    {
-      id: "claude-opus-4.5",
-      name: "Claude Opus 4.5",
-      description: "Latest Opus",
-      provider: "claude",
-    },
-    {
-      id: "claude-sonnet-4",
-      name: "Claude Sonnet 4",
-      description: "Fast & smart",
-      provider: "claude",
-    },
-    {
-      id: "claude-sonnet-4.5",
-      name: "Claude Sonnet 4.5",
-      description: "Newest Sonnet",
-      provider: "claude",
-    },
-  ],
-  OpenAI: [
-    {
-      id: "gpt-4-turbo",
-      name: "GPT-4 Turbo",
-      description: "High capability",
-      provider: "openai",
-    },
-    {
-      id: "gpt-4o",
-      name: "GPT-4o",
-      description: "Latest flagship",
-      provider: "openai",
-    },
-    {
-      id: "gpt-4o-mini",
-      name: "GPT-4o Mini",
-      description: "Fast & affordable",
-      provider: "openai",
-    },
-    {
-      id: "gpt-5.1",
-      name: "GPT-5.1",
-      description: "Next-gen GPT",
-      provider: "openai",
-    },
-    {
-      id: "gpt-5.2",
-      name: "GPT-5.2",
-      description: "Newest GPT flagship",
-      provider: "openai",
-    },
-    {
-      id: "o1",
-      name: "o1",
-      description: "Reasoning model",
-      provider: "openai",
-    },
-    {
-      id: "o1-mini",
-      name: "o1 Mini",
-      description: "Fast reasoning",
-      provider: "openai",
-    },
-  ],
   Fireworks: [
     {
       id: "fireworks:accounts/fireworks/models/llama-v3-70b-instruct",
@@ -896,38 +814,6 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
       name: "Qwen2 72B Instruct",
       description: "Fireworks Qwen2",
       provider: "fireworks",
-    },
-  ],
-  Gemini: [
-    {
-      id: "gemini-1.5-flash",
-      name: "Gemini 1.5 Flash",
-      description: "Fast & efficient",
-      provider: "gemini",
-    },
-    {
-      id: "gemini-1.5-flash-8b",
-      name: "Gemini 1.5 Flash 8B",
-      description: "Lightweight",
-      provider: "gemini",
-    },
-    {
-      id: "gemini-1.5-pro",
-      name: "Gemini 1.5 Pro",
-      description: "High capability",
-      provider: "gemini",
-    },
-    {
-      id: "gemini-2.0-flash-exp",
-      name: "Gemini 2.0 Flash",
-      description: "Advanced Flash model",
-      provider: "gemini",
-    },
-    {
-      id: "gemini-3.0-flash-exp",
-      name: "Gemini 3.0 Flash",
-      description: "Latest Flash model",
-      provider: "gemini",
     },
   ],
   "OpenCode Zen": [
@@ -1219,12 +1105,19 @@ export default function ChatInterface() {
   const [fireworksModels, setFireworksModels] = useState<ModelOption[]>([]);
   const [fireworksError, setFireworksError] = useState<string | null>(null);
   const [fireworksLoading, setFireworksLoading] = useState(false);
+  const [opencodeZenModels, setOpencodeZenModels] = useState<ModelOption[]>([]);
+  const [opencodeZenError, setOpencodeZenError] = useState<string | null>(null);
+  const [opencodeZenLoading, setOpencodeZenLoading] = useState(false);
   const [ollamaModels, setOllamaModels] = useState<ModelOption[]>([]);
   const [ollamaError, setOllamaError] = useState<string | null>(null);
   const [ollamaLoading, setOllamaLoading] = useState(false);
   const [ollamaRetrying, setOllamaRetrying] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const [isClient, setIsClient] = useState(false);
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [imageGenEnabled, setImageGenEnabled] = useState(false);
+  const [ollamaUrl, setOllamaUrl] = useState("http://localhost:11434");
+
   const abortControllerRef = useRef<AbortController | null>(null);
   const deployAbortControllerRef = useRef<AbortController | null>(null);
   const deployAutoFixAbortControllerRef = useRef<AbortController | null>(null);
@@ -1242,6 +1135,22 @@ export default function ChatInterface() {
 
   const stopGenerating = useCallback(() => {
     abortControllerRef.current?.abort();
+  }, []);
+
+  useEffect(() => {
+    const loaded: Record<string, string> = {};
+    const keys = ["opencodezen", "openrouter", "groq", "fireworks", "ideogram"];
+    keys.forEach(k => {
+      const val = localStorage.getItem(`gatekeep-api-key-${k}`);
+      if (val) loaded[k] = val;
+    });
+    setApiKeys(loaded);
+
+    const imgEnabled = localStorage.getItem("gatekeep-image-gen-enabled");
+    setImageGenEnabled(imgEnabled === "true");
+
+    const storedOllama = localStorage.getItem("gatekeep-ollama-url");
+    if (storedOllama) setOllamaUrl(storedOllama);
   }, []);
 
   useEffect(() => {
@@ -1517,7 +1426,7 @@ export default function ChatInterface() {
   }, [loadOllamaModels]);
 
   useEffect(() => {
-    if (!status?.groq?.configured) {
+    if (!status?.groq?.configured && !apiKeys.groq) {
       setGroqModels([]);
       setGroqError(null);
       setGroqLoading(false);
@@ -1528,17 +1437,20 @@ export default function ChatInterface() {
       setGroqLoading(true);
       setGroqError(null);
       try {
-        const response = await fetch("/api/groq/models");
+        const headers: Record<string, string> = {};
+        if (apiKeys.groq) headers["x-groq-key"] = apiKeys.groq;
+        
+        const response = await fetch("/api/groq/models", { headers });
         const data = await response.json();
         if (!response.ok || data.error) {
           throw new Error(data.error || "Failed to load Groq models");
         }
         const models = Array.isArray(data.models) ? data.models : [];
         const options = models.map(
-          (model: { id: string; name?: string; description?: string }) => ({
+          (model: { id: string; name?: string; description?: string; tier?: string }) => ({
             id: model.id,
             name: formatModelDisplayName("groq", model.id, model.name),
-            description: model.description || "Groq",
+            description: model.tier === "premium" ? "Groq (Premium)" : (model.description || "Groq"),
             provider: "groq" as const,
           }),
         );
@@ -1554,10 +1466,10 @@ export default function ChatInterface() {
     };
 
     fetchGroqModels();
-  }, [status?.groq?.configured]);
+  }, [status?.groq?.configured, apiKeys.groq]);
 
   useEffect(() => {
-    if (!status?.openrouter?.configured) {
+    if (!status?.openrouter?.configured && !apiKeys.openrouter) {
       setOpenrouterModels([]);
       setOpenrouterError(null);
       setOpenrouterLoading(false);
@@ -1568,17 +1480,20 @@ export default function ChatInterface() {
       setOpenrouterLoading(true);
       setOpenrouterError(null);
       try {
-        const response = await fetch("/api/openrouter/models");
+        const headers: Record<string, string> = {};
+        if (apiKeys.openrouter) headers["x-openrouter-key"] = apiKeys.openrouter;
+
+        const response = await fetch("/api/openrouter/models", { headers });
         const data = await response.json();
         if (!response.ok || data.error) {
           throw new Error(data.error || "Failed to load OpenRouter models");
         }
         const models = Array.isArray(data.models) ? data.models : [];
         const options = models.map(
-          (model: { id: string; name?: string; description?: string }) => ({
+          (model: { id: string; name?: string; description?: string; tier?: string }) => ({
             id: model.id,
             name: formatModelDisplayName("openrouter", model.id, model.name),
-            description: model.description || "OpenRouter model",
+            description: model.tier === "free" ? "Free" : "Premium",
             provider: "openrouter" as const,
           }),
         );
@@ -1596,10 +1511,10 @@ export default function ChatInterface() {
     };
 
     fetchOpenrouterModels();
-  }, [status?.openrouter?.configured]);
+  }, [status?.openrouter?.configured, apiKeys.openrouter]);
 
   useEffect(() => {
-    if (!status?.fireworks?.configured) {
+    if (!status?.fireworks?.configured && !apiKeys.fireworks) {
       setFireworksModels([]);
       setFireworksError(null);
       setFireworksLoading(false);
@@ -1610,7 +1525,10 @@ export default function ChatInterface() {
       setFireworksLoading(true);
       setFireworksError(null);
       try {
-        const response = await fetch("/api/fireworks/models");
+        const headers: Record<string, string> = {};
+        if (apiKeys.fireworks) headers["x-fireworks-key"] = apiKeys.fireworks;
+
+        const response = await fetch("/api/fireworks/models", { headers });
         const data = await response.json();
         const models = Array.isArray(data.models) ? data.models : [];
         if (!response.ok && models.length === 0) {
@@ -1645,7 +1563,50 @@ export default function ChatInterface() {
     };
 
     fetchFireworksModels();
-  }, [status?.fireworks?.configured]);
+  }, [status?.fireworks?.configured, apiKeys.fireworks]);
+
+  useEffect(() => {
+    if (!status?.opencodezen?.configured && !apiKeys.opencodezen) {
+      setOpencodeZenModels([]);
+      setOpencodeZenError(null);
+      setOpencodeZenLoading(false);
+      return;
+    }
+
+    const fetchOpencodeZenModels = async () => {
+      setOpencodeZenLoading(true);
+      setOpencodeZenError(null);
+      try {
+        const headers: Record<string, string> = {};
+        if (apiKeys.opencodezen) headers["x-opencode-key"] = apiKeys.opencodezen;
+
+        const response = await fetch("/api/opencodezen/models", { headers });
+        const data = await response.json();
+        if (!response.ok || data.error) {
+          throw new Error(data.error || "Failed to load OpenCode Zen models");
+        }
+        const models = Array.isArray(data.models) ? data.models : [];
+        const options = models.map(
+          (model: { id: string; name?: string; description?: string; tier?: string }) => ({
+            id: model.id,
+            name: formatModelDisplayName("opencodezen", model.id, model.name),
+            description: model.tier === "free" ? "Free" : (model.description || "OpenCode Zen"),
+            provider: "opencodezen" as const,
+          }),
+        );
+        setOpencodeZenModels(sortModelOptionsAlphabetically(options));
+      } catch (error) {
+        setOpencodeZenError(
+          error instanceof Error ? error.message : "Failed to load OpenCode Zen models",
+        );
+        setOpencodeZenModels([]);
+      } finally {
+        setOpencodeZenLoading(false);
+      }
+    };
+
+    fetchOpencodeZenModels();
+  }, [status?.opencodezen?.configured, apiKeys.opencodezen]);
 
   useEffect(() => {
     const repoFullName = currentSession?.repoFullName;
@@ -1653,6 +1614,7 @@ export default function ChatInterface() {
       if (currentSessionId) {
         setSelectedRepo(null);
       }
+
       return;
     }
     if (selectedRepo?.full_name === repoFullName) return;
@@ -2050,9 +2012,16 @@ export default function ChatInterface() {
       setImageGeneratorError(null);
 
       try {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (params.provider === 'fireworks' && apiKeys.fireworks) {
+          headers['x-fireworks-key'] = apiKeys.fireworks;
+        } else if (params.provider === 'ideogram' && apiKeys.ideogram) {
+          headers['x-ideogram-key'] = apiKeys.ideogram;
+        }
+
         const response = await fetch("/api/images/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: headers,
           body: JSON.stringify(params),
         });
         const data = await response.json().catch(() => null);
@@ -2112,7 +2081,10 @@ export default function ChatInterface() {
 
   const modelGroups: Record<string, ModelOption[]> = useMemo(
     () => ({
-      "Claude (Anthropic)": MODEL_GROUPS["Claude (Anthropic)"],
+      "OpenCode Zen":
+        opencodeZenModels.length > 0
+          ? opencodeZenModels
+          : MODEL_GROUPS["OpenCode Zen"],
       "Free Models (OpenRouter)":
         openrouterModels.length > 0
           ? openrouterModels
@@ -2121,16 +2093,13 @@ export default function ChatInterface() {
         fireworksModels.length > 0
           ? fireworksModels
           : MODEL_GROUPS.Fireworks,
-      Gemini: MODEL_GROUPS["Gemini"],
       Groq: groqModels.length > 0 ? groqModels : MODEL_GROUPS["Groq"],
       ...(ollamaModels.length > 0
         ? { "Ollama (Installed)": ollamaModels }
         : {}),
-      OpenAI: MODEL_GROUPS["OpenAI"],
-      "OpenCode Zen": MODEL_GROUPS["OpenCode Zen"],
       "OpenRouter Pro": MODEL_GROUPS["OpenRouter Pro"],
     }),
-    [fireworksModels, groqModels, openrouterModels, ollamaModels],
+    [fireworksModels, groqModels, openrouterModels, opencodeZenModels, ollamaModels],
   );
 
   const selectedModelInfo: ModelOption = useMemo(() => {
@@ -2481,9 +2450,12 @@ export default function ChatInterface() {
           status.ollama?.configured && status.ollama?.reachable === true,
         );
       }
+      if (provider === "opencodezen") {
+        return Boolean(apiKeys.opencodezen || (status as any)[provider]?.configured);
+      }
       return Boolean((status as any)[provider]?.configured);
     },
-    [status],
+    [status, apiKeys.opencodezen],
   );
 
   const buildDeployFixModelCandidates = useCallback(() => {
@@ -2558,7 +2530,16 @@ export default function ChatInterface() {
     }) => {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(apiKeys.openai ? { "x-openai-key": apiKeys.openai } : {}),
+          ...(apiKeys.anthropic ? { "x-anthropic-key": apiKeys.anthropic } : {}),
+          ...(apiKeys.openrouter ? { "x-openrouter-key": apiKeys.openrouter } : {}),
+          ...(apiKeys.groq ? { "x-groq-key": apiKeys.groq } : {}),
+          ...(apiKeys.fireworks ? { "x-fireworks-key": apiKeys.fireworks } : {}),
+          ...(apiKeys.gemini ? { "x-gemini-key": apiKeys.gemini } : {}),
+          ...(apiKeys.opencodezen ? { "x-opencode-key": apiKeys.opencodezen } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: "user", content: params.prompt }],
           model: params.model,
@@ -3403,7 +3384,16 @@ export default function ChatInterface() {
 
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(apiKeys.openai ? { "x-openai-key": apiKeys.openai } : {}),
+          ...(apiKeys.anthropic ? { "x-anthropic-key": apiKeys.anthropic } : {}),
+          ...(apiKeys.openrouter ? { "x-openrouter-key": apiKeys.openrouter } : {}),
+          ...(apiKeys.groq ? { "x-groq-key": apiKeys.groq } : {}),
+          ...(apiKeys.fireworks ? { "x-fireworks-key": apiKeys.fireworks } : {}),
+          ...(apiKeys.gemini ? { "x-gemini-key": apiKeys.gemini } : {}),
+          ...(apiKeys.opencodezen ? { "x-opencode-key": apiKeys.opencodezen } : {}),
+        },
         body: JSON.stringify({
           messages: requestMessages.map((m) => ({
             role: m.role,
@@ -3413,6 +3403,8 @@ export default function ChatInterface() {
           model: modelToUse,
           provider: providerToUse,
           mode: chatMode,
+          imageGenEnabled, // Pass the toggle state
+          ...(providerToUse === 'ollama' && { ollamaUrl }),
           repoContext: selectedRepo
             ? {
                 repoFullName: selectedRepo.full_name,
@@ -3888,6 +3880,27 @@ export default function ChatInterface() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               <span>Auto</span>
+            </button>
+
+            {/* Image Gen Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                const next = !imageGenEnabled;
+                setImageGenEnabled(next);
+                localStorage.setItem("gatekeep-image-gen-enabled", String(next));
+              }}
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
+                imageGenEnabled
+                  ? "bg-purple-500 text-white border-purple-500"
+                  : "bg-black/40 text-purple-200 border-purple-500/30 hover:border-purple-500/70"
+              }`}
+              title={imageGenEnabled ? "Image Generation Enabled" : "Image Generation Disabled"}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Img</span>
             </button>
           </div>
 

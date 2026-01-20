@@ -1,6 +1,6 @@
-# GateKeep
+# OS Breaker
 
-GateKeep is an open-source AI assistant for web development workflows...
+OS Breaker (formerly GateKeep) is an open-source AI assistant for web development workflows...
 
 ## Getting Started
 
@@ -20,6 +20,23 @@ GateKeep is an open-source AI assistant for web development workflows...
 
 3. **First launch:**
    - On first run, you'll be guided to configure your API keys under **Settings**.
+
+### Terminal Installation (CLI)
+
+For developers who prefer the command line:
+
+**Linux / macOS:**
+```bash
+./setup.sh
+```
+
+**Windows:**
+Double-click `setup.bat` or run it from the command prompt:
+```cmd
+setup.bat
+```
+
+These scripts will verify Node.js is installed, install dependencies, and optionally build the project for you.
 
 ### Configuring API Keys (BYOK)
 
