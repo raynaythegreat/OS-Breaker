@@ -79,34 +79,61 @@ function checkFirstRun() {
   const userDataPath = app.getPath('userData');
   const firstRunFile = path.join(userDataPath, '.first-run');
   
+  console.log('User data path:', userDataPath);
+  console.log('First run file path:', firstRunFile);
+  
   if (!fs.existsSync(firstRunFile)) {
     // First run detected
+    console.log('First run detected');
     return true;
   }
   
+  console.log('Not first run - desktop integration already done');
   return false;
 }
 
 function markFirstRunComplete() {
   const userDataPath = app.getPath('userData');
   const firstRunFile = path.join(userDataPath, '.first-run');
-  fs.writeFileSync(firstRunFile, 'completed');
+  
+  try {
+    // Ensure directory exists
+    const userDataDir = path.dirname(firstRunFile);
+    if (!fs.existsSync(userDataDir)) {
+      fs.mkdirSync(userDataDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(firstRunFile, 'completed');
+    console.log('First run marked as complete at:', firstRunFile);
+  } catch (error) {
+    console.error('Failed to mark first run complete:', error);
+  }
 }
 
 function installToApplications() {
   const appPath = app.getAppPath();
-  const isInstalled = fs.existsSync(path.join(appPath, 'resources', 'app.asar')) || 
-                     !appPath.includes('node_modules');
+  console.log('Checking app path for desktop integration:', appPath);
+  console.log('Is dev mode:', isDev);
+  
+  // Always try to create desktop entry in Linux, even in dev
+  if (process.platform === 'linux') {
+    console.log('Linux detected - proceeding with desktop integration');
+  } else {
+    // Check if already properly installed for other platforms
+    const isInstalled = fs.existsSync(path.join(appPath, 'resources', 'app.asar')) && 
+                       !appPath.includes('node_modules') && 
+                       !isDev;
 
-  if (isInstalled) {
-    // Already installed, skip
-    return;
-  }
+    if (isInstalled) {
+      console.log('Already installed app detected - skipping desktop integration');
+      return;
+    }
 
-  // For development, show a notification instead of installing
-  if (isDev) {
-    console.log('Development mode detected - skipping desktop integration');
-    return;
+    // For development on non-Linux, show a notification instead of installing
+    if (isDev) {
+      console.log('Development mode detected on non-Linux - skipping desktop integration');
+      return;
+    }
   }
 
   // Install to Applications folder on macOS and Linux
@@ -122,33 +149,70 @@ function installToApplications() {
     });
   } else if (process.platform === 'linux') {
     // For Linux, create desktop entry
-    const execPath = appPath.includes('AppImage') ? appPath : path.join(appPath, 'os-athena');
-    const iconPath = path.join(__dirname, '../assets/icon.png');
+    let execPath;
+    
+    if (appPath.includes('AppImage')) {
+      // For AppImage, use the current executable
+      execPath = process.env.APPIMAGE || appPath;
+    } else if (fs.existsSync('/usr/bin/os-athena')) {
+      // If installed system-wide
+      execPath = '/usr/bin/os-athena';
+    } else {
+      // For development or local build
+      execPath = path.join(appPath, 'os-athena');
+    }
+    
+    // Find icon in multiple possible locations
+    const possibleIconPaths = [
+      path.join(__dirname, '../assets/icon.png'),
+      path.join(appPath, '../assets/icon.png'),
+      path.join(appPath, 'assets/icon.png'),
+      '/usr/share/pixmaps/os-athena.png'
+    ];
+    
+    let iconPath = possibleIconPaths.find(path => fs.existsSync(path)) || possibleIconPaths[0];
     
     const desktopEntry = `[Desktop Entry]
 Version=1.0
 Type=Application
 Name=OS Athena
 Comment=AI Assistant for Web Development
-Exec=${execPath}
+Exec="${execPath}"
 Icon=${iconPath}
 Terminal=false
-Categories=Development;
-StartupNotify=true`;
+Categories=Development;Utility;
+StartupNotify=true
+MimeType=x-scheme-handler/athena;
+`;
     
-    const desktopDir = path.join(app.getPath('home'), '.local', 'share', 'applications');
-    const desktopPath = path.join(desktopDir, 'os-athena.desktop');
+    // Create in both user applications and desktop for better visibility
+    const locations = [
+      path.join(app.getPath('home'), '.local', 'share', 'applications'),
+      path.join(app.getPath('home'), 'Desktop')
+    ];
     
-    try {
-      if (!fs.existsSync(desktopDir)) {
-        fs.mkdirSync(desktopDir, { recursive: true });
-      }
+    for (const location of locations) {
+      const desktopPath = path.join(location, 'os-athena.desktop');
       
-      fs.writeFileSync(desktopPath, desktopEntry);
-      fs.chmodSync(desktopPath, '755');
-      console.log('Desktop entry created successfully');
-    } catch (error) {
-      console.error('Failed to create desktop entry:', error.message);
+      try {
+        if (!fs.existsSync(location)) {
+          fs.mkdirSync(location, { recursive: true });
+        }
+        
+        fs.writeFileSync(desktopPath, desktopEntry);
+        fs.chmodSync(desktopPath, '755');
+        console.log(`Desktop entry created at: ${desktopPath}`);
+        
+        // Update desktop database
+        exec('update-desktop-database ' + location, (error) => {
+          if (error) {
+            console.warn('Failed to update desktop database:', error.message);
+          }
+        });
+        
+      } catch (error) {
+        console.error(`Failed to create desktop entry at ${location}:`, error.message);
+      }
     }
   } else if (process.platform === 'win32') {
     // Windows is handled by the NSIS installer
@@ -207,6 +271,17 @@ ipcMain.handle('decrypt-value', async (event, encryptedValue) => {
     }
   }
   return encryptedValue;
+});
+
+ipcMain.handle('create-desktop-entry', async (event) => {
+  console.log('Manual desktop entry creation requested');
+  try {
+    installToApplications();
+    return { success: true, message: 'Desktop entry created successfully' };
+  } catch (error) {
+    console.error('Manual desktop entry creation failed:', error);
+    return { success: false, message: error.message };
+  }
 });
 
 ipcMain.handle('get-app-version', async () => {

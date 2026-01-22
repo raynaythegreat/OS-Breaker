@@ -181,11 +181,26 @@ const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex justify-end pt-8 border-t border-border">
+      <div className="flex justify-end pt-8 border-t border-border gap-3">
+        <button
+          onClick={async () => {
+            if (typeof window !== 'undefined' && (window as any).electronAPI) {
+              try {
+                const result = await (window as any).electronAPI.createDesktopEntry();
+                alert(result.message);
+              } catch (error) {
+                alert('Failed to create desktop entry: ' + error);
+              }
+            }
+          }}
+          className="px-6 py-3 bg-surface-100 dark:bg-surface-900 text-foreground text-xs font-medium rounded-lg border border-gold-500/20 hover:bg-surface-200 dark:hover:bg-surface-800 transition-colors"
+        >
+          Create Desktop Entry
+        </button>
         <button
           onClick={runAllTests}
           disabled={testing === 'all'}
-          className="px-8 py-4 bg-gold-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-gold-600 disabled:opacity-50 transition-all shadow-lg shadow-gold-500/20 active:scale-95"
+          className="px-8 py-3 bg-gold-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-lg hover:bg-gold-600 disabled:opacity-50 transition-colors shadow-lg shadow-gold-500/20 active:scale-95"
         >
           {testing === 'all' ? 'Verifying Connections...' : 'Verify All Connections'}
         </button>
