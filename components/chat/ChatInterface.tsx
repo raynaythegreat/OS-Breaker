@@ -3783,7 +3783,7 @@ export default function ChatInterface() {
   return (
     <div className="flex flex-col h-full">
       {/* Header 1: Repo / Projects + Models */}
-      <div className="relative z-20 px-2 sm:px-3 py-2 border-b border-gold-500/20 bg-black/60 backdrop-blur-xl">
+      <div className="relative z-20 px-2 sm:px-3 py-2 border-b border-gold-500/20 bg-surface-100 dark:bg-black/60 backdrop-blur-xl">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
           <div className="flex-1 w-full">
             <RepoSelector selectedRepo={selectedRepo} onSelect={setSelectedRepo} />
@@ -3800,7 +3800,7 @@ export default function ChatInterface() {
                 e.stopPropagation();
                 setShowModelDropdown(!showModelDropdown);
               }}
-              className="flex items-center justify-between gap-1.5 w-full px-2.5 py-1.5 text-xs rounded-lg border border-gold-500/30 bg-black/60 text-gold-100 hover:border-gold-500/70 transition-colors"
+              className="flex items-center justify-between gap-1.5 w-full px-2.5 py-1.5 text-xs rounded-lg border border-gold-500/30 bg-surface-100 dark:bg-black/60 text-gold-700 dark:text-gold-100 hover:border-gold-500/70 transition-colors"
               title={modelInfo.name}
             >
               <span className="min-w-0 font-medium truncate">
