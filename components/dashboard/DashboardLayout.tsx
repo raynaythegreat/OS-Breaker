@@ -12,6 +12,15 @@ interface DashboardLayoutProps {
 
 const mobileNavItems = [
   {
+    id: "launcher",
+    label: "Apps",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      </svg>
+    ),
+  },
+  {
     id: "chat",
     label: "Chat",
     icon: (
@@ -61,21 +70,21 @@ const mobileNavItems = [
 
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
   return (
-    <div className="flex h-screen supports-[height:100dvh]:h-dvh">
+    <div className="flex h-screen supports-[height:100dvh]:h-dvh bg-surface-50 dark:bg-black">
       {/* Sidebar - Hidden on mobile */}
       <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab !== "chat" && <Header activeTab={activeTab} />}
-        <main className="flex-1 overflow-hidden pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+        <main className="flex-1 overflow-hidden pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0 bg-surface-50 dark:bg-black">
           {children}
         </main>
 
         {/* Mobile Bottom Navigation */}
         <nav
           id="mobile-nav"
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-black/70 border-t border-gold-300/20 z-50 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
+          className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 z-50 pb-[env(safe-area-inset-bottom)]"
         >
           <div className="flex items-center justify-around h-16 px-2">
             {mobileNavItems.map((item) => (
@@ -84,11 +93,11 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
                 onClick={() => onTabChange(item.id)}
                 className={`flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors ${
                   activeTab === item.id
-                    ? "text-yellow-200"
-                    : "text-yellow-200/60"
+                    ? "text-gold-500"
+                    : "text-surface-400 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400"
                 }`}
               >
-                <span className={activeTab === item.id ? "text-yellow-200" : ""}>
+                <span className={activeTab === item.id ? "text-gold-500" : ""}>
                   {item.icon}
                 </span>
                 <span className="text-[10px] mt-1 font-medium">{item.label}</span>

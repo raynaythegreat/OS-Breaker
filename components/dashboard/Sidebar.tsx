@@ -11,6 +11,15 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
+    id: "launcher",
+    label: "App Launcher",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      </svg>
+    ),
+  },
+  {
     id: "chat",
     label: "AI Chat",
     icon: (
@@ -67,15 +76,15 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r border-gold-300/20 bg-black/40 backdrop-blur-xl">
+    <aside className="hidden md:flex flex-col w-64 border-r border-border bg-background">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-gold-300/20 bg-black/60 backdrop-blur-sm">
-        <div className="w-10 h-10 rounded-xl bg-black/60 border border-gold-300/40 flex items-center justify-center shadow-glow ring-1 ring-gold-300/40">
-          <GlassesLogo className="w-6 h-6 text-yellow-100" />
+      <div className="flex items-center gap-3 px-6 py-8">
+        <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center border border-gold-500/20">
+          <GlassesLogo className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="font-bold text-lg gradient-text font-display">OS Athena</h1>
-          <p className="text-xs text-yellow-200/70">AI Dev Command</p>
+          <h1 className="font-sans font-bold text-xl text-foreground tracking-tight">OS Athena</h1>
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">AI Command</p>
         </div>
       </div>
 
@@ -85,13 +94,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               activeTab === item.id
-                ? "bg-gold-300/10 text-yellow-200 shadow-glow-sm"
-                : "text-yellow-200/70 hover:bg-white/5 hover:text-yellow-100 hover:shadow-sm hover:scale-[1.02]"
+                ? "bg-gold-500/10 text-gold-600 dark:text-gold-400 border border-gold-500/20 shadow-lovable dark:shadow-lovable-dark"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent"
             }`}
           >
-            <span className={activeTab === item.id ? "text-yellow-200" : ""}>
+            <span className={activeTab === item.id ? "text-gold-500" : "text-muted-foreground/70"}>
               {item.icon}
             </span>
             {item.label}
@@ -100,26 +109,26 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </nav>
 
       {/* Theme Toggle & Version */}
-      <div className="p-4 border-t border-gold-300/20">
+      <div className="p-4 border-t border-border">
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-yellow-200/80 hover:bg-white/5 transition-all"
+          className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
         >
           <span className="flex items-center gap-3">
             {theme === "dark" ? (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
               </svg>
             )}
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            {theme === "dark" ? "Light" : "Dark"}
           </span>
         </button>
-        <div className="mt-2 px-4 text-xs text-yellow-200/50">
-          v1.0.0
+        <div className="mt-4 px-4 text-xs text-muted-foreground/50">
+          v1.1.0
         </div>
       </div>
     </aside>
