@@ -25,6 +25,7 @@ import ImageGeneratorModal, {
 } from "./ImageGeneratorModal";
 import ApiUsageDisplay from "./ApiUsageDisplay";
 import NotificationPanel from "./NotificationPanel";
+import TitleBar from "@/components/ui/TitleBar";
 import { useApiUsage } from "@/contexts/ApiUsageContext";
 import { useDeploymentProvider, type DeploymentProvider } from "@/contexts/DeploymentContext";
 import {
@@ -3781,9 +3782,10 @@ export default function ChatInterface() {
   ) : null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full pt-12">
+      <TitleBar />
       {/* Header 1: Repo / Projects + Models */}
-      <div className="relative z-20 px-2 sm:px-3 py-2 border-b border-gold-500/20 bg-surface-100 dark:bg-black/60 backdrop-blur-xl">
+      <div className="relative z-10 px-2 sm:px-3 py-2 border-b border-gold-500/20 bg-surface-100 dark:bg-black/60 backdrop-blur-xl">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
           <div className="flex-1 w-full">
             <RepoSelector selectedRepo={selectedRepo} onSelect={setSelectedRepo} />
@@ -4350,7 +4352,7 @@ export default function ChatInterface() {
         )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden bg-gradient-to-b from-background via-surface-50 dark:via-surface-950 to-surface-100 dark:to-surface-900/80">
         <MessageList
           messages={messages}
           isLoading={isLoading}
@@ -4380,39 +4382,42 @@ export default function ChatInterface() {
       )}
 
       {/* Input */}
-      <ChatInput
-        value={input}
-        onChange={setInput}
-        onSubmit={sendMessage}
-        onStop={stopGenerating}
-        textareaRef={chatInputRef}
-        attachments={pendingAttachments.map((att) => ({
-          id: att.id,
-          name: att.name,
-          kind: att.kind,
-          size: att.size,
-          previewUrl: att.previewUrl,
-        }))}
-        onFilesSelected={addAttachments}
-        onRemoveAttachment={removeAttachment}
-        onOpenImageGenerator={() => {
-          setImageGeneratorError(null);
-          setShowImageGenerator(true);
-        }}
-        canGenerateImages={canGenerateImages}
-        attachmentError={attachmentError}
-        disabled={isLoading}
-        loading={isLoading}
-        placeholder={
-          selectedRepo
-            ? chatMode === "plan"
-              ? `Plan the next move for ${selectedRepo.name}...`
-              : `Build on ${selectedRepo.name}...`
-            : chatMode === "plan"
-              ? "Describe your mission and constraints..."
-              : "Start building with a clear command..."
-        }
-      />
+      <div className="border-t border-gold-500/10 bg-surface-50 dark:bg-surface-900 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+        <ChatInput
+          value={input}
+          onChange={setInput}
+          onSubmit={sendMessage}
+          onStop={stopGenerating}
+          textareaRef={chatInputRef}
+          attachments={pendingAttachments.map((att) => ({
+            id: att.id,
+            name: att.name,
+            kind: att.kind,
+            size: att.size,
+            previewUrl: att.previewUrl,
+          }))}
+          onFilesSelected={addAttachments}
+          onRemoveAttachment={removeAttachment}
+          onOpenImageGenerator={() => {
+            setImageGeneratorError(null);
+            setShowImageGenerator(true);
+          }}
+          canGenerateImages={canGenerateImages}
+          attachmentError={attachmentError}
+          disabled={isLoading}
+          loading={isLoading}
+          placeholder={
+            selectedRepo
+              ? chatMode === "plan"
+                ? `Plan the next move for ${selectedRepo.name}...`
+                : `Build on ${selectedRepo.name}...`
+              : chatMode === "plan"
+                ? "Describe your mission and constraints..."
+                : "Start building with a clear command..."
+            }
+        />
+      </div>
+
 
       <ImageGeneratorModal
         open={showImageGenerator}
