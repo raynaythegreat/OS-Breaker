@@ -70,7 +70,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     <aside className="hidden md:flex flex-col w-64 border-r border-border bg-background">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-8">
-        <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center border border-gold-500/20">
+        <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center border-3 border-primary shadow-flat-gold">
           <GlassesLogo className="w-6 h-6" />
         </div>
         <div>
@@ -85,13 +85,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 ${
               activeTab === item.id
-                ? "bg-gold-500/10 text-gold-600 dark:text-gold-400 border border-gold-500/20 shadow-lovable dark:shadow-lovable-dark"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent"
+                ? "bg-primary text-primary-foreground border-2 border-primary shadow-flat-gold"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground border-2 border-transparent hover:border-border"
             }`}
           >
-            <span className={activeTab === item.id ? "text-gold-500" : "text-muted-foreground/70"}>
+            <span className={activeTab === item.id ? "text-primary-foreground" : "text-muted-foreground"}>
               {item.icon}
             </span>
             {item.label}
@@ -100,10 +100,10 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </nav>
 
       {/* Theme Toggle & Version */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t-2 border-border">
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
+          className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-bold text-muted-foreground hover:bg-secondary hover:text-foreground hover:border-primary border-2 border-transparent transition-all"
         >
           <span className="flex items-center gap-3">
             {theme === "dark" ? (
@@ -118,8 +118,8 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             {theme === "dark" ? "Light" : "Dark"}
           </span>
         </button>
-        <div className="mt-4 px-4 text-xs text-muted-foreground/50">
-          v1.1.0
+        <div className="mt-4 px-4 text-xs font-bold text-muted-foreground">
+          v1.2.0
         </div>
       </div>
     </aside>

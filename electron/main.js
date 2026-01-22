@@ -1,22 +1,51 @@
 const { app, BrowserWindow, ipcMain, safeStorage } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { spawn, exec } = require('child_process');
+const { exec } = require('child_process');
+const http = require('http');
 
 let mainWindow;
-let nextProcess;
+let nextServer;
 const isDev = process.env.NODE_ENV !== 'production';
-const PORT = isDev ? 3000 : 3001;
+const PORT = 3456; // Fixed port for the bundled app
+
+// Logging setup
+const logDir = path.join(app.getPath('userData'), 'logs');
+const logFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
+
+function setupLogging() {
+  try {
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+  } catch (err) {
+    console.error('Failed to create log directory:', err);
+  }
+}
+
+function log(message, level = 'INFO') {
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] [${level}] ${message}`;
+  console.log(logMessage);
+
+  try {
+    fs.appendFileSync(logFile, logMessage + '\n');
+  } catch (err) {
+    console.error('Failed to write to log file:', err);
+  }
+}
 
 function createWindow() {
-  // Try multiple icon formats for better compatibility
+  log('Creating main window...');
+
   const iconFormats = ['png', 'ico', 'icns'];
   let iconPath = null;
-  
+
   for (const format of iconFormats) {
     const testPath = path.join(__dirname, '../assets/icon.' + format);
     if (fs.existsSync(testPath)) {
       iconPath = testPath;
+      log(`Using icon: ${iconPath}`);
       break;
     }
   }
@@ -34,325 +63,195 @@ function createWindow() {
     },
     ...(iconPath && { icon: iconPath }),
     backgroundColor: '#0a0a0f',
-    title: 'OS Athena'
+    title: 'OS Athena',
+    show: false, // Don't show until ready
+    autoHideMenuBar: true, // Hide menu bar (can be shown with Alt key)
+    frame: true // Keep window frame
   });
 
+  // Remove application menu completely for cleaner UI
+  mainWindow.setMenu(null);
+
   mainWindow.loadURL(`http://localhost:${PORT}`);
+
+  // Show window when ready to avoid white flash
+  mainWindow.once('ready-to-show', () => {
+    log('Window ready, showing...');
+    mainWindow.show();
+  });
+
+  // Error handling for load failures
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    log(`Failed to load: ${errorCode} - ${errorDescription}`, 'ERROR');
+  });
 
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
 
   mainWindow.on('closed', () => {
+    log('Main window closed');
     mainWindow = null;
   });
 }
 
-function startNextServer() {
-  const rootDir = path.join(__dirname, '..');
-  
-  if (isDev) {
-    nextProcess = spawn('npm', ['run', 'dev'], {
-      cwd: rootDir,
-      shell: true,
-      stdio: 'inherit'
-    });
-  } else {
-    nextProcess = spawn('npm', ['run', 'start'], {
-      cwd: rootDir,
-      shell: true,
-      stdio: 'inherit',
-      env: { ...process.env, PORT: PORT.toString() }
-    });
-  }
+async function startNextServer() {
+  log('Starting Next.js server...');
 
-  nextProcess.on('error', (err) => {
-    console.error('Failed to start Next.js:', err);
+  return new Promise((resolve, reject) => {
+    const rootDir = path.join(__dirname, '..');
+
+    if (isDev) {
+      log('Starting development server...');
+      const { spawn } = require('child_process');
+      nextServer = spawn('npm', ['run', 'dev'], {
+        cwd: rootDir,
+        shell: true,
+        stdio: 'inherit',
+        env: { ...process.env, PORT: PORT.toString() }
+      });
+
+      nextServer.on('error', (err) => {
+        log(`Failed to start dev server: ${err.message}`, 'ERROR');
+        reject(err);
+      });
+
+      waitForServer(resolve, reject);
+    } else {
+      const standaloneDir = path.join(rootDir, '.next', 'standalone');
+      const serverPath = path.join(standaloneDir, 'server.js');
+
+      log(`Looking for standalone server at: ${serverPath}`);
+
+      if (!fs.existsSync(serverPath)) {
+        const error = new Error('Standalone server not found. Run: npm run build');
+        log(error.message, 'ERROR');
+        reject(error);
+        return;
+      }
+
+      process.env.PORT = PORT.toString();
+      process.env.HOSTNAME = 'localhost';
+
+      log('Starting standalone server...');
+
+      try {
+        // Start the standalone server in background
+        const { spawn } = require('child_process');
+        nextServer = spawn('node', [serverPath], {
+          cwd: standaloneDir,
+          env: process.env,
+          stdio: ['ignore', 'pipe', 'pipe']
+        });
+
+        nextServer.stdout.on('data', (data) => {
+          log(`Server: ${data.toString().trim()}`);
+        });
+
+        nextServer.stderr.on('data', (data) => {
+          log(`Server Error: ${data.toString().trim()}`, 'WARN');
+        });
+
+        nextServer.on('error', (err) => {
+          log(`Server process error: ${err.message}`, 'ERROR');
+          reject(err);
+        });
+
+        waitForServer(resolve, reject);
+      } catch (err) {
+        log(`Failed to start standalone server: ${err.message}`, 'ERROR');
+        reject(err);
+      }
+    }
   });
+}
 
-  nextProcess.on('exit', (code) => {
-    console.log(`Next.js process exited with code ${code}`);
+function waitForServer(resolve, reject, attempts = 0) {
+  const maxAttempts = 30;
+
+  http.get(`http://localhost:${PORT}`, (res) => {
+    log(`Server is ready on port ${PORT} (attempt ${attempts + 1})`);
+    resolve();
+  }).on('error', (err) => {
+    if (attempts >= maxAttempts) {
+      log('Server failed to start within timeout', 'ERROR');
+      reject(new Error('Server startup timeout'));
+      return;
+    }
+
+    setTimeout(() => waitForServer(resolve, reject, attempts + 1), 1000);
   });
 }
 
 function checkFirstRun() {
   const userDataPath = app.getPath('userData');
   const firstRunFile = path.join(userDataPath, '.first-run');
-  
-  console.log('User data path:', userDataPath);
-  console.log('First run file path:', firstRunFile);
-  
+
+  log(`Checking first run: ${firstRunFile}`);
+
   if (!fs.existsSync(firstRunFile)) {
-    // First run detected
-    console.log('First run detected');
+    log('First run detected');
     return true;
   }
-  
-  console.log('Not first run - desktop integration already done');
+
+  log('Not first run');
   return false;
 }
 
 function markFirstRunComplete() {
   const userDataPath = app.getPath('userData');
   const firstRunFile = path.join(userDataPath, '.first-run');
-  
+
   try {
-    // Ensure directory exists
     const userDataDir = path.dirname(firstRunFile);
     if (!fs.existsSync(userDataDir)) {
       fs.mkdirSync(userDataDir, { recursive: true });
     }
-    
-    fs.writeFileSync(firstRunFile, 'completed');
-    console.log('First run marked as complete at:', firstRunFile);
+
+    fs.writeFileSync(firstRunFile, JSON.stringify({
+      completedAt: new Date().toISOString(),
+      version: app.getVersion()
+    }));
+    log('First run marked as complete');
   } catch (error) {
-    console.error('Failed to mark first run complete:', error);
+    log(`Failed to mark first run complete: ${error.message}`, 'ERROR');
   }
 }
 
-function installToApplications() {
-  const appPath = app.getAppPath();
-  console.log('Installing desktop integration...');
-  console.log('App path:', appPath);
-  console.log('Platform:', process.platform);
-  console.log('Is dev mode:', isDev);
-  
-  // Only do desktop integration on Linux for now to avoid conflicts
-  if (process.platform !== 'linux') {
-    console.log('Skipping desktop integration on non-Linux platform');
-    return;
-  }
-  
-    console.log('Proceeding with Linux desktop integration...');
-  
-  // Create a simple, robust launcher script
-  const launcherScript = `#!/bin/bash
-cd "${appPath}"
-exec npm run electron
-`;
-  
-  // Create launcher script
-  const launcherPath = path.join(app.getPath('home'), '.local', 'bin', 'os-athena');
-  try {
-    const binDir = path.dirname(launcherPath);
-    if (!fs.existsSync(binDir)) {
-      fs.mkdirSync(binDir, { recursive: true });
-    }
-    fs.writeFileSync(launcherPath, launcherScript);
-    fs.chmodSync(launcherPath, '755');
-    console.log(`Launcher script created: ${launcherPath}`);
-  } catch (error) {
-    console.error('Failed to create launcher script:', error.message);
-  }
-  
-  // Create desktop entry
-  const iconPath = path.join(__dirname, '../assets/icon.png');
-  const desktopEntry = `[Desktop Entry]
-Version=1.0
-Type=Application
-Name=OS Athena
-Comment=AI Assistant for Web Development
-Exec=${launcherPath}
-Icon=${iconPath}
-Terminal=false
-Categories=Development;
-StartupNotify=true
-`;
-  
-  // Create desktop entry
-  const locations = [
-    path.join(app.getPath('home'), '.local', 'share', 'applications'),
-    path.join(app.getPath('home'), 'Desktop')
-  ];
-  
-  for (const location of locations) {
-    const desktopPath = path.join(location, 'os-athena.desktop');
-    
-    try {
-      if (!fs.existsSync(location)) {
-        fs.mkdirSync(location, { recursive: true });
-      }
-      
-      fs.writeFileSync(desktopPath, desktopEntry);
-      fs.chmodSync(desktopPath, '755');
-      console.log(`Desktop entry created: ${desktopPath}`);
-      
-      // Update desktop database
-      exec(`update-desktop-database "${location}"`, (error) => {
-        if (error) {
-          console.error(`Failed to update desktop database: ${error.message}`);
-        } else {
-          console.log('Desktop database updated successfully');
-        }
-      });
-      
-    } catch (error) {
-      console.error(`Failed to create desktop entry: ${error.message}`);
-    }
-  }
-  
-  if (process.platform === 'linux') {
-    // For Linux, create desktop entry
-    let execPath;
-    
-    if (process.env.APPIMAGE) {
-      // For AppImage, use the AppImage itself
-      execPath = process.env.APPIMAGE;
-    } else if (appPath.includes('AppImage')) {
-      // Fallback for AppImage
-      execPath = appPath;
-    } else if (fs.existsSync('/usr/local/bin/os-athena')) {
-      // If installed locally in /usr/local/bin
-      execPath = '/usr/local/bin/os-athena';
-    } else if (fs.existsSync('/usr/bin/os-athena')) {
-      // If installed system-wide in /usr/bin
-      execPath = '/usr/bin/os-athena';
-    } else {
-      // For development or local build - use npm script
-      const packagePath = path.join(appPath, 'package.json');
-      
-      if (fs.existsSync(packagePath)) {
-        execPath = `cd "${appPath}" && npm run electron`;
-      } else {
-        execPath = path.join(appPath, 'os-athena');
-      }
-    }
-    
-    // Find icon in multiple possible locations
-    const possibleIconPaths = [
-      path.join(__dirname, '../assets/icon.png'),
-      path.join(appPath, '../assets/icon.png'),
-      path.join(appPath, 'assets/icon.png'),
-      '/usr/share/pixmaps/os-athena.png'
-    ];
-    
-    let iconPath = possibleIconPaths.find(path => fs.existsSync(path)) || possibleIconPaths[0];
-    
-    const desktopEntry = `[Desktop Entry]
-Version=1.0
-Type=Application
-Name=OS Athena
-Comment=AI Assistant for Web Development
-Exec=${execPath}
-Icon=${iconPath}
-Terminal=false
-Categories=Development;
-StartupNotify=true
-NoDisplay=false
-`;
-    
-    // Create desktop entry and binary wrapper for better execution
-    const binDir = path.join(app.getPath('home'), '.local', 'bin');
-    const binPath = path.join(binDir, 'os-athena');
-    
-    try {
-      if (!fs.existsSync(binDir)) {
-        fs.mkdirSync(binDir, { recursive: true });
-      }
-      
-      // Create binary wrapper script
-      const binScript = `#!/bin/bash
-cd "${appPath}"
-npm run electron
-`;
-      fs.writeFileSync(binPath, binScript);
-      fs.chmodSync(binPath, '755');
-      console.log(`Binary wrapper created at: ${binPath}`);
-      
-      // Add to PATH if not already there
-      const profileFiles = [
-        path.join(app.getPath('home'), '.bashrc'),
-        path.join(app.getPath('home'), '.zshrc'),
-        path.join(app.getPath('home'), '.profile')
-      ];
-      
-      const pathEntry = `export PATH="$HOME/.local/bin:$PATH"`;
-      let addedToPath = false;
-      
-      for (const profileFile of profileFiles) {
-        try {
-          if (fs.existsSync(profileFile)) {
-            const profile = fs.readFileSync(profileFile, 'utf8');
-            if (!profile.includes('os-athena') && !profile.includes('.local/bin')) {
-              fs.appendFileSync(profileFile, `\n# OS Athena\n${pathEntry}\n`);
-              console.log(`Added to PATH in: ${profileFile}`);
-              addedToPath = true;
-            }
-          }
-        } catch (error) {
-          console.warn(`Failed to update ${profileFile}:`, error.message);
-        }
-      }
-      
-      if (addedToPath) {
-        console.log('PATH updated - user may need to restart shell or log out/in');
-      }
-      
-      // Update desktop entry to use binary
-      const desktopEntryWithBin = `[Desktop Entry]
-Version=1.0
-Type=Application
-Name=OS Athena
-Comment=AI Assistant for Web Development
-Exec=${binPath}
-Icon=${iconPath}
-Terminal=false
-Categories=Development;
-StartupNotify=true
-`;
-      
-      // Create in both user applications and desktop for better visibility
-      const locations = [
-        path.join(app.getPath('home'), '.local', 'share', 'applications'),
-        path.join(app.getPath('home'), 'Desktop')
-      ];
-      
-      for (const location of locations) {
-        const desktopPath = path.join(location, 'os-athena.desktop');
-        
-        try {
-          if (!fs.existsSync(location)) {
-            fs.mkdirSync(location, { recursive: true });
-          }
-          
-          fs.writeFileSync(desktopPath, desktopEntryWithBin);
-          fs.chmodSync(desktopPath, '755');
-          console.log(`Desktop entry created at: ${desktopPath}`);
-          
-          // Update desktop database
-          exec('update-desktop-database ' + location, (error) => {
-            if (error) {
-              console.warn('Failed to update desktop database:', error.message);
-            }
-          });
-          
-        } catch (error) {
-          console.error(`Failed to create desktop entry at ${location}:`, error.message);
-        }
-      }
-      
-    } catch (error) {
-      console.error('Failed to create binary wrapper:', error.message);
-    }
-  } else if (process.platform === 'win32') {
-    // Windows is handled by the NSIS installer
-    console.log('Windows desktop integration handled by installer');
-  }
-}
+// Desktop integration is now handled by electron/install-desktop-entry.sh
+// Run that script manually or during installation to set up desktop integration
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  setupLogging();
+  log('=================================================');
+  log('OS Athena Starting');
+  log(`Version: ${app.getVersion()}`);
+  log(`Node: ${process.version}`);
+  log(`Electron: ${process.versions.electron}`);
+  log(`Platform: ${process.platform}`);
+  log(`Mode: ${isDev ? 'development' : 'production'}`);
+  log('=================================================');
+
   const isFirstRun = checkFirstRun();
-  
   if (isFirstRun) {
-    installToApplications();
     markFirstRunComplete();
   }
-  
-  startNextServer();
-  
-  setTimeout(() => {
+
+  try {
+    await startNextServer();
+    log('Next.js server is ready, creating window...');
     createWindow();
-  }, 3000);
+  } catch (error) {
+    log(`Failed to start application: ${error.message}`, 'ERROR');
+
+    const { dialog } = require('electron');
+    dialog.showErrorBox(
+      'OS Athena Failed to Start',
+      `Error: ${error.message}\n\nCheck logs at:\n${logFile}`
+    );
+
+    app.quit();
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -362,15 +261,23 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  log('All windows closed');
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
 app.on('before-quit', () => {
-  if (nextProcess) {
-    nextProcess.kill();
+  log('App quitting...');
+  if (nextServer && nextServer.kill) {
+    log('Stopping Next.js server...');
+    nextServer.kill();
   }
+});
+
+app.on('will-quit', () => {
+  log('App will quit');
+  log('=================================================');
 });
 
 ipcMain.handle('encrypt-value', async (event, value) => {
@@ -386,22 +293,11 @@ ipcMain.handle('decrypt-value', async (event, encryptedValue) => {
       const buffer = Buffer.from(encryptedValue, 'base64');
       return safeStorage.decryptString(buffer);
     } catch (error) {
-      console.error('Decryption failed:', error);
+      log(`Decryption failed: ${error.message}`, 'ERROR');
       return null;
     }
   }
   return encryptedValue;
-});
-
-ipcMain.handle('create-desktop-entry', async (event) => {
-  console.log('Manual desktop entry creation requested');
-  try {
-    installToApplications();
-    return { success: true, message: 'Desktop entry created successfully' };
-  } catch (error) {
-    console.error('Manual desktop entry creation failed:', error);
-    return { success: false, message: error.message };
-  }
 });
 
 ipcMain.handle('get-app-version', async () => {
@@ -410,4 +306,8 @@ ipcMain.handle('get-app-version', async () => {
 
 ipcMain.handle('get-app-path', async (event, name) => {
   return app.getPath(name);
+});
+
+ipcMain.handle('get-logs-path', async () => {
+  return logFile;
 });

@@ -10,17 +10,60 @@ OS Athena is an open-source AI assistant for web development workflows. It allow
 
 ## Installation
 
-Download the latest release for your platform:
-- [Windows (.exe)](https://github.com/raynaythegreat/OS-Athena/releases/latest)
-- [macOS (.dmg)](https://github.com/raynaythegreat/OS-Athena/releases/latest)
-- [Linux (.AppImage or .deb)](https://github.com/raynaythegreat/OS-Athena/releases/latest)
+### Linux (Debian/Ubuntu/Crostini)
 
-### Running on Desktop
-- **Windows:** Run the `.exe` installer.
-- **macOS:** Open the `.dmg` file, drag OS Athena to the Applications folder.
-- **Linux:**
-  - For `.AppImage`: Make executable (`chmod +x OS-Athena-x86_64.AppImage`), then run.
-  - For `.deb`: Install using `sudo dpkg -i os-athena-x.x.x.deb`.
+#### Option 1: From Source (Recommended for Development)
+
+```bash
+# Clone the repository
+git clone https://github.com/raynaythegreat/OS-Athena.git
+cd OS-Athena
+
+# Install dependencies
+npm install
+
+# Build the standalone app
+npm run build
+
+# Install desktop integration
+chmod +x electron/install-desktop-entry.sh
+./electron/install-desktop-entry.sh
+
+# Launch from application menu or terminal
+os-athena
+```
+
+#### Option 2: AppImage (Coming Soon)
+
+Download the latest AppImage:
+- [Linux AppImage](https://github.com/raynaythegreat/OS-Athena/releases/latest)
+
+```bash
+# Make executable and install
+chmod +x OS-Athena-*.AppImage
+./OS-Athena-*.AppImage
+```
+
+### Windows & macOS
+
+Coming soon! Currently focused on Linux-first development.
+
+### Troubleshooting
+
+If the app doesn't launch from the menu:
+
+```bash
+cd ~/OS-Athena
+
+# Run diagnostics
+./electron/diagnostics.sh
+
+# Reinstall desktop integration
+./electron/install-desktop-entry.sh
+
+# Check logs
+tail -f ~/.local/share/os-athena/logs/launcher-*.log
+```
 
 ## Setup
 
@@ -40,14 +83,59 @@ Download the latest release for your platform:
 # Install dependencies
 npm install
 
-# Run web app
-npm run dev
+# Run in development mode
+npm run dev:electron
 
-# Run Electron desktop app
-npm run electron:dev
+# Build standalone production app
+npm run build
 
-# Build Electron app
-npm run electron:build
+# Build Linux AppImage
+npm run build:linux
+
+# Launch from source
+./electron/launcher.sh
+
+# Run diagnostics
+./electron/diagnostics.sh
+```
+
+### Project Structure
+
+```
+OS-Athena/
+├── electron/
+│   ├── main.js                    # Electron main process
+│   ├── preload.js                 # Preload script (IPC bridge)
+│   ├── launcher.sh                # Smart launcher with logging
+│   ├── install-desktop-entry.sh   # Desktop integration installer
+│   └── diagnostics.sh             # Troubleshooting tool
+├── app/                           # Next.js pages
+├── components/                    # React components
+├── contexts/                      # React contexts
+├── lib/                          # Utilities
+├── public/                       # Static assets
+└── .next/standalone/             # Production build (after npm run build)
+```
+
+### Architecture
+
+OS Athena is a standalone Electron app that:
+- Uses Next.js for the UI (React + TailwindCSS)
+- Runs Next.js in standalone mode (no external server needed)
+- Fixed port: `3456` (localhost)
+- Comprehensive logging to `~/.local/share/os-athena/logs/`
+
+### Building for Distribution
+
+```bash
+# Build the app
+npm run build
+
+# Build AppImage for Linux
+npm run build:linux
+
+# Output will be in dist/
+ls dist/
 ```
 
 ## License

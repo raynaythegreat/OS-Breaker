@@ -92,7 +92,7 @@ export default function ChatInput({
             {attachments.map((attachment) => (
               <div
                 key={attachment.id}
-                className="flex items-center gap-2 max-w-full rounded-xl border border-border bg-secondary/50 px-2 py-1.5 backdrop-blur-sm"
+                className="flex items-center gap-2 max-w-full rounded-lg border-2 border-border bg-secondary px-2 py-1.5"
               >
                 {attachment.kind === "image" && attachment.previewUrl ? (
                   <Image
@@ -143,7 +143,7 @@ export default function ChatInput({
         )}
 
         <div
-          className="flex items-end gap-2 bg-surface-100 dark:bg-surface-900 rounded-xl border border-border p-1.5 focus-within:border-gold-500/50 focus-within:ring-2 focus-within:ring-gold-500/20 transition-all duration-300 shadow-lovable dark:shadow-lovable-dark"
+          className="flex items-end gap-2 bg-card rounded-lg border-2 border-border p-1.5 focus-within:border-primary transition-all duration-200 shadow-flat"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -172,7 +172,7 @@ export default function ChatInput({
                 setShowAttachmentMenu((prev) => !prev);
               }}
               disabled={disabled}
-              className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface-50 dark:bg-surface-800 border border-border text-muted-foreground hover:text-foreground hover:border-gold-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center group"
+              className="flex-shrink-0 w-8 h-8 rounded-lg bg-secondary border-2 border-border text-muted-foreground hover:text-foreground hover:border-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center group"
               aria-label="Attach"
             >
               <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -182,12 +182,12 @@ export default function ChatInput({
             {showAttachmentMenu && (
               <div
                 ref={attachmentMenuRef}
-                className="absolute bottom-full left-0 mb-3 w-56 rounded-xl border border-gold-500/20 bg-surface-50 dark:bg-surface-950 shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200"
+                className="absolute bottom-full left-0 mb-3 w-56 rounded-lg border-2 border-primary bg-card shadow-flat-lg p-1 animate-in fade-in zoom-in-95 duration-200"
                 role="menu"
               >
                 <button
                   type="button"
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-surface-200 dark:hover:bg-surface-800 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-bold text-foreground hover:bg-secondary rounded-lg transition-colors"
                   onClick={() => {
                     setShowAttachmentMenu(false);
                     fileInputRef.current?.click();
@@ -200,7 +200,7 @@ export default function ChatInput({
                 </button>
                 <button
                   type="button"
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-secondary rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-bold text-foreground hover:bg-secondary rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   onClick={() => {
                     setShowAttachmentMenu(false);
                     onOpenImageGenerator?.();
@@ -232,7 +232,7 @@ export default function ChatInput({
               type="button"
               onClick={onStop}
               disabled={!onStop}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300"
+              className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-500 text-white flex items-center justify-center hover:bg-red-600 border-2 border-red-600 shadow-flat hover:shadow-flat-lg transition-all duration-150 active:translate-y-[1px]"
               aria-label="Stop"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -243,7 +243,7 @@ export default function ChatInput({
             <button
               onClick={onSubmit}
               disabled={disabled || (!value.trim() && attachments.length === 0)}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center text-white disabled:opacity-20 disabled:grayscale hover:bg-gold-600 transition-all duration-300 shadow-lg shadow-gold-500/20 active:scale-95 group"
+              className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent border-2 border-primary hover:border-accent transition-all duration-150 shadow-flat-gold hover:shadow-flat-lg active:translate-y-[1px] group font-bold"
               aria-label="Send"
             >
               <svg
@@ -262,8 +262,8 @@ export default function ChatInput({
             </button>
           )}
         </div>
-        <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-widest text-center mt-4">
-          Professional AI Command Center • OS Athena v1.1.0
+        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest text-center mt-4">
+          Professional AI Command Center • OS Athena v1.2.0
         </p>
       </div>
     </div>

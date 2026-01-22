@@ -4,12 +4,13 @@
   "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npm run copy-standalone",
+    "copy-standalone": "cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "electron": "electron .",
-    "dev:electron": "NODE_ENV=development electron .",
+    "dev:electron": "NODE_ENV=development PORT=3456 electron .",
     "build:electron": "npm run build && electron-builder --linux",
     "build:linux": "npm run build && electron-builder --linux --x64"
   },
@@ -52,17 +53,15 @@
     },
     "files": [
       "electron/**/*",
-      ".next/**/*",
-      "app/**/*",
-      "components/**/*",
-      "contexts/**/*",
-      "lib/**/*",
-      "services/**/*",
-      "types/**/*",
+      ".next/standalone/**/*",
+      ".next/static/**/*",
+      "public/**/*",
       "next.config.js",
       "package.json",
-      "public/**/*",
-      "node_modules/**/*"
+      "assets/**/*"
+    ],
+    "asarUnpack": [
+      ".next/**/*"
     ],
     "linux": {
       "target": [

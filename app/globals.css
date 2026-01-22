@@ -6,42 +6,48 @@
 
 :root {
   color-scheme: light;
-  --background: #FFFFFF;
-  --foreground: #18181B; /* surface-900 */
-  
-  --primary: #C5A03A; /* Refined gold */
-  --primary-foreground: #FFFFFF;
+  --background: #FAFAFA;
+  --foreground: #1A1A1A;
 
-  --secondary: #F8F8F8; /* Cleaner light gray */
-  --secondary-foreground: #18181B;
+  --primary: #FFC107; /* Bold vibrant gold */
+  --primary-foreground: #000000;
 
-  --muted: #F8F8F8;
-  --muted-foreground: #71717A;
+  --secondary: #E0E0E0; /* Prominent gray */
+  --secondary-foreground: #1A1A1A;
 
-  --border: #F0F0F0; /* Much lighter border for minimal look */
+  --muted: #F5F5F5;
+  --muted-foreground: #666666;
+
+  --border: #CCCCCC; /* Visible border for flat design */
 
   --card: #FFFFFF;
-  --card-foreground: #18181B;
+  --card-foreground: #1A1A1A;
+
+  --accent: #FF6F00; /* Accent orange-gold */
+  --accent-foreground: #FFFFFF;
 }
 
 .dark {
   color-scheme: dark;
-  --background: #000000; /* Pure black for minimal contrast */
-  --foreground: #F4F4F5;
+  --background: #0D0D0D;
+  --foreground: #F5F5F5;
 
-  --primary: #DCC366; /* Subtle dark mode gold */
+  --primary: #FFD54D; /* Bright gold in dark mode */
   --primary-foreground: #000000;
 
-  --secondary: #121212; /* Deep gray */
-  --secondary-foreground: #F4F4F5;
+  --secondary: #1F1F1F; /* Prominent dark gray */
+  --secondary-foreground: #F5F5F5;
 
-  --muted: #121212;
-  --muted-foreground: #A1A1AA;
+  --muted: #1A1A1A;
+  --muted-foreground: #999999;
 
-  --border: #1F1F1F; /* Subtle dark border */
+  --border: #333333; /* Visible border in dark mode */
 
-  --card: #09090B;
-  --card-foreground: #F4F4F5;
+  --card: #141414;
+  --card-foreground: #F5F5F5;
+
+  --accent: #FFA726; /* Bright accent in dark */
+  --accent-foreground: #000000;
 }
 
 body {
@@ -71,23 +77,36 @@ body {
   }
 
   .border-gold {
-    @apply border-gold-200/50 dark:border-gold-800/50;
+    @apply border-gold-500 border-2;
   }
 
   .gradient-gold {
-    @apply bg-gold-500;
+    @apply bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600;
   }
 
   .gradient-text-gold {
-    @apply text-gold-500 dark:text-gold-400;
+    @apply bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 bg-clip-text text-transparent;
   }
 
-  .glass {
-    @apply backdrop-blur-xl bg-white/70 dark:bg-black/70 border border-border;
+  /* Flat design utilities - no blur, solid backgrounds */
+  .card-flat {
+    @apply bg-card border-2 border-border rounded-lg shadow-flat;
   }
 
-  .glass-panel {
-    @apply backdrop-blur-xl bg-white/40 dark:bg-black/40 border border-border/40;
+  .card-flat-hover {
+    @apply bg-card border-2 border-border rounded-lg shadow-flat hover:shadow-flat-lg hover:border-primary transition-all duration-200;
+  }
+
+  .btn-flat {
+    @apply bg-primary text-primary-foreground font-semibold py-2 px-4 rounded-lg border-2 border-transparent shadow-flat-gold hover:shadow-flat-lg hover:translate-y-[-2px] active:translate-y-[1px] active:shadow-flat transition-all duration-150;
+  }
+
+  .btn-flat-secondary {
+    @apply bg-secondary text-secondary-foreground font-semibold py-2 px-4 rounded-lg border-2 border-border shadow-flat hover:shadow-flat-lg hover:border-primary transition-all duration-200;
+  }
+
+  .input-flat {
+    @apply bg-background border-2 border-border rounded-lg px-3 py-2 focus:border-primary focus:outline-none transition-colors;
   }
 }
 

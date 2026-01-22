@@ -23,19 +23,19 @@ const config: Config = {
         card: 'var(--card)',
         'card-foreground': 'var(--card-foreground)',
 
-        // Keep the existing Tailwind color scales
+        // Bold gold color scale for flat design
         gold: {
-          50: '#FDFCF7',
-          100: '#F9F7E9',
-          200: '#F1E9C5',
-          300: '#E8D99A',
-          400: '#DCC366',
-          500: '#C5A03A', // Muted/Subtle Gold
-          600: '#A3842E',
-          700: '#816924',
-          800: '#65521C',
-          900: '#544417',
-          950: '#2E260C',
+          50: '#FFFEF5',
+          100: '#FFF9E0',
+          200: '#FFF0B8',
+          300: '#FFE68A',
+          400: '#FFD84D',
+          500: '#FFC107', // Bold vibrant gold - primary
+          600: '#FFB300',
+          700: '#FFA000',
+          800: '#FF8F00',
+          900: '#FF6F00',
+          950: '#E65100',
         },
         surface: {
           50: '#FAFAFA',
@@ -56,12 +56,25 @@ const config: Config = {
         display: ['Playfair Display', 'Merriweather', 'serif'], // More professional display font
       },
       boxShadow: {
-        'lovable': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03)',
-        'lovable-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 2px 8px -1px rgba(0, 0, 0, 0.3)',
+        'flat': '0 2px 0 0 rgba(0, 0, 0, 0.2)',
+        'flat-lg': '0 4px 0 0 rgba(0, 0, 0, 0.2)',
+        'flat-xl': '0 6px 0 0 rgba(0, 0, 0, 0.25)',
+        'flat-gold': '0 3px 0 0 rgba(255, 193, 7, 0.5)',
+        'none': 'none',
       },
       borderRadius: {
-        '2xl': '1rem',
-        '3xl': '1.5rem',
+        'none': '0',
+        'sm': '0.25rem',
+        'md': '0.375rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+        '2xl': '0.875rem',
+        '3xl': '1rem',
+      },
+      borderWidth: {
+        '3': '3px',
+        '4': '4px',
+        '5': '5px',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

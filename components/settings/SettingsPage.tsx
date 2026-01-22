@@ -92,9 +92,9 @@ const SettingsPage: React.FC = () => {
             { key: 'openai', label: 'OpenAI', placeholder: 'sk-...', icon: 'O' },
             { key: 'groq', label: 'Groq', placeholder: 'gsk_...', icon: 'G' },
           ].map(({ key, label, placeholder, icon }) => (
-            <div key={key} className="group p-6 rounded-2xl bg-card border border-border hover:border-gold-500/30 transition-all shadow-lovable dark:shadow-lovable-dark">
+            <div key={key} className="group p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold border border-gold-500/20">
+                <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-black border-2 border-primary shadow-flat-gold">
                   {icon}
                 </div>
                 <div className="flex-1">
@@ -104,7 +104,7 @@ const SettingsPage: React.FC = () => {
                 <button
                   onClick={() => runTest(key)}
                   disabled={testing === key || testing === 'all'}
-                  className="px-3 py-1.5 bg-surface-100 dark:bg-surface-900 text-foreground text-xs font-medium rounded-lg border border-border hover:border-gold-500/50 disabled:opacity-50 transition-colors"
+                  className="px-3 py-1.5 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-primary disabled:opacity-50 transition-all btn-flat-secondary"
                 >
                   {testing === key ? 'Testing...' : 'Test'}
                 </button>
@@ -116,7 +116,7 @@ const SettingsPage: React.FC = () => {
                   value={apiKeys[key as keyof ApiKeys]}
                   onChange={(e) => updateKey(key as keyof ApiKeys, e.target.value)}
                   placeholder={placeholder}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-100 dark:bg-surface-900 text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-colors font-mono text-sm"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-sm input-flat"
                 />
               </div>
 
@@ -142,7 +142,7 @@ const SettingsPage: React.FC = () => {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="p-6 rounded-2xl bg-card border border-border hover:border-gold-500/30 transition-all shadow-lovable dark:shadow-lovable-dark">
+          <div className="p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold border border-gold-500/20">
                 L
