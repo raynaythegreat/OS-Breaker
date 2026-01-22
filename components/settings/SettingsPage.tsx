@@ -157,6 +157,8 @@ const SettingsPage: React.FC = () => {
 
   const aiProviders = providers.filter(p => p.category === 'ai');
   const deploymentProviders = providers.filter(p => p.category === 'deployment');
+  const localProviders = providers.filter(p => p.category === 'local');
+  const customProviders = providers.filter(p => p.category === 'custom');
 
   return (
     <div className="h-full overflow-y-auto p-6 max-w-7xl mx-auto space-y-12 bg-background">
@@ -383,7 +385,101 @@ const SettingsPage: React.FC = () => {
               </div>
             )}
           </div>
+          </div>
+       </div>
+
+      {/* Custom Models */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-black text-foreground uppercase tracking-tight">Custom Models</h2>
+            <p className="text-sm text-muted-foreground font-bold mt-1">
+              Add custom model configurations with custom base URLs and endpoints.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAddCustom(!showAddCustom)}
+            className="px-3 py-1.5 rounded-lg bg-gold-500/10 dark:bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
+          >
+            {showAddCustom ? 'Hide Form' : '+ Add Custom Model'}
+          </button>
         </div>
+
+        {showAddCustom && (
+          <div className="space-y-4 mt-4">
+            {customProviders.map(({ key, label, placeholder, icon, description }) => (
+              <div
+                key={key}
+                className="p-5 rounded-xl bg-gradient-to-r from-gold-100/50 to-amber-100/50 dark:from-gold-500/10 dark:to-amber-500/10 border-2 border-gold-500/20 shadow-md"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gold-500 dark:bg-gold-600 text-white flex items-center justify-center text-xl border-2 border-gold-600 shadow-flat-gold">
+                      {icon}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground">{label}</h3>
+                      <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mt-1">
+                        {description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                    {key === 'customBaseUrl' ? 'Base URL' : 'Endpoint'}
+                  </label>
+                  <input
+                    type="text"
+                    value={apiKeys[key]}
+                    onChange={(e) => updateKey(key, e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full px-3 py-2 mb-3 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 focus:border-gold-500/30 transition-colors font-mono text-sm input-flat"
+                  />
+
+                  <button
+                    onClick={() => runTest(key)}
+                    disabled={testing === key || testing === 'all' || !apiKeys[key]}
+                    className="w-full px-3 py-2 bg-gold-500 dark:bg-gold-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg border-2 border-gold-500 hover:bg-gold-600 dark:hover:border-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-gold disabled:shadow-flat-hover"
+                  >
+                    {testing === key ? 'Testing...' : 'Test & Add'}
+                  </button>
+
+                  {testResults[key] && (
+                    <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border-2 ${
+                      testResults[key].status === 'success'
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                        : testResults[key].status === 'not_configured'
+                          ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
+                          : 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
+                    }`}>
+                      <div className={`w-2 h-2 rounded-full ${
+                        testResults[key].status === 'success' ? 'bg-emerald-500' :
+                        testResults[key].status === 'not_configured' ? 'bg-yellow-500' : 'bg-red-500'
+                      }`} />
+                      <span className="text-xs font-black uppercase tracking-wider flex-1">
+                        {testResults[key].message}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!showAddCustom && (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>No custom models configured</p>
+            <button
+              onClick={() => setShowAddCustom(true)}
+              className="px-4 py-2 rounded-lg bg-gold-500/10 dark:bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
+            >
+              + Add First Custom Model
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Actions */}

@@ -4,6 +4,16 @@ import { ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
+declare global {
+  interface Window {
+    api?: {
+      minimize: () => void;
+      maximize: () => void;
+      close: () => void;
+    };
+  }
+}
+
 interface DashboardLayoutProps {
   children: ReactNode;
   activeTab: string;
@@ -52,7 +62,7 @@ const mobileNavItems = [
     label: "Settings",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01-.26 1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
@@ -60,40 +70,91 @@ const mobileNavItems = [
 ];
 
 export default function DashboardLayout({ children, activeTab, onTabChange }: DashboardLayoutProps) {
+  const handleMinimize = () => {
+    if (typeof window !== "undefined" && window.api) {
+      window.api.minimize();
+    }
+  };
+
+  const handleMaximize = () => {
+    if (typeof window !== "undefined" && window.api) {
+      window.api.maximize();
+    }
+  };
+
+  const handleClose = () => {
+    if (typeof window !== "undefined" && window.api) {
+      window.api.close();
+    }
+  };
+
   return (
     <div className="flex h-screen supports-[height:100dvh]:h-dvh bg-surface-50 dark:bg-black">
-      {/* Sidebar - Hidden on mobile */}
       <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab !== "chat" && <Header activeTab={activeTab} />}
+
         <main className="flex-1 overflow-hidden pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0 bg-surface-50 dark:bg-black">
           {children}
         </main>
 
-        {/* Mobile Bottom Navigation */}
         <nav
           id="mobile-nav"
           className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 z-50 pb-[env(safe-area-inset-bottom)]"
         >
-          <div className="flex items-center justify-around h-16 px-2">
-            {mobileNavItems.map((item) => (
+          <div className="flex items-center justify-between h-16 px-4">
+            <div className="flex items-center gap-4">
+              {mobileNavItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => onTabChange(item.id)}
+                  className={"flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors " + (
+                    activeTab === item.id
+                      ? "text-gold-500"
+                      : "text-surface-400 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400"
+                  )}
+                >
+                  <span className={activeTab === item.id ? "text-gold-500" : ""}>
+                    {item.icon}
+                  </span>
+                  <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1">
               <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
-                className={`flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors ${
-                  activeTab === item.id
-                    ? "text-gold-500"
-                    : "text-surface-400 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400"
-                }`}
+                onClick={handleMinimize}
+                className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 flex items-center justify-center transition-colors"
+                title="Minimize"
+                aria-label="Minimize"
               >
-                <span className={activeTab === item.id ? "text-gold-500" : ""}>
-                  {item.icon}
-                </span>
-                <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="10" width="16" height="2" />
+                </svg>
               </button>
-            ))}
+              <button
+                onClick={handleMaximize}
+                className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 flex items-center justify-center transition-colors"
+                title="Maximize"
+                aria-label="Maximize"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="1" />
+                </svg>
+              </button>
+              <button
+                onClick={handleClose}
+                className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors"
+                title="Close"
+                aria-label="Close"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </nav>
       </div>
