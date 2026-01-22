@@ -14,68 +14,89 @@ export default function GlassesLogo({ className }: GlassesLogoProps) {
     >
       <defs>
         <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFC107" />
-          <stop offset="50%" stopColor="#FFD54D" />
-          <stop offset="100%" stopColor="#FFC107" />
+          <stop offset="0%" stopColor="#E65100" />
+          <stop offset="50%" stopColor="#FF8F00" />
+          <stop offset="100%" stopColor="#E65100" />
         </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
+        <filter id="shadow">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.3"/>
         </filter>
       </defs>
-      <g filter="url(#glow)">
-        <ellipse cx="20" cy="32" rx="10" ry="12" stroke="url(#goldGradient)" strokeWidth="3" fill="none" />
-        <ellipse cx="44" cy="32" rx="10" ry="12" stroke="url(#goldGradient)" strokeWidth="3" fill="none" />
-        <circle cx="20" cy="32" r="5" fill="url(#goldGradient)" />
-        <circle cx="44" cy="32" r="5" fill="url(#goldGradient)" />
-        <circle cx="20" cy="32" r="2" fill="#1a1a1a" />
-        <circle cx="44" cy="32" r="2" fill="#1a1a1a" />
-        <circle cx="21" cy="30" r="1" fill="url(#goldGradient)" opacity="0.8" />
-        <circle cx="43" cy="30" r="1" fill="url(#goldGradient)" opacity="0.8" />
+      <g filter="url(#shadow)">
+        <ellipse cx="32" cy="26" rx="22" ry="16" stroke="currentColor" strokeWidth="2.5" fill="none" />
+        <ellipse cx="32" cy="24" rx="12" ry="9" stroke="url(#goldGradient)" strokeWidth="2.5" fill="none" />
+        <ellipse cx="32" cy="38" rx="22" ry="8" stroke="currentColor" strokeWidth="2" fill="none" />
+        <circle cx="26" cy="26" r="7" fill="url(#goldGradient)" />
+        <circle cx="38" cy="26" r="7" fill="url(#goldGradient)" />
+        <circle cx="26" cy="26" r="3.5" fill="#0a0a0a" />
+        <circle cx="38" cy="26" r="3.5" fill="#0a0a0a" />
+        <circle cx="27" cy="24" r="1.5" fill="url(#goldGradient)" />
+        <circle cx="37" cy="24" r="1.5" fill="url(#goldGradient)" />
       </g>
       <path
-        d="M20 44v8"
-        stroke="url(#goldGradient)"
+        d="M32 46v8"
+        stroke="currentColor"
         strokeWidth="2.5"
         strokeLinecap="round"
+        fill="none"
       />
       <path
-        d="M44 44v8"
-        stroke="url(#goldGradient)"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M12 20c0-4 4-8 8-8 8"
-        stroke="url(#goldGradient)"
+        d="M12 12c0-3 5-7 11-7 11"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         fill="none"
       />
       <path
-        d="M52 20c0-4-4-8-8-8 8"
-        stroke="url(#goldGradient)"
+        d="M52 12c0-3-5-7-11-7-11"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         fill="none"
       />
       <path
-        d="M16 16l-6-2"
+        d="M10 12l-4-4"
         stroke="url(#goldGradient)"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
+        fill="none"
       />
       <path
-        d="M48 16l6-2"
+        d="M54 12l4-4"
         stroke="url(#goldGradient)"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M20 14l-4-2"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
+        fill="none"
       />
-      <ellipse cx="20" cy="24" rx="3" ry="2" stroke="url(#goldGradient)" strokeWidth="1.5" fill="none" />
-      <ellipse cx="44" cy="24" rx="3" ry="2" stroke="url(#goldGradient)" strokeWidth="1.5" fill="none" />
+      <path
+        d="M44 14l4-2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <ellipse cx="32" cy="16" rx="6" ry="3" stroke="url(#goldGradient)" strokeWidth="1.5" fill="none" />
+      <path
+        d="M22 50l5 3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M42 50l-5 3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   );
 }
