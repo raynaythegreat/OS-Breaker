@@ -125,4 +125,18 @@ export class ApiTester {
       return { status: 'error', message: error instanceof Error ? error.message : 'Connection failed' };
     }
   }
+
+  static async testCustom(baseUrl: string, endpoint?: string): Promise<TestResult> {
+    if (!baseUrl) return { status: 'not_configured', message: 'Base URL not configured' };
+    try {
+      const start = Date.now();
+      const url = `${baseUrl}${endpoint || ''}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to connect to custom API');
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'Connected successfully', latency };
+    } catch (error) {
+      return { status: 'error', message: error instanceof Error ? error.message : 'Connection failed' };
+    }
+  }
 }

@@ -14,6 +14,8 @@ interface ApiKeys {
   vercel: string;
   render: string;
   ollamaBaseUrl: string;
+  customBaseUrl: string;
+  customEndpoint: string;
 }
 
 interface ProviderConfig {
@@ -21,7 +23,7 @@ interface ProviderConfig {
   label: string;
   placeholder: string;
   icon: string;
-  category: 'ai' | 'deployment' | 'local';
+  category: 'ai' | 'deployment' | 'local' | 'custom';
   description?: string;
 }
 
@@ -38,6 +40,10 @@ const providers: ProviderConfig[] = [
   { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management' },
   { key: 'vercel', label: 'Vercel', placeholder: 'vercel_...', icon: '▲', category: 'deployment', description: 'One-click deployments' },
   { key: 'render', label: 'Render', placeholder: 'rnd_...', icon: '🚀', category: 'deployment', description: 'Cloud deployment platform' },
+
+  // Custom Models
+  { key: 'customBaseUrl', label: 'Custom Base URL', placeholder: 'https://api.example.com', icon: '🔗', category: 'custom', description: 'Custom API base URL' },
+  { key: 'customEndpoint', label: 'Custom Endpoint', placeholder: '/v1/chat/completions', icon: '🔌', category: 'custom', description: 'Custom API endpoint path' },
 ];
 
 const SettingsPage: React.FC = () => {
@@ -52,10 +58,13 @@ const SettingsPage: React.FC = () => {
     vercel: '',
     render: '',
     ollamaBaseUrl: 'http://localhost:11434',
+    customBaseUrl: '',
+    customEndpoint: '',
   });
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [testing, setTesting] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [showAddCustom, setShowAddCustom] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -114,14 +123,18 @@ const SettingsPage: React.FC = () => {
         case 'vercel':
           result = await ApiTester.testVercel(apiKeys.vercel);
           break;
-        case 'render':
-          result = await ApiTester.testRender(apiKeys.render);
-          break;
-        case 'ollama':
-          result = await ApiTester.testOllama(apiKeys.ollamaBaseUrl);
-          break;
-        default:
-          result = { status: 'error', message: 'Test not implemented' };
+         case 'render':
+           result = await ApiTester.testRender(apiKeys.render);
+           break;
+         case 'ollama':
+           result = await ApiTester.testOllama(apiKeys.ollamaBaseUrl);
+           break;
+         case 'customBaseUrl':
+         case 'customEndpoint':
+           result = await ApiTester.testCustom(apiKeys.customBaseUrl, apiKeys.customEndpoint);
+           break;
+         default:
+           result = { status: 'error', message: 'Test not implemented' };
       }
     } catch (error) {
       result = { status: 'error', message: error instanceof Error ? error.message : 'Test failed' };
