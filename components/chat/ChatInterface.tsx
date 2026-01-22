@@ -3657,10 +3657,10 @@ export default function ChatInterface() {
     <div
       ref={dropdownMenuRef}
       style={dropdownStyle}
-      className="fixed z-[999] max-h-[70vh] overflow-hidden rounded-2xl border border-cyan-300/30 bg-black/80 backdrop-blur-xl shadow-2xl ring-1 ring-cyan-300/20"
+      className="fixed z-[999] max-h-[70vh] overflow-hidden rounded-2xl border border-gold-500/20 bg-surface-50 dark:bg-surface-950 backdrop-blur-xl shadow-2xl ring-1 ring-gold-500/10"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="p-2 border-b border-cyan-300/20 bg-black/60">
+      <div className="p-2 border-b border-gold-500/10 bg-surface-100 dark:bg-surface-900">
         <button
           onClick={() => {
             const inputValue = window.prompt(
@@ -3678,9 +3678,9 @@ export default function ChatInterface() {
             setSelectedModel(`${parsed.provider}:${parsed.modelName}`);
             setShowModelDropdown(false);
           }}
-          className="w-full px-4 py-3 text-left hover:bg-white/5 transition-all duration-200 rounded-xl text-sm text-cyan-100 flex items-center gap-3 group"
+          className="w-full px-4 py-3 text-left hover:bg-surface-200 dark:hover:bg-surface-800 transition-all duration-200 rounded-xl text-sm text-foreground flex items-center gap-3 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-black/60 border border-cyan-300/30 flex items-center justify-center group-hover:bg-white/5 transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-surface-200 dark:bg-surface-800 border border-gold-500/10 flex items-center justify-center group-hover:bg-surface-300 dark:group-hover:bg-surface-700 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -3703,9 +3703,9 @@ export default function ChatInterface() {
         {sortedModelGroups.map(({ groupName, models }) => (
           <div
             key={groupName}
-            className="border-b border-slate-100 dark:border-slate-700/50 last:border-b-0"
+            className="border-b border-gold-500/5 last:border-b-0"
           >
-            <div className="px-4 py-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide bg-slate-50/30 dark:bg-slate-900/30 sticky top-0 backdrop-blur-sm">
+            <div className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wide bg-surface-50 dark:bg-surface-900 sticky top-0 backdrop-blur-sm">
               {groupName}
             </div>
             <div className="py-1">
@@ -3830,19 +3830,19 @@ export default function ChatInterface() {
       </div>
 
       {/* Header 2: Actions */}
-      <div className="px-2 sm:px-3 py-2 border-b border-cyan-300/20 bg-black/50 backdrop-blur-xl">
+      <div className="px-2 sm:px-3 py-2 border-b border-gold-500/10 bg-surface-50/80 dark:bg-black/50 backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-2 w-full">
           {/* Left Side: Plan/Build Toggle and Auto Button */}
           <div className="flex items-center gap-2">
             {/* Plan/Build Toggle */}
-            <div className="inline-flex rounded-lg border border-cyan-300/30 bg-black/40 p-0.5">
+            <div className="inline-flex rounded-lg border border-gold-500/20 bg-surface-100 dark:bg-surface-900 p-0.5">
               <button
                 type="button"
                 onClick={() => setChatMode("plan")}
                 className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
                   chatMode === "plan"
-                    ? "bg-cyan-300/20 text-cyan-100 shadow-sm"
-                    : "text-cyan-200/70 hover:text-cyan-100"
+                    ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
+                    : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
                 }`}
                 title="Plan mode: Review and approve changes before committing"
               >
@@ -3853,8 +3853,8 @@ export default function ChatInterface() {
                 onClick={() => setChatMode("build")}
                 className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
                   chatMode === "build"
-                    ? "bg-cyan-300/20 text-cyan-100 shadow-sm"
-                    : "text-cyan-200/70 hover:text-cyan-100"
+                    ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
+                    : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
                 }`}
                 title="Build mode: Auto-commit changes without approval"
               >
@@ -3879,8 +3879,8 @@ export default function ChatInterface() {
               }}
               className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
                 autoApprove
-                  ? "bg-cyan-300 text-black border-cyan-300"
-                  : "bg-black/40 text-cyan-100 border-cyan-300/30 hover:border-cyan-300/70"
+                  ? "bg-gold-500 text-white border-gold-500"
+                  : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-gold-500/20 hover:border-gold-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
               }`}
               title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
             >
@@ -3899,7 +3899,7 @@ export default function ChatInterface() {
                 type="button"
                 onClick={() => loadRepoContext(selectedRepo)}
                 disabled={loadingContext}
-                className="w-8 h-8 rounded-lg bg-black/50 text-cyan-100 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                className="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-900 text-muted-foreground hover:bg-surface-200 dark:hover:bg-surface-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center border border-gold-500/10"
                 title="Refresh repo context"
                 aria-label="Refresh repo context"
               >
@@ -3947,7 +3947,7 @@ export default function ChatInterface() {
                   deployAutoFixing ||
                   !status?.vercel?.configured
                 }
-                className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg gradient-primary text-black hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-1 sm:gap-1.5"
+                className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
                 title={
                   status?.vercel?.configured
                     ? "Deploy to Vercel"
@@ -4009,7 +4009,7 @@ export default function ChatInterface() {
                   deployAutoFixing ||
                   !status?.render?.configured
                 }
-                className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg gradient-primary text-black hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-1 sm:gap-1.5"
+                className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
                 title={
                   status?.render?.configured
                     ? "Deploy to Render"

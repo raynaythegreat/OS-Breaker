@@ -72,14 +72,14 @@ export async function GET() {
   const env = getRuntimeEnv();
   const results: Record<string, ProviderBilling> = {};
 
-  if (env.OPENAI_API_KEY) {
-    results.openai = await fetchOpenAIBilling(env.OPENAI_API_KEY);
+  if (process.env.OPENAI_API_KEY) {
+    results.openai = await fetchOpenAIBilling(process.env.OPENAI_API_KEY);
   } else {
     results.openai = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
   }
 
-  if (env.OPENROUTER_API_KEY) {
-    results.openrouter = await fetchOpenRouterBilling(env.OPENROUTER_API_KEY);
+  if (process.env.OPENROUTER_API_KEY) {
+    results.openrouter = await fetchOpenRouterBilling(process.env.OPENROUTER_API_KEY);
   } else {
     results.openrouter = { configured: false, currency: "USD", remainingUsd: null, limitUsd: null, usedUsd: null, refreshedAt: Date.now(), error: null };
   }

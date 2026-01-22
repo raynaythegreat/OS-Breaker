@@ -1,5 +1,5 @@
-appId: com.gatekeep.app
-productName: GateKeep
+appId: com.osathena.app
+productName: OS Athena
 directories:
   output: dist
   buildResources: build

@@ -9,7 +9,7 @@ const isDev = process.env.NODE_ENV !== 'production';
 const PORT = isDev ? 3000 : 3001;
 
 function createWindow() {
-  const iconPath = path.join(__dirname, '../build/icon.png');
+  const iconPath = path.join(__dirname, '../assets/icon.svg');
   const iconExists = fs.existsSync(iconPath);
 
   mainWindow = new BrowserWindow({

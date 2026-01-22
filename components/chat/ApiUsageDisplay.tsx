@@ -27,19 +27,19 @@ function formatUsd(value: number | null | undefined): string {
 }
 
 function getUsageColor(current: number, limit: number): string {
-  if (!Number.isFinite(limit)) return "text-green-600 dark:text-green-400";
+  if (!Number.isFinite(limit)) return "text-emerald-600 dark:text-emerald-400";
   const ratio = current / limit;
   if (ratio >= 0.9) return "text-red-600 dark:text-red-400";
   if (ratio >= 0.7) return "text-amber-600 dark:text-amber-400";
-  return "text-green-600 dark:text-green-400";
+  return "text-emerald-600 dark:text-emerald-400";
 }
 
 function getProgressColor(current: number, limit: number): string {
-  if (!Number.isFinite(limit)) return "bg-green-500";
+  if (!Number.isFinite(limit)) return "bg-emerald-500";
   const ratio = current / limit;
   if (ratio >= 0.9) return "bg-red-500";
   if (ratio >= 0.7) return "bg-amber-500";
-  return "bg-green-500";
+  return "bg-emerald-500";
 }
 
 const providerLabels: Record<Provider, string> = {
@@ -115,7 +115,7 @@ export default function ApiUsageDisplay({
   const usageOverlay = expanded ? (
     <div className="fixed inset-0 z-[999]" onClick={() => setExpanded(false)}>
       <div
-        className="absolute top-16 left-4 right-4 sm:left-auto sm:right-4 sm:w-auto z-[1000]"
+        className="absolute top-16 right-4 z-[1000]"
         onClick={(e) => e.stopPropagation()}
       >
         <ApiUsagePanel
@@ -131,12 +131,12 @@ export default function ApiUsageDisplay({
       <div className="relative inline-flex">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors border border-surface-200 dark:border-surface-700 shadow-sm"
           title={`${providerLabels[currentProvider]}: ${currentUsage.today}${isUnlimited ? "" : `/${currentLimits.daily}`} today`}
         >
-          {providerIcons[currentProvider]}
+          <span className="text-gold-500">{providerIcons[currentProvider]}</span>
           <span
-            className={getUsageColor(currentUsage.today, currentLimits.daily)}
+            className={`font-medium ${getUsageColor(currentUsage.today, currentLimits.daily)}`}
           >
             {currentUsage.today}
             {isUnlimited ? "" : `/${currentLimits.daily}`}
@@ -152,19 +152,20 @@ export default function ApiUsageDisplay({
     <div className="flex items-center gap-2">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="relative flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        className="relative flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-900 dark:text-surface-100 border border-surface-200 dark:border-surface-700 hover:border-gold-500/50 transition-all shadow-sm"
       >
-        <span className="font-medium">{providerLabels[currentProvider]}</span>
-        <span className="text-slate-400 dark:text-slate-500">|</span>
+        <span className="text-gold-500">{providerIcons[currentProvider]}</span>
+        <span className="font-semibold">{providerLabels[currentProvider]}</span>
+        <span className="text-surface-300 dark:text-surface-600">|</span>
         <span
           className={getUsageColor(currentUsage.today, currentLimits.daily)}
         >
           {currentUsage.today}
           {isUnlimited ? "" : `/${currentLimits.daily}`}
         </span>
-        <span className="text-slate-400 dark:text-slate-500">today</span>
+        <span className="text-surface-500 dark:text-surface-400">today</span>
         <svg
-          className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-surface-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -233,12 +234,12 @@ function ApiUsagePanel({
   }, []);
 
   return (
-    <div className="w-full sm:w-96 max-h-[calc(100vh-6rem)] flex flex-col p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl animate-scale-in">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+    <div className="w-80 sm:w-96 max-h-[calc(100vh-6rem)] flex flex-col p-5 rounded-xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 shadow-2xl animate-in fade-in zoom-in-95 duration-100">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-sm font-bold text-surface-900 dark:text-white uppercase tracking-wider">
           API Usage
         </h3>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={async () => {
@@ -249,12 +250,12 @@ function ApiUsagePanel({
                 setRefreshing(false);
               }
             }}
-            className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+            className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors disabled:opacity-50"
             title="Refresh billing"
             disabled={refreshing}
           >
             <svg
-              className={`w-4 h-4 text-slate-500 ${refreshing ? "animate-spin" : ""}`}
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -269,11 +270,11 @@ function ApiUsagePanel({
           </button>
           <button
             onClick={onClose}
-            className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 transition-colors"
             title="Close"
           >
             <svg
-              className="w-4 h-4 text-slate-500"
+              className="w-4 h-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -321,10 +322,10 @@ function ApiUsagePanel({
               ? ollamaReachable === false
                 ? ollamaError
                   ? `Offline: ${ollamaError}`
-                  : "Offline: start Ollama or check OLLAMA_BASE_URL (or your tunnel)."
+                  : "Offline: start Ollama or check OLLAMA_BASE_URL."
                 : ollamaReachable === true
-                  ? "Connected: unlimited (depends on your hardware)"
-                  : "Checking Ollama connection…"
+                  ? "Connected: unlimited"
+                  : "Checking connection…"
               : provider === "groq"
                 ? (() => {
                     const requests = providerRateLimit?.requests;
@@ -335,16 +336,16 @@ function ApiUsagePanel({
                       requests?.limit != null
                     ) {
                       parts.push(
-                        `Requests: ${requests?.remaining ?? "?"}/${requests?.limit ?? "?"}`,
+                        `Req: ${requests?.remaining ?? "?"}/${requests?.limit ?? "?"}`,
                       );
                     }
                     if (tokens?.remaining != null || tokens?.limit != null) {
                       parts.push(
-                        `Tokens: ${tokens?.remaining ?? "?"}/${tokens?.limit ?? "?"}`,
+                        `Tok: ${tokens?.remaining ?? "?"}/${tokens?.limit ?? "?"}`,
                       );
                     }
                     if (parts.length === 0) {
-                      return "Free tier: rate limits will appear after your first Groq request.";
+                      return "Rate limits appear after your first request.";
                     }
                     return parts.join(" • ");
                   })()
@@ -353,106 +354,79 @@ function ApiUsagePanel({
           return (
             <div
               key={provider}
-              className={`p-3 rounded-lg ${
+              className={`p-3.5 rounded-lg border transition-all ${
                 isCurrent
-                  ? "bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30"
-                  : "bg-slate-50 dark:bg-slate-900/50"
+                  ? "bg-gold-50 dark:bg-gold-900/10 border-gold-200 dark:border-gold-800"
+                  : "bg-surface-50 dark:bg-surface-800/50 border-surface-200 dark:border-surface-700"
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
                   <span
                     className={
                       isCurrent
-                        ? "text-indigo-600 dark:text-indigo-400"
-                        : "text-slate-500 dark:text-slate-400"
+                        ? "text-gold-600 dark:text-gold-400"
+                        : "text-surface-400 dark:text-surface-500"
                     }
                   >
                     {providerIcons[provider]}
                   </span>
                   <span
-                    className={`text-sm font-medium ${isCurrent ? "text-indigo-700 dark:text-indigo-300" : "text-slate-700 dark:text-slate-300"}`}
+                    className={`text-sm font-semibold ${isCurrent ? "text-gold-900 dark:text-gold-100" : "text-surface-700 dark:text-surface-300"}`}
                   >
                     {providerLabels[provider]}
                   </span>
                   {isCurrent && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-indigo-500 text-white">
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-gold-500 text-white uppercase tracking-tighter">
                       Active
                     </span>
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                  <div className="text-[10px] font-medium text-surface-400 dark:text-surface-500 uppercase">
                     {formatTimeAgo(providerUsage.lastRequest)}
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <div className="text-surface-500 dark:text-surface-400 mb-1 font-medium">
+                    Requests Today
+                  </div>
+                  <div
+                    className={`font-bold text-base ${getUsageColor(providerUsage.today, providerLimits.daily)}`}
+                  >
+                    {providerUsage.today}
+                    {!isUnlimited && (
+                      <span className="text-xs text-surface-400 dark:text-surface-500 font-normal">
+                        /{providerLimits.daily}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-surface-500 dark:text-surface-400 mb-1 font-medium">
+                    Status / Balance
+                  </div>
+                  <div className="text-surface-900 dark:text-surface-100 font-bold truncate">
                     {remainingLabel}
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div>
-                  <div className="text-slate-500 dark:text-slate-400 mb-0.5">
-                    Today
-                  </div>
+              {!isUnlimited && (
+                <div className="mt-3 h-1.5 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
                   <div
-                    className={`font-semibold ${getUsageColor(providerUsage.today, providerLimits.daily)}`}
-                  >
-                    {providerUsage.today}
-                    {!isUnlimited && (
-                      <span className="text-slate-400 dark:text-slate-500">
-                        /{providerLimits.daily}
-                      </span>
-                    )}
-                  </div>
-                  {!isUnlimited && (
-                    <div className="mt-1 h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${getProgressColor(providerUsage.today, providerLimits.daily)}`}
-                        style={{
-                          width: `${Math.min(100, (providerUsage.today / providerLimits.daily) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  )}
+                    className={`h-full rounded-full transition-all ${getProgressColor(providerUsage.today, providerLimits.daily)}`}
+                    style={{
+                      width: `${Math.min(100, (providerUsage.today / providerLimits.daily) * 100)}%`,
+                    }}
+                  />
                 </div>
-                <div>
-                  <div className="text-slate-500 dark:text-slate-400 mb-0.5">
-                    This Week
-                  </div>
-                  <div
-                    className={`font-semibold ${getUsageColor(providerUsage.thisWeek, providerLimits.weekly)}`}
-                  >
-                    {providerUsage.thisWeek}
-                    {!isUnlimited && (
-                      <span className="text-slate-400 dark:text-slate-500">
-                        /{providerLimits.weekly}
-                      </span>
-                    )}
-                  </div>
-                  {!isUnlimited && (
-                    <div className="mt-1 h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${getProgressColor(providerUsage.thisWeek, providerLimits.weekly)}`}
-                        style={{
-                          width: `${Math.min(100, (providerUsage.thisWeek / providerLimits.weekly) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <div className="text-slate-500 dark:text-slate-400 mb-0.5">
-                    Month
-                  </div>
-                  <div className="font-semibold text-slate-700 dark:text-slate-300">
-                    {providerUsage.thisMonth}
-                  </div>
-                </div>
-              </div>
+              )}
 
-              <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="mt-3 text-[10px] text-surface-500 dark:text-surface-400 leading-relaxed italic">
                 {note}
               </p>
             </div>
@@ -466,9 +440,9 @@ function ApiUsagePanel({
             resetUsage();
           }
         }}
-        className="mt-4 w-full py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+        className="mt-6 w-full py-2 text-xs font-bold text-surface-400 dark:text-surface-500 hover:text-red-600 dark:hover:text-red-400 transition-colors uppercase tracking-widest"
       >
-        Reset Usage Stats
+        Reset Usage Statistics
       </button>
     </div>
   );

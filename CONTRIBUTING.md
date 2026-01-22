@@ -1,10 +1,22 @@
-# Contributing to GateKeep
+# Contributing to OS Athena
 
-Thanks for contributing!
+Thank you for your interest in contributing to OS Athena!
 
-## Ground rules
-- Do not include API keys or secrets in issues, PRs, screenshots, logs, or test fixtures.
-- Keep changes production-ready: complete files, no placeholders.
-- Prefer small PRs that are easy to review.
+## Development Setup
 
-## Development setup
+1. Fork and clone the repository.
+2. Install dependencies: `npm install`.
+3. Create a `.env.local` file with your API keys (optional).
+4. Run `npm run dev` to start the web application.
+
+## Coding Standards
+
+- Use TypeScript for all new components.
+- Adhere to the established styling (Inter + Playfair Display, Gold/Surface theme).
+- Write clean, documented code.
+
+## Submitting Pull Requests
+
+1. Create a new branch for your feature or bugfix.
+2. Commit your changes with descriptive messages.
+3. Push to your fork and open a PR against the `main` branch.

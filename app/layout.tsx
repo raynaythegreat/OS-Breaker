@@ -6,9 +6,9 @@ import { ApiUsageProvider } from "@/contexts/ApiUsageContext";
 import { DeploymentProvider } from "@/contexts/DeploymentContext";
 
 export const metadata: Metadata = {
-  title: "GateKeep - AI Dev Command Center",
+  title: "OS Athena - AI Dev Command Center",
   description:
-    "GateKeep is a cyber-styled AI command center for planning, building, and deploying web applications with confidence.",
+    "OS Athena is a professional AI command center for planning, building, and deploying web applications with confidence.",
   icons: {
     icon: '/favicon.ico',
   },

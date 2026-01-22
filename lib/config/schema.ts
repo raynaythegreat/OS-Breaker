@@ -7,10 +7,11 @@ export const RuntimeEnvSchema = z.object({
   APP_PASSWORD: z.string().optional(),
 
   // LLM provider keys (hosted mode)
-  ANTHROPIC_API_KEY: z.string().optional(),
+  CLAUDE_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
 
   // Fireworks
   FIREWORKS_API_KEY: z.string().optional(),

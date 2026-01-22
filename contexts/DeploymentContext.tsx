@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type DeploymentProvider = "vercel" | "render";
 
-const STORAGE_KEY = "gatekeep-deploy-provider";
+const STORAGE_KEY = "athena-deploy-provider";
 
 interface DeploymentContextValue {
   provider: DeploymentProvider;

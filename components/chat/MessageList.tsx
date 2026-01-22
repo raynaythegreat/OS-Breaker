@@ -29,35 +29,34 @@ const formatBytes = (bytes: number) => {
 };
 
 const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMessage }) {
+  const isUser = message.role === "user";
   return (
     <div
-      className={`flex gap-3 sm:gap-4 ${message.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+      className={`flex gap-4 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-500`}
     >
       <div
-        className={`max-w-[96%] sm:max-w-[80%] rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ${
-          message.role === "user"
-            ? "bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400 text-black shadow-glow-sm"
-            : "cyber-panel text-orange-50"
-        }`}
+        className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-lovable dark:shadow-lovable-dark ${isUser
+            ? "bg-gold-500 text-white"
+            : "bg-card text-foreground border border-border"}`}
       >
-        {message.role === "user" ? (
+        {isUser ? (
           <div className="space-y-2">
             {message.content ? (
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
             ) : null}
             {message.attachments && message.attachments.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 mt-2">
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="rounded-xl bg-black/30 border border-orange-200/30 overflow-hidden"
+                    className="rounded-xl bg-black/10 border border-white/10 overflow-hidden"
                   >
                     {attachment.kind === "image" && attachment.previewUrl ? (
                       <a
                         href={attachment.previewUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block relative h-24"
+                        className="block relative h-32"
                       >
                         <Image
                           src={attachment.previewUrl}
@@ -68,13 +67,13 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
                         />
                       </a>
                     ) : (
-                      <div className="h-24 flex items-center justify-center">
-                        <svg className="w-6 h-6 text-orange-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <div className="h-20 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                         </svg>
                       </div>
                     )}
-                    <div className="px-2 py-1 text-[10px] text-orange-100/80 truncate">
+                    <div className="px-2 py-1.5 text-[10px] text-white/90 font-medium truncate bg-black/20">
                       {attachment.name}
                     </div>
                   </div>
@@ -83,23 +82,32 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
             ) : null}
           </div>
         ) : (
-          <div className="prose-custom text-sm max-w-none">
+          <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed">
             <ReactMarkdown
               components={{
                 code({ className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || "");
                   const isBlock = Boolean(match);
                   return isBlock ? (
-                    <SyntaxHighlighter
-                      style={oneDark as any}
-                      language={match ? match[1] : undefined}
-                      PreTag="div"
-                      {...(props as any)}
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
+                    <div className="my-4 rounded-xl overflow-hidden border border-border/50">
+                      <SyntaxHighlighter
+                        style={oneDark as any}
+                        language={match ? match[1] : undefined}
+                        PreTag="div"
+                        customStyle={{
+                          margin: "0",
+                          padding: "1.25rem",
+                          fontSize: "0.85rem",
+                          lineHeight: "1.6",
+                          background: "#0d0d0d",
+                        }}
+                        {...(props as any)}
+                      >
+                        {String(children).replace(/\n$/, "")}
+                      </SyntaxHighlighter>
+                    </div>
                   ) : (
-                    <code className={className} {...(props as any)}>
+                    <code className="bg-secondary px-1.5 py-0.5 rounded-md text-[0.9em] font-mono text-foreground font-medium" {...(props as any)}>
                       {children}
                     </code>
                   );
@@ -109,18 +117,18 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
               {message.content || ""}
             </ReactMarkdown>
             {message.attachments && message.attachments.length > 0 && (
-              <div className="mt-3 space-y-2">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {message.attachments.map((attachment) => (
                   <div
                     key={attachment.id}
-                    className="flex items-center gap-3 p-2 rounded-lg border border-orange-200/20 bg-black/30 text-xs"
+                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-secondary/50 text-[11px] font-medium"
                   >
-                    <svg className="w-4 h-4 text-orange-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                     </svg>
                     <div className="min-w-0">
-                      <div className="text-orange-100 truncate">{attachment.name}</div>
-                      <div className="text-orange-200/60">
+                      <div className="text-foreground truncate uppercase tracking-wider text-[10px]">{attachment.name}</div>
+                      <div className="text-muted-foreground/70">
                         {attachment.kind === "image" ? "Image" : "File"} • {formatBytes(attachment.size)}
                       </div>
                     </div>
@@ -236,23 +244,23 @@ export default function MessageList({
                 key={template.title}
                 type="button"
                 onClick={() => onTemplateSelect?.(template.prompt)}
-                className="group relative px-4 py-4 text-left rounded-xl border border-orange-300/20 bg-black/40 hover:border-orange-300/60 hover:shadow-glow-sm hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="group relative px-4 py-4 text-left rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 hover:border-gold-500/50 hover:shadow-md hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={!onTemplateSelect}
                 title={template.prompt}
               >
                 <div className="flex items-start gap-3 mb-2">
                   <span className="text-2xl flex-shrink-0">{template.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-orange-100 group-hover:text-orange-200 transition-colors">
+                    <div className="text-sm font-bold text-surface-900 dark:text-surface-100 group-hover:text-gold-600 dark:group-hover:text-gold-400 transition-colors">
                       {template.title}
                     </div>
                   </div>
                 </div>
-                <div className="text-xs text-orange-200/70 leading-relaxed pl-11">
+                <div className="text-xs text-surface-500 dark:text-surface-400 leading-relaxed pl-11">
                   {template.description}
                 </div>
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-4 h-4 text-orange-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </div>
@@ -265,18 +273,18 @@ export default function MessageList({
   }
 
   return (
-    <div className="relative z-0 h-full overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6">
+    <div className="relative z-0 h-full overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6 bg-surface-50 dark:bg-black">
       <div className="max-w-4xl mx-auto space-y-6">
         {messages.map((message, index) => (
           <MessageBubble key={message.timestamp ?? index} message={message} />
         ))}
         {isLoading && (
           <div className="flex gap-3 justify-start animate-in fade-in">
-            <div className="max-w-[80%] rounded-2xl px-4 py-3 cyber-panel">
+            <div className="max-w-[80%] rounded-2xl px-4 py-3 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-200 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-orange-200 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                <div className="w-2 h-2 bg-orange-200 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+                <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
               </div>
             </div>
           </div>

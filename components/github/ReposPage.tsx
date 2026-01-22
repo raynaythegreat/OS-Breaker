@@ -123,7 +123,7 @@ export default function ReposPage() {
   );
 
   return (
-    <div className="h-full overflow-y-auto p-4 sm:p-6">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 bg-surface-50 dark:bg-black">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
@@ -133,12 +133,12 @@ export default function ReposPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search repositories..."
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
             />
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl gradient-primary text-white font-medium shadow-glow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-gold-500 text-white font-medium shadow-sm hover:bg-gold-600 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -149,7 +149,7 @@ export default function ReposPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400">
+          <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400">
             {error}
           </div>
         )}
@@ -157,60 +157,60 @@ export default function ReposPage() {
         {/* Loading */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <svg className="animate-spin h-8 w-8 text-indigo-500" viewBox="0 0 24 24">
+            <svg className="animate-spin h-8 w-8 text-gold-500" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
           </div>
         ) : filteredRepos.length === 0 ? (
           <div className="text-center py-20">
-            <svg className="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <svg className="w-16 h-16 mx-auto text-surface-300 dark:text-surface-700 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
             </svg>
-            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+            <h3 className="text-lg font-medium text-surface-900 dark:text-white mb-2">
               {search ? "No matching repositories" : "No repositories yet"}
             </h3>
-            <p className="text-slate-500">
+            <p className="text-surface-500">
               {search ? "Try a different search term" : "Create your first repository to get started"}
             </p>
           </div>
         ) : (
-	          <div className="grid gap-4">
-	            {filteredRepos.map((repo) => (
-	              <div
-	                key={repo.id}
-	                className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 hover:shadow-lg transition-shadow"
-	              >
-	                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-	                  <div className="flex-1 min-w-0">
-	                    <div className="flex items-center gap-3 mb-2">
-	                      <a
-	                        href={repo.html_url}
+          <div className="grid gap-4">
+            {filteredRepos.map((repo) => (
+              <div
+                key={repo.id}
+                className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-700 p-5 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <a
+                        href={repo.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 hover:underline truncate"
+                        className="text-lg font-semibold text-gold-600 dark:text-gold-400 hover:underline truncate"
                       >
                         {repo.name}
                       </a>
                       <span
                         className={`px-2 py-0.5 text-xs rounded-full ${
                           repo.private
-                            ? "bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                            : "bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400"
+                            ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                            : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                         }`}
                       >
                         {repo.private ? "Private" : "Public"}
                       </span>
                     </div>
                     {repo.description && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                      <p className="text-sm text-surface-600 dark:text-surface-400 mb-3 line-clamp-2">
                         {repo.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <div className="flex items-center gap-4 text-xs text-surface-500">
                       {repo.language && (
                         <span className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-indigo-500" />
+                          <span className="w-3 h-3 rounded-full bg-gold-500" />
                           {repo.language}
                         </span>
                       )}
@@ -226,26 +226,26 @@ export default function ReposPage() {
                         </svg>
                         {repo.forks_count}
                       </span>
-	                      <span>Updated {new Date(repo.updated_at).toLocaleDateString()}</span>
-	                    </div>
-	                  </div>
+                      <span>Updated {new Date(repo.updated_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
 
-	                  <div className="flex items-center gap-2 self-end sm:self-auto">
-	                    <a
-	                      href={repo.html_url}
-	                      target="_blank"
-	                      rel="noopener noreferrer"
-                      className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    <a
+                      href={repo.html_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors text-surface-500 dark:text-surface-400"
                       title="View on GitHub"
                     >
-                      <svg className="w-5 h-5 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                       </svg>
                     </a>
                     <button
                       type="button"
                       onClick={() => openCopyModal(repo)}
-                      className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-500"
+                      className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors text-surface-500 dark:text-surface-400"
                       title="Copy repository"
                       aria-label={`Copy ${repo.full_name}`}
                     >
@@ -255,7 +255,7 @@ export default function ReposPage() {
                     </button>
                     <button
                       onClick={() => setDeleteConfirm(repo.full_name)}
-                      className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                      className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-surface-500 dark:text-surface-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       title="Delete repository"
                     >
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -271,12 +271,12 @@ export default function ReposPage() {
 
         {/* Create Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 animate-scale-in">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Create Repository</h3>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-white dark:bg-surface-900 rounded-2xl w-full max-w-md p-6 shadow-xl animate-in fade-in zoom-in-95 duration-100">
+              <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">Create Repository</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                     Repository Name
                   </label>
                   <input
@@ -284,11 +284,11 @@ export default function ReposPage() {
                     value={newRepo.name}
                     onChange={(e) => setNewRepo({ ...newRepo, name: e.target.value })}
                     placeholder="my-awesome-project"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                     Description (optional)
                   </label>
                   <input
@@ -296,7 +296,7 @@ export default function ReposPage() {
                     value={newRepo.description}
                     onChange={(e) => setNewRepo({ ...newRepo, description: e.target.value })}
                     placeholder="A brief description..."
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
                   />
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -304,22 +304,22 @@ export default function ReposPage() {
                     type="checkbox"
                     checked={newRepo.isPrivate}
                     onChange={(e) => setNewRepo({ ...newRepo, isPrivate: e.target.checked })}
-                    className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-gold-600 focus:ring-gold-500 bg-surface-50 dark:bg-surface-800"
                   />
-                  <span className="text-sm text-slate-700 dark:text-slate-300">Private repository</span>
+                  <span className="text-sm text-surface-700 dark:text-surface-300">Private repository</span>
                 </label>
               </div>
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={createRepo}
                   disabled={!newRepo.name.trim() || creating}
-                  className="flex-1 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-gold-500 text-white font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
                   {creating ? "Creating..." : "Create"}
                 </button>
@@ -330,15 +330,15 @@ export default function ReposPage() {
 
         {/* Copy Modal */}
         {showCopyModal && copySourceRepo && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 animate-scale-in">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Copy Repository</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-white dark:bg-surface-900 rounded-2xl w-full max-w-md p-6 shadow-xl animate-in fade-in zoom-in-95 duration-100">
+              <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">Copy Repository</h3>
+              <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
                 Copying <strong>{copySourceRepo.full_name}</strong> into a new repository.
               </p>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
                     New Repository Name
                   </label>
                   <input
@@ -346,7 +346,7 @@ export default function ReposPage() {
                     value={copyRepoName}
                     onChange={(e) => setCopyRepoName(e.target.value)}
                     placeholder="my-awesome-project-copy"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all"
                     autoFocus
                   />
                 </div>
@@ -355,9 +355,9 @@ export default function ReposPage() {
                     type="checkbox"
                     checked={copyIsPrivate}
                     onChange={(e) => setCopyIsPrivate(e.target.checked)}
-                    className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-gold-600 focus:ring-gold-500 bg-surface-50 dark:bg-surface-800"
                   />
-                  <span className="text-sm text-slate-700 dark:text-slate-300">Private repository</span>
+                  <span className="text-sm text-surface-700 dark:text-surface-300">Private repository</span>
                 </label>
               </div>
               <div className="flex gap-3 mt-6">
@@ -368,14 +368,14 @@ export default function ReposPage() {
                     setCopySourceRepo(null);
                     setCopyRepoName("");
                   }}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={copyRepo}
                   disabled={!copyRepoName.trim() || copying}
-                  className="flex-1 px-4 py-2.5 rounded-xl gradient-primary text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-gold-500 text-white font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
                   {copying ? "Copying..." : "Copy"}
                 </button>
@@ -386,23 +386,23 @@ export default function ReposPage() {
 
         {/* Delete Confirmation Modal */}
         {deleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 animate-scale-in">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Delete Repository</h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-white dark:bg-surface-900 rounded-2xl w-full max-w-md p-6 shadow-xl animate-in fade-in zoom-in-95 duration-100">
+              <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">Delete Repository</h3>
+              <p className="text-surface-600 dark:text-surface-400 mb-6">
                 Are you sure you want to delete <strong>{deleteConfirm}</strong>? This action cannot be undone.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 font-medium hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => deleteRepo(deleteConfirm)}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                 >
                   {deleting ? "Deleting..." : "Delete"}
                 </button>

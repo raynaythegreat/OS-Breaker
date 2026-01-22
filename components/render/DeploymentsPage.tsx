@@ -253,10 +253,10 @@ export default function RenderDeploymentsPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 sm:p-6">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 bg-surface-50 dark:bg-black">
       <div className="max-w-4xl mx-auto">
         {renderConfigured === false && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
             <div className="flex items-start gap-3">
               <svg
                 className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5"
@@ -272,11 +272,9 @@ export default function RenderDeploymentsPage() {
                 />
               </svg>
               <div>
-                <h4 className="font-medium text-amber-800 dark:text-amber-300">Render Not Configured</h4>
+                <h4 className="font-medium text-amber-800 dark:text-amber-200">Render Not Configured</h4>
                 <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-                  Set <code className="px-1 py-0.5 bg-amber-100/60 rounded">RENDER_API_KEY</code> in your hosting
-                  environment variables (or <code className="px-1 py-0.5 bg-amber-100/60 rounded">.env.local</code>{" "}
-                  locally) to enable deployments.
+                  Set <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/50 rounded">RENDER_API_KEY</code> in your environment to enable deployments.
                 </p>
               </div>
             </div>
@@ -284,13 +282,13 @@ export default function RenderDeploymentsPage() {
         )}
 
         {deployProgress && (
-          <div className="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-between gap-3 flex-wrap">
+          <div className="mb-6 p-4 rounded-xl bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 text-surface-900 dark:text-surface-100 flex items-center justify-between gap-3 flex-wrap shadow-sm">
             <div>
-              <div className="font-medium">
-                Deploying ({deployProgress.attempt}/{deployProgress.total}): {deployProgress.strategyLabel}
+              <div className="font-semibold text-sm">
+                Deploying ({deployProgress.attempt}/{deployProgress.total}): <span className="text-gold-600 dark:text-gold-400">{deployProgress.strategyLabel}</span>
               </div>
-              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                {deployProgress.status ? `Status: ${deployProgress.status}` : "Starting…"}
+              <div className="text-xs text-surface-500 dark:text-surface-400 mt-1 uppercase font-medium">
+                {deployProgress.status ? `Status: ${deployProgress.status}` : "Initializing…"}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -299,7 +297,7 @@ export default function RenderDeploymentsPage() {
                   href={deployProgress.logsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium hover:opacity-90 transition-opacity"
+                  className="px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-200 text-xs font-medium hover:bg-surface-200 transition-all"
                 >
                   View Logs
                 </a>
@@ -311,7 +309,7 @@ export default function RenderDeploymentsPage() {
                   setDeployProgress(null);
                   setDeploying(null);
                 }}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium hover:opacity-90 transition-opacity"
+                className="px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700 text-surface-600 dark:text-surface-300 text-xs font-medium hover:bg-surface-50 transition-all"
               >
                 Cancel
               </button>
@@ -320,15 +318,15 @@ export default function RenderDeploymentsPage() {
         )}
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400">
+          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
 
         {deployResult && (
-          <div className="mb-6 p-4 sm:p-6 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20">
+          <div className="mb-6 p-4 sm:p-6 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -340,9 +338,9 @@ export default function RenderDeploymentsPage() {
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-1">Deployment Started</h3>
-                <p className="text-green-800 dark:text-green-200 text-sm mb-3">
-                  Service <strong>{deployResult.serviceName}</strong> is deploying on Render.
+                <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-1">Deployment Started</h3>
+                <p className="text-emerald-800 dark:text-emerald-300 text-sm mb-4">
+                  Service <strong>{deployResult.serviceName}</strong> is now building on Render.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {deployResult.url && (
@@ -350,9 +348,9 @@ export default function RenderDeploymentsPage() {
                       href={deployResult.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors"
+                      className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
                     >
-                      Open App
+                      Open Application
                     </a>
                   )}
                   {deployResult.dashboardUrl && (
@@ -360,19 +358,9 @@ export default function RenderDeploymentsPage() {
                       href={deployResult.dashboardUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-lg bg-green-700 text-white text-sm font-medium hover:bg-green-800 transition-colors"
+                      className="px-4 py-2 rounded-lg bg-surface-900 dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-90 transition-all shadow-sm"
                     >
-                      Render Dashboard
-                    </a>
-                  )}
-                  {deployResult.logsUrl && (
-                    <a
-                      href={deployResult.logsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                      Logs
+                      Dashboard
                     </a>
                   )}
                 </div>
@@ -381,40 +369,46 @@ export default function RenderDeploymentsPage() {
           </div>
         )}
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-800">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Deploy to Render</h3>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Select a GitHub repository below to deploy it to Render.
+        <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 overflow-hidden shadow-sm">
+          <div className="p-4 sm:p-6 border-b border-surface-200 dark:border-surface-800">
+            <h3 className="text-lg font-bold text-surface-900 dark:text-white mb-2">Deploy to Render</h3>
+            <p className="text-surface-600 dark:text-surface-400 text-sm">
+              Connect your GitHub projects to Render for reliable hosting.
             </p>
           </div>
 
-          <div className="divide-y divide-slate-200 dark:divide-slate-800">
+          <div className="divide-y divide-surface-100 dark:divide-surface-800">
             {loading ? (
-              <div className="p-6 text-center text-slate-500">Loading repositories...</div>
+              <div className="p-12 text-center">
+                 <svg className="animate-spin h-6 w-6 text-gold-500 mx-auto" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <p className="text-surface-500 mt-4 text-sm">Scanning repositories…</p>
+              </div>
             ) : repos.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">No repositories found.</div>
+              <div className="p-12 text-center text-surface-500 text-sm">No GitHub repositories found.</div>
             ) : (
               repos.map((repo) => (
-                <div key={repo.id} className="p-4 sm:p-6 flex items-center justify-between gap-4">
+                <div key={repo.id} className="p-4 sm:p-6 flex items-center justify-between gap-4 hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors">
                   <div className="min-w-0">
-                    <div className="font-medium text-slate-900 dark:text-white truncate">{repo.full_name}</div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">Branch: {repo.default_branch}</div>
+                    <div className="font-semibold text-surface-900 dark:text-white truncate">{repo.name}</div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400 mt-1 uppercase font-medium tracking-wider">Branch: {repo.default_branch}</div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => deployToRender(repo, true)}
                       disabled={deploying === repo.full_name || !renderConfigured}
-                      className="px-3 py-2 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                      className="px-4 py-2 rounded-lg bg-gold-500 text-white text-sm font-medium hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                     >
                       Quick Deploy
                     </button>
                     <button
                       onClick={() => deployToRender(repo, false)}
                       disabled={deploying === repo.full_name || !renderConfigured}
-                      className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-4 py-2 rounded-lg bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-200 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-50 transition-colors border border-surface-200 dark:border-surface-700"
                     >
-                      Configure
+                      Config
                     </button>
                   </div>
                 </div>
@@ -425,76 +419,78 @@ export default function RenderDeploymentsPage() {
       </div>
 
       {showConfigModal && deploymentConfig && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/40"
             onClick={closeConfigModal}
             role="button"
             tabIndex={-1}
             aria-label="Close"
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-xl shadow-xl overflow-hidden flex flex-col">
-            <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 dark:border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Configure Render Deployment</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{deploymentConfig.repo.full_name}</p>
+          <div className="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-surface-900 rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-5 border-b border-surface-200 dark:border-surface-800">
+              <h3 className="text-xl font-bold text-surface-900 dark:text-white">Configure Deployment</h3>
+              <p className="text-sm text-surface-500 dark:text-surface-400 mt-1 font-mono">{deploymentConfig.repo.full_name}</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Build Command (optional)
+                  <label className="block text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-widest mb-2">
+                    Build Command
                   </label>
                   <input
                     type="text"
                     value={deploymentConfig.buildCommand || ""}
                     onChange={(e) => setDeploymentConfig({ ...deploymentConfig, buildCommand: e.target.value })}
-                    placeholder="npm ci && npm run build"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="e.g. npm run build"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Start Command (optional)
+                  <label className="block text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-widest mb-2">
+                    Start Command
                   </label>
                   <input
                     type="text"
                     value={deploymentConfig.startCommand || ""}
                     onChange={(e) => setDeploymentConfig({ ...deploymentConfig, startCommand: e.target.value })}
-                    placeholder="npm run start -- -p $PORT"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="e.g. npm run start"
+                    className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Root Directory (optional)
+                <label className="block text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-widest mb-2">
+                  Root Directory
                 </label>
                 <input
                   type="text"
                   value={deploymentConfig.rootDirectory || ""}
                   onChange={(e) => setDeploymentConfig({ ...deploymentConfig, rootDirectory: e.target.value })}
                   placeholder="./"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2.5 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <div className="flex items-center justify-between mb-4">
+                  <label className="text-xs font-bold text-surface-600 dark:text-surface-400 uppercase tracking-widest">
                     Environment Variables
                   </label>
                   <button
                     onClick={addEnvironmentVariable}
-                    className="px-3 py-1 text-sm font-medium rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+                    className="text-xs font-bold text-gold-600 dark:text-gold-400 hover:underline"
                   >
-                    + Add Variable
+                    + Add Key-Value Pair
                   </button>
                 </div>
 
                 {deploymentConfig.environmentVariables.length === 0 ? (
-                  <p className="text-sm text-slate-500 italic">No environment variables added yet.</p>
+                  <div className="p-4 rounded-lg border border-dashed border-surface-200 dark:border-surface-700 text-center">
+                    <p className="text-xs text-surface-500">No custom environment variables defined.</p>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     {deploymentConfig.environmentVariables.map((envVar, index) => (
@@ -504,22 +500,22 @@ export default function RenderDeploymentsPage() {
                           value={envVar.key}
                           onChange={(e) => updateEnvironmentVariable(index, "key", e.target.value)}
                           placeholder="KEY"
-                          className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50"
                         />
                         <input
                           type="text"
                           value={envVar.value}
                           onChange={(e) => updateEnvironmentVariable(index, "value", e.target.value)}
-                          placeholder="value"
-                          className="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="Value"
+                          className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50"
                         />
                         <button
                           onClick={() => removeEnvironmentVariable(index)}
-                          className="justify-self-end p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                          className="p-2.5 rounded-lg text-surface-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           title="Remove variable"
                         >
                           <svg
-                            className="w-5 h-5"
+                            className="w-4 h-4"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -528,7 +524,7 @@ export default function RenderDeploymentsPage() {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              d="M6 18L18 6M6 6l12 12"
                             />
                           </svg>
                         </button>
@@ -539,18 +535,18 @@ export default function RenderDeploymentsPage() {
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-end gap-3">
+            <div className="sticky bottom-0 bg-surface-50 dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 px-6 py-4 flex items-center justify-end gap-3">
               <button
                 onClick={closeConfigModal}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                className="px-5 py-2 text-sm font-medium rounded-lg text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={deployWithConfig}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity"
+                className="px-6 py-2 text-sm font-bold rounded-lg bg-gold-500 text-white hover:bg-gold-600 transition-all shadow-sm"
               >
-                Deploy to Render
+                Start Deployment
               </button>
             </div>
           </div>
@@ -559,4 +555,3 @@ export default function RenderDeploymentsPage() {
     </div>
   );
 }
-

@@ -72,82 +72,122 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
-        <p className="text-gray-400">Configure your API keys and preferences</p>
+    <div className="h-full overflow-y-auto p-6 max-w-5xl mx-auto space-y-12 bg-background">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">Settings</h1>
+        <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Configuration & API Keys</p>
       </div>
 
-      {/* API Keys Section */}
-      <div className="cyber-panel rounded-2xl p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">API Keys</h2>
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <h2 className="text-lg font-bold text-foreground mb-2">Cloud Providers</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Configure your AI model providers. Your keys are stored locally in your browser and never shared.
+          </p>
+        </div>
+
+        <div className="lg:col-span-2 space-y-6">
           {[
-            { key: 'anthropic', label: 'Anthropic API Key', placeholder: 'sk-ant-...' },
-            { key: 'openai', label: 'OpenAI API Key', placeholder: 'sk-...' },
-            { key: 'groq', label: 'Groq API Key', placeholder: 'gsk_...' },
-          ].map(({ key, label, placeholder }) => (
-            <div key={key}>
-              <label className="block text-sm font-medium text-orange-100 mb-2">{label}</label>
-              <input
-                type="password"
-                value={apiKeys[key as keyof ApiKeys]}
-                onChange={(e) => updateKey(key as keyof ApiKeys, e.target.value)}
-                placeholder={placeholder}
-                className="w-full px-4 py-3 rounded-xl border border-orange-300/30 bg-black/40 text-orange-50 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/40 focus:border-orange-300"
-              />
-              <button
-                onClick={() => runTest(key)}
-                disabled={testing === key || testing === 'all'}
-                className="mt-2 px-4 py-2 gradient-primary text-black rounded-lg disabled:opacity-50"
-              >
-                {testing === key ? 'Testing...' : 'Test Connection'}
-              </button>
+            { key: 'anthropic', label: 'Anthropic AI', placeholder: 'sk-ant-...', icon: 'A' },
+            { key: 'openai', label: 'OpenAI', placeholder: 'sk-...', icon: 'O' },
+            { key: 'groq', label: 'Groq', placeholder: 'gsk_...', icon: 'G' },
+          ].map(({ key, label, placeholder, icon }) => (
+            <div key={key} className="group p-6 rounded-2xl bg-card border border-border hover:border-gold-500/30 transition-all shadow-lovable dark:shadow-lovable-dark">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold border border-gold-500/20">
+                  {icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-foreground uppercase tracking-wider text-xs">{label}</h3>
+                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5">API Configuration</div>
+                </div>
+                <button
+                  onClick={() => runTest(key)}
+                  disabled={testing === key || testing === 'all'}
+                  className="px-3 py-1.5 bg-surface-100 dark:bg-surface-900 text-foreground text-xs font-medium rounded-lg border border-border hover:border-gold-500/50 disabled:opacity-50 transition-colors"
+                >
+                  {testing === key ? 'Testing...' : 'Test'}
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                <input
+                  type="password"
+                  value={apiKeys[key as keyof ApiKeys]}
+                  onChange={(e) => updateKey(key as keyof ApiKeys, e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-surface-100 dark:bg-surface-900 text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-colors font-mono text-sm"
+                />
+              </div>
+
               {testResults[key] && (
-                <p className={`mt-1 text-sm ${testResults[key].status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                  {testResults[key].message}
-                </p>
+                <div className={`mt-4 flex items-center gap-2 px-3 py-2 rounded-lg border ${testResults[key].status === 'success' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/5 border-red-500/20 text-red-600 dark:text-red-400'}`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${testResults[key].status === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">{testResults[key].message}</span>
+                </div>
               )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Ollama Section */}
-      <div className="cyber-panel rounded-2xl p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Local Ollama</h2>
-        <div>
-          <label className="block text-sm font-medium text-orange-100 mb-2">Base URL</label>
-          <input
-            type="text"
-            value={apiKeys.ollamaBaseUrl}
-            onChange={(e) => updateKey('ollamaBaseUrl', e.target.value)}
-            placeholder="http://localhost:11434"
-            className="w-full px-4 py-3 rounded-xl border border-orange-300/30 bg-black/40 text-orange-50 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/40 focus:border-orange-300"
-          />
-          <button
-            onClick={() => runTest('ollama')}
-            disabled={testing === 'ollama' || testing === 'all'}
-            className="mt-2 px-4 py-2 gradient-primary text-black rounded-lg disabled:opacity-50"
-          >
-            {testing === 'ollama' ? 'Testing...' : 'Test Connection'}
-          </button>
-          {testResults.ollama && (
-            <p className={`mt-1 text-sm ${testResults.ollama.status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-              {testResults.ollama.message}
-            </p>
-          )}
+      <div className="h-px bg-border/50" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <h2 className="text-lg font-bold text-foreground mb-2">Local Infrastructure</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Run open-source models locally on your machine using Ollama.
+          </p>
+        </div>
+
+        <div className="lg:col-span-2">
+          <div className="p-6 rounded-2xl bg-card border border-border hover:border-gold-500/30 transition-all shadow-lovable dark:shadow-lovable-dark">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-gold-500/10 text-gold-500 flex items-center justify-center font-bold border border-gold-500/20">
+                L
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-foreground uppercase tracking-wider text-xs">Ollama (Local)</h3>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Instance Configuration</div>
+              </div>
+              <button
+                onClick={() => runTest('ollama')}
+                disabled={testing === 'ollama' || testing === 'all'}
+                className="px-4 py-2 bg-secondary text-foreground text-xs font-bold uppercase tracking-widest rounded-lg border border-border hover:border-gold-500/50 disabled:opacity-50 transition-all"
+              >
+                {testing === 'ollama' ? 'Testing...' : 'Test Connection'}
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1 mb-2 block">Base URL</label>
+              <input
+                type="text"
+                value={apiKeys.ollamaBaseUrl}
+                onChange={(e) => updateKey('ollamaBaseUrl', e.target.value)}
+                placeholder="http://localhost:11434"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-secondary/30 text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-4 focus:ring-gold-500/5 focus:border-gold-500/50 transition-all font-mono text-sm"
+              />
+            </div>
+
+            {testResults.ollama && (
+              <div className={`mt-4 flex items-center gap-2 px-3 py-2 rounded-lg border ${testResults.ollama.status === 'success' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/5 border-red-500/20 text-red-600 dark:text-red-400'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${testResults.ollama.status === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">{testResults.ollama.message}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-4">
+      <div className="flex justify-end pt-8 border-t border-border">
         <button
           onClick={runAllTests}
           disabled={testing === 'all'}
-          className="px-6 py-3 gradient-primary text-black rounded-lg disabled:opacity-50"
+          className="px-8 py-4 bg-gold-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-gold-600 disabled:opacity-50 transition-all shadow-lg shadow-gold-500/20 active:scale-95"
         >
-          {testing === 'all' ? 'Testing All...' : 'Test All Connections'}
+          {testing === 'all' ? 'Verifying Connections...' : 'Verify All Connections'}
         </button>
       </div>
     </div>

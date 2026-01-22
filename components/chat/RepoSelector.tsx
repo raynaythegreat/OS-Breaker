@@ -133,36 +133,36 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-2 w-full md:w-72 px-3 py-2 rounded-xl border border-orange-300/30 bg-black/60 hover:border-orange-300/70 transition-colors"
+        className="flex items-center justify-between gap-2 w-full md:w-72 px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 hover:bg-white dark:hover:bg-surface-800 hover:border-gold-500/50 transition-all shadow-sm group"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <svg className="w-5 h-5 text-orange-200/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <svg className="w-5 h-5 text-surface-400 group-hover:text-gold-500 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
           </svg>
-          <span className="text-sm font-medium text-orange-100 truncate">
+          <span className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">
             {selectedRepo ? selectedRepo.name : "Select or Create Repo"}
           </span>
         </div>
-        <svg className="w-4 h-4 text-orange-200/60 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-4 h-4 text-surface-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-full md:w-96 max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-hidden rounded-xl border border-orange-300/30 bg-black/80 shadow-xl z-[80] animate-scale-in backdrop-blur-xl">
+        <div className="absolute top-full left-0 mt-2 w-full md:w-96 max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-hidden rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 shadow-xl z-[80] animate-in fade-in zoom-in-95 duration-100">
           {showCreateForm ? (
             /* Create Repository Form */
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Create New Repository</h3>
+                <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-100">Create New Repository</h3>
                 <button
                   onClick={() => {
                     setShowCreateForm(false);
                     resetForm();
                   }}
-                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="p-1 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
                 >
-                  <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 text-surface-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -171,7 +171,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
               <div className="space-y-4">
                 {/* Repository Name */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1.5">
                     Repository Name *
                   </label>
                   <input
@@ -179,14 +179,14 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     value={newRepoName}
                     onChange={(e) => setNewRepoName(e.target.value)}
                     placeholder="my-awesome-project"
-                    className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-orange-300/30 bg-black/40 text-orange-100 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/30 focus:border-orange-300"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
                     autoFocus
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-medium text-surface-600 dark:text-surface-400 mb-1.5">
                     Description (optional)
                   </label>
                   <input
@@ -194,14 +194,14 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     value={newRepoDescription}
                     onChange={(e) => setNewRepoDescription(e.target.value)}
                     placeholder="A short description of your project"
-                    className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-orange-300/30 bg-black/40 text-orange-100 placeholder-orange-200/50 focus:outline-none focus:ring-2 focus:ring-orange-300/30 focus:border-orange-300"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
                   />
                 </div>
 
                 {/* Visibility Toggle */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-black/50 border border-orange-300/20">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${isPrivate ? "bg-amber-100 dark:bg-amber-500/10" : "bg-green-100 dark:bg-green-500/10"}`}>
+                    <div className={`p-2 rounded-lg ${isPrivate ? "bg-amber-100 dark:bg-amber-900/30" : "bg-green-100 dark:bg-green-900/30"}`}>
                       {isPrivate ? (
                         <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -213,10 +213,10 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                       )}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-slate-900 dark:text-white">
+                      <div className="text-sm font-medium text-surface-900 dark:text-surface-100">
                         {isPrivate ? "Private" : "Public"}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-surface-500 dark:text-surface-400">
                         {isPrivate ? "Only you can see this repository" : "Anyone can see this repository"}
                       </div>
                     </div>
@@ -225,7 +225,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     type="button"
                     onClick={() => setIsPrivate(!isPrivate)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      isPrivate ? "bg-orange-300" : "bg-orange-900/60"
+                      isPrivate ? "bg-gold-500" : "bg-surface-300 dark:bg-surface-600"
                     }`}
                   >
                     <span
@@ -238,7 +238,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
 
                 {/* Error Message */}
                 {error && (
-                  <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
+                  <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                     <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                   </div>
                 )}
@@ -250,14 +250,14 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                       setShowCreateForm(false);
                       resetForm();
                     }}
-                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateRepo}
                     disabled={creating || !newRepoName.trim()}
-                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2 text-sm font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 shadow-sm"
                   >
                     {creating ? (
                       <>
@@ -285,27 +285,27 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
               {/* Create New Button */}
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border-b border-slate-200 dark:border-slate-700 transition-colors group"
+                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gold-50 dark:hover:bg-gold-900/10 border-b border-surface-200 dark:border-surface-700 transition-colors group"
               >
-                <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-500/20 transition-colors">
-                  <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="p-2 rounded-lg bg-gold-100 dark:bg-gold-900/20 group-hover:bg-gold-200 dark:group-hover:bg-gold-900/30 transition-colors">
+                  <svg className="w-4 h-4 text-gold-600 dark:text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Create New Repository</div>
-                  <div className="text-xs text-slate-500">Start a new project from scratch</div>
+                  <div className="text-sm font-medium text-gold-600 dark:text-gold-400">Create New Repository</div>
+                  <div className="text-xs text-surface-500 dark:text-surface-400">Start a new project from scratch</div>
                 </div>
               </button>
 
               {/* Search */}
-              <div className="p-2 border-b border-slate-200 dark:border-slate-700">
+              <div className="p-2 border-b border-surface-200 dark:border-surface-700">
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search existing repositories..."
-                  className="w-full px-3 py-2 text-base md:text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
                 />
               </div>
 
@@ -316,7 +316,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                     onSelect(null);
                     setIsOpen(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2"
+                  className="w-full px-4 py-2 text-left text-sm text-surface-500 hover:bg-surface-50 dark:hover:bg-surface-800 border-b border-surface-200 dark:border-surface-700 flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -329,13 +329,13 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
               <div className="max-h-64 overflow-y-auto">
                 {loading ? (
                   <div className="flex items-center justify-center py-8">
-                    <svg className="animate-spin h-5 w-5 text-indigo-500" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-gold-500" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                   </div>
                 ) : filteredRepos.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-slate-500">
+                  <div className="py-8 text-center text-sm text-surface-500">
                     {search ? "No repositories found" : "No repositories yet"}
                   </div>
                 ) : (
@@ -347,39 +347,39 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                         setIsOpen(false);
                         setSearch("");
                       }}
-                      className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${
-                        selectedRepo?.id === repo.id ? "bg-indigo-50 dark:bg-indigo-500/10" : ""
+                      className={`w-full px-4 py-3 text-left hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors ${
+                        selectedRepo?.id === repo.id ? "bg-gold-50 dark:bg-gold-900/10" : ""
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${repo.private ? "bg-amber-100 dark:bg-amber-500/10" : "bg-slate-100 dark:bg-slate-700"}`}>
+                        <div className={`p-2 rounded-lg ${repo.private ? "bg-amber-100 dark:bg-amber-900/20" : "bg-surface-100 dark:bg-surface-800"}`}>
                           {repo.private ? (
                             <svg className="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                           ) : (
-                            <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <svg className="w-4 h-4 text-surface-500 dark:text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
                             </svg>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                            <span className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">
                               {repo.name}
                             </span>
                             {repo.private && (
-                              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
                                 Private
                               </span>
                             )}
                           </div>
                           {repo.description && (
-                            <div className="text-xs text-slate-500 truncate">{repo.description}</div>
+                            <div className="text-xs text-surface-500 dark:text-surface-400 truncate">{repo.description}</div>
                           )}
                         </div>
                         {selectedRepo?.id === repo.id && (
-                          <svg className="w-4 h-4 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <svg className="w-4 h-4 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         )}

@@ -85,14 +85,14 @@ export default function ChatInput({
   const showStop = Boolean(loading);
 
   return (
-    <div className="border-t border-cyan-300/20 bg-black/60 px-3 py-3 sm:px-4 sm:py-4 backdrop-blur-xl">
+    <div className="bg-background px-3 py-6 sm:px-6">
       <div className="max-w-4xl mx-auto">
         {attachments.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-2">
+          <div className="mb-3 flex flex-wrap gap-2">
             {attachments.map((attachment) => (
               <div
                 key={attachment.id}
-                className="flex items-center gap-2 max-w-full rounded-xl border border-cyan-300/20 bg-black/40 px-2 py-1.5"
+                className="flex items-center gap-2 max-w-full rounded-xl border border-border bg-secondary/50 px-2 py-1.5 backdrop-blur-sm"
               >
                 {attachment.kind === "image" && attachment.previewUrl ? (
                   <Image
@@ -101,21 +101,21 @@ export default function ChatInput({
                     width={40}
                     height={40}
                     unoptimized
-                    className="w-10 h-10 rounded-lg object-cover border border-cyan-300/30"
+                    className="w-10 h-10 rounded-lg object-cover border border-border"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-black/60 border border-cyan-300/30 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-cyan-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <div className="w-10 h-10 rounded-lg bg-secondary border border-border flex items-center justify-center">
+                    <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 11.625h4.5m-4.5 2.25h4.5m2.25-9H5.625c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                     </svg>
                   </div>
                 )}
 
-                <div className="min-w-0">
-                  <div className="text-xs font-medium text-cyan-100 truncate max-w-[14rem]">
+                <div className="min-w-0 px-1">
+                  <div className="text-[11px] font-bold text-foreground truncate max-w-[12rem]">
                     {attachment.name}
                   </div>
-                  <div className="text-[11px] text-cyan-200/60">
+                  <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
                     {attachment.kind === "image" ? "Image" : "File"} • {(attachment.size / 1024).toFixed(0)} KB
                   </div>
                 </div>
@@ -123,11 +123,11 @@ export default function ChatInput({
                 <button
                   type="button"
                   onClick={() => onRemoveAttachment(attachment.id)}
-                  className="ml-1 w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center text-cyan-200/70 hover:text-cyan-100 transition-colors"
+                  className="ml-1 w-6 h-6 rounded-lg hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={`Remove ${attachment.name}`}
                   disabled={disabled}
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -137,13 +137,13 @@ export default function ChatInput({
         )}
 
         {attachmentError && (
-          <div className="mb-2 text-sm text-red-200">
+          <div className="mb-3 px-2 text-xs font-bold text-red-500 uppercase tracking-wider">
             {attachmentError}
           </div>
         )}
 
         <div
-          className="flex items-end gap-2 bg-black/50 rounded-2xl border border-cyan-300/30 p-2 focus-within:ring-2 focus-within:ring-cyan-300/30 focus-within:border-cyan-300 transition-all"
+          className="flex items-end gap-2 bg-surface-100 dark:bg-surface-900 rounded-xl border border-border p-1.5 focus-within:border-gold-500/50 focus-within:ring-2 focus-within:ring-gold-500/20 transition-all duration-300 shadow-lovable dark:shadow-lovable-dark"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -172,40 +172,44 @@ export default function ChatInput({
                 setShowAttachmentMenu((prev) => !prev);
               }}
               disabled={disabled}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-black/60 border border-cyan-300/30 text-cyan-200/80 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
-              aria-label="Attach files or generate images"
-              aria-haspopup="menu"
-              aria-expanded={showAttachmentMenu}
+              className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface-50 dark:bg-surface-800 border border-border text-muted-foreground hover:text-foreground hover:border-gold-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center group"
+              aria-label="Attach"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.956 7.956a3.375 3.375 0 01-4.773-4.773l9.348-9.348a2.25 2.25 0 113.182 3.182l-9.349 9.349a1.125 1.125 0 01-1.591-1.591l7.956-7.956" />
               </svg>
             </button>
             {showAttachmentMenu && (
               <div
                 ref={attachmentMenuRef}
-                className="absolute bottom-full left-0 mb-2 w-44 rounded-xl border border-slate-200 dark:border-cyan-200/20 bg-white/95 dark:bg-black/90 shadow-lg backdrop-blur"
+                className="absolute bottom-full left-0 mb-3 w-56 rounded-xl border border-gold-500/20 bg-surface-50 dark:bg-surface-950 shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200"
                 role="menu"
               >
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-left text-xs text-slate-700 dark:text-cyan-100 hover:bg-slate-100 dark:hover:bg-white/5 rounded-t-xl"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-surface-200 dark:hover:bg-surface-800 rounded-lg transition-colors"
                   onClick={() => {
                     setShowAttachmentMenu(false);
                     fileInputRef.current?.click();
                   }}
                 >
-                  Upload file or photo
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Upload files
                 </button>
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-left text-xs text-slate-700 dark:text-cyan-100 hover:bg-slate-100 dark:hover:bg-white/5 rounded-b-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:text-slate-400 dark:disabled:text-cyan-100/40"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-secondary rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   onClick={() => {
                     setShowAttachmentMenu(false);
                     onOpenImageGenerator?.();
                   }}
                   disabled={!canGenerateImages || !onOpenImageGenerator}
                 >
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l1.29 1.29m-12.125-12.125H3.75A2.25 2.25 0 001.5 4.5v15a2.25 2.25 0 002.25 2.25h16.5a2.25 2.25 0 002.25-2.25V4.5A2.25 2.25 0 0019.5 2.25h-15zM9 10.125a1.125 1.125 0 11-2.25 0 1.125 1.125 0 012.25 0z" />
+                  </svg>
                   Generate image
                 </button>
               </div>
@@ -220,35 +224,34 @@ export default function ChatInput({
             placeholder={placeholder}
             disabled={Boolean(disabled && !loading)}
             rows={1}
-            className="flex-1 bg-transparent text-base md:text-sm text-cyan-50 placeholder-cyan-200/50 resize-none focus:outline-none px-2 py-2 max-h-[200px]"
+            className="flex-1 bg-transparent text-base md:text-sm text-foreground placeholder-muted-foreground/60 resize-none focus:outline-none px-3 py-2.5 max-h-[200px] leading-relaxed"
           />
+
           {showStop ? (
             <button
               type="button"
               onClick={onStop}
               disabled={!onStop}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-white/15 border border-cyan-200/40 flex items-center justify-center text-cyan-50 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-              aria-label="Stop generating"
-              title="Stop generating (Esc)"
+              className="flex-shrink-0 w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300"
+              aria-label="Stop"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <rect x="7" y="7" width="10" height="10" rx="2" />
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="7" y="7" width="10" height="10" rx="1.5" />
               </svg>
             </button>
           ) : (
             <button
               onClick={onSubmit}
               disabled={disabled || (!value.trim() && attachments.length === 0)}
-              className="flex-shrink-0 w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-black disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-              aria-label="Send message"
+              className="flex-shrink-0 w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center text-white disabled:opacity-20 disabled:grayscale hover:bg-gold-600 transition-all duration-300 shadow-lg shadow-gold-500/20 active:scale-95 group"
+              aria-label="Send"
             >
               <svg
-                className="w-5 h-5"
+                className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={2}
-                aria-hidden="true"
+                strokeWidth={2.5}
               >
                 <path
                   strokeLinecap="round"
@@ -259,8 +262,8 @@ export default function ChatInput({
             </button>
           )}
         </div>
-        <p className="text-xs text-cyan-200/60 text-center mt-2">
-          Press Enter to send, Shift+Enter for new line. Drag & drop or attach files/photos.
+        <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-widest text-center mt-4">
+          Professional AI Command Center • OS Athena v1.1.0
         </p>
       </div>
     </div>

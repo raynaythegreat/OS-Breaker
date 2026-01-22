@@ -105,24 +105,24 @@ export default function NotificationPanel({
   return (
     <div className="fixed bottom-20 md:bottom-4 right-4 z-40 w-[calc(100%-2rem)] md:w-96 max-h-[60vh] flex flex-col">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 rounded-t-xl border border-slate-200 dark:border-slate-700 shadow-xl">
+      <div className="bg-white dark:bg-surface-900 rounded-t-xl border border-surface-200 dark:border-surface-700 shadow-xl">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors rounded-t-xl"
+          className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors rounded-t-xl"
         >
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-            <span className="font-semibold text-sm text-slate-900 dark:text-white">
+            <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
+            <span className="font-semibold text-sm text-surface-900 dark:text-surface-100">
               Notifications
             </span>
             {notificationCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-medium">
+              <span className="px-2 py-0.5 rounded-full bg-gold-100 dark:bg-gold-900/30 text-gold-700 dark:text-gold-300 text-xs font-medium">
                 {notificationCount}
               </span>
             )}
           </div>
           <svg
-            className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+            className={`w-5 h-5 text-surface-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -134,26 +134,26 @@ export default function NotificationPanel({
 
       {/* Notifications */}
       {isExpanded && (
-        <div className="bg-white dark:bg-slate-800 rounded-b-xl border-x border-b border-slate-200 dark:border-slate-700 shadow-xl overflow-y-auto max-h-[calc(60vh-3rem)]">
-          <div className="divide-y divide-slate-200 dark:divide-slate-700">
+        <div className="bg-white dark:bg-surface-900 rounded-b-xl border-x border-b border-surface-200 dark:border-surface-700 shadow-xl overflow-y-auto max-h-[calc(60vh-3rem)]">
+          <div className="divide-y divide-surface-100 dark:divide-surface-800">
             {/* Commit Success */}
             {applyRepoResult && (
-              <div className="p-4 bg-green-50 dark:bg-green-500/10">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-green-900 dark:text-green-100 mb-1">
+                    <div className="font-semibold text-sm text-emerald-900 dark:text-emerald-100 mb-1">
                       Changes Committed
                     </div>
-                    <div className="text-sm text-green-800 dark:text-green-200 mb-2">
+                    <div className="text-sm text-emerald-800 dark:text-emerald-200 mb-2">
                       {applyRepoResult.filesChanged || 0} file{(applyRepoResult.filesChanged || 0) === 1 ? "" : "s"} committed to <strong>{applyRepoResult.branch}</strong>
                     </div>
                     {!applyRepoResult.previewUrl && (
-                      <div className="text-xs text-green-700 dark:text-green-300 flex items-center gap-1.5 mb-2">
+                      <div className="text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 mb-2">
                         <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -165,7 +165,7 @@ export default function NotificationPanel({
                         href={applyRepoResult.commitUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -177,7 +177,7 @@ export default function NotificationPanel({
                           href={applyRepoResult.previewUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-700 text-white text-xs font-medium hover:bg-green-800 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-medium hover:bg-emerald-800 transition-colors"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -194,19 +194,19 @@ export default function NotificationPanel({
 
             {/* Deploy Progress */}
             {deployProgress && (
-              <div className="p-4 bg-blue-50 dark:bg-blue-500/10">
+              <div className="p-4 bg-sky-50 dark:bg-sky-900/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-sky-600 dark:text-sky-400 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-blue-900 dark:text-blue-100 mb-1">
+                    <div className="font-semibold text-sm text-sky-900 dark:text-sky-100 mb-1">
                       Deploying ({deployProgress.attempt}/{deployProgress.total})
                     </div>
-                    <div className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                    <div className="text-sm text-sky-800 dark:text-sky-200 mb-2">
                       <strong>{deployProgress.strategyLabel}</strong>
                       {deployProgress.state && ` • ${deployProgress.state}`}
                     </div>
@@ -216,7 +216,7 @@ export default function NotificationPanel({
                           href={deployProgress.inspectorUrl || deployProgress.logsUrl || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-medium hover:bg-sky-700 transition-colors"
                         >
                           View Logs
                         </a>
@@ -224,7 +224,7 @@ export default function NotificationPanel({
                       {onCancelDeploy && (
                         <button
                           onClick={onCancelDeploy}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-900 dark:text-blue-100 text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-100 dark:bg-sky-900/30 text-sky-900 dark:text-sky-100 text-xs font-medium hover:bg-sky-200 dark:hover:bg-sky-900/50 transition-colors"
                         >
                           Cancel
                         </button>
@@ -237,18 +237,18 @@ export default function NotificationPanel({
 
             {/* Deploy Success */}
             {deployResult && (
-              <div className="p-4 bg-green-50 dark:bg-green-500/10">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-green-900 dark:text-green-100 mb-1">
+                    <div className="font-semibold text-sm text-emerald-900 dark:text-emerald-100 mb-1">
                       Deployment Ready
                     </div>
-                    <div className="text-sm text-green-800 dark:text-green-200 mb-2">
+                    <div className="text-sm text-emerald-800 dark:text-emerald-200 mb-2">
                       <strong>
                         {deployResult.provider === "render"
                           ? deployResult.serviceName
@@ -261,7 +261,7 @@ export default function NotificationPanel({
                         href={deployResult.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -275,7 +275,7 @@ export default function NotificationPanel({
                             href={deployResult.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors"
                           >
                             View App
                           </a>
@@ -285,7 +285,7 @@ export default function NotificationPanel({
                             href={deployResult.dashboardUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-90 transition-opacity"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-900 dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-90 transition-opacity"
                           >
                             Dashboard
                           </a>
@@ -295,7 +295,7 @@ export default function NotificationPanel({
                             href={deployResult.logsUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-xs font-medium hover:opacity-90 transition-opacity"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-surface-100 text-xs font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
                           >
                             Logs
                           </a>
@@ -309,9 +309,9 @@ export default function NotificationPanel({
 
             {/* Auto-fix Progress */}
             {deployAutoFixProgress && (
-              <div className="p-4 bg-purple-50 dark:bg-purple-500/10">
+              <div className="p-4 bg-purple-50 dark:bg-purple-900/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-purple-600 dark:text-purple-400 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -328,7 +328,7 @@ export default function NotificationPanel({
                     {onCancelAutoFix && deployAutoFixing && (
                       <button
                         onClick={onCancelAutoFix}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-500/20 text-purple-900 dark:text-purple-100 text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-500/30 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100 text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
                       >
                         Cancel
                       </button>
@@ -340,9 +340,9 @@ export default function NotificationPanel({
 
             {/* Errors */}
             {(deployError || deployAutoFixError || chatError) && (
-              <div className="p-4 bg-red-50 dark:bg-red-500/10">
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
                     <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -370,21 +370,21 @@ export default function NotificationPanel({
 
             {/* Info/Fallback Notice */}
             {fallbackNotice && (
-              <div className="p-4 bg-sky-50 dark:bg-sky-500/10">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-sky-800 dark:text-sky-200 mb-2">
+                    <div className="text-sm text-blue-800 dark:text-blue-200 mb-2">
                       {fallbackNotice}
                     </div>
                     {onDismissFallback && (
                       <button
                         onClick={onDismissFallback}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-medium hover:bg-sky-700 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors"
                       >
                         Dismiss
                       </button>

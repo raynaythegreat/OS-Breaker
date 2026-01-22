@@ -109,20 +109,20 @@ export default function ImageGeneratorModal({
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-2xl border border-cyan-300/30 bg-black/80 p-4 sm:p-6 shadow-2xl">
+      <div className="w-full max-w-xl rounded-xl border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-950 p-6 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-cyan-50">
+            <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-50">
               Generate Image
             </h2>
-            <p className="text-xs text-cyan-200/70">
+            <p className="text-sm text-surface-500 dark:text-surface-400">
               Generated images attach to your next message.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-white/10 text-cyan-200/80 hover:text-cyan-50 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-500 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-50 transition-colors"
             aria-label="Close image generator"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -131,15 +131,15 @@ export default function ImageGeneratorModal({
           </button>
         </div>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-6 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-cyan-100/80 mb-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
               Provider
             </label>
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value as ImageProviderId)}
-              className="w-full rounded-xl border border-cyan-300/30 bg-black/60 px-3 py-2 text-sm text-slate-900 dark:text-cyan-50 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+              className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
             >
               {providers.map((item) => (
                 <option
@@ -152,14 +152,14 @@ export default function ImageGeneratorModal({
                 </option>
               ))}
             </select>
-            <div className="mt-1 text-[11px] text-slate-600 dark:text-cyan-200/60">
+            <div className="mt-1.5 text-xs text-surface-500 dark:text-surface-400">
               {providers.find((item) => item.id === provider)?.description ||
                 "OpenAI-compatible image endpoint."}
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-cyan-100/80 mb-2">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
               Prompt
             </label>
             <textarea
@@ -167,19 +167,19 @@ export default function ImageGeneratorModal({
               onChange={(e) => setPrompt(e.target.value)}
               rows={4}
               placeholder="Describe the image you want to generate..."
-              className="w-full rounded-xl border border-cyan-300/30 bg-black/60 px-3 py-2 text-sm text-slate-900 dark:text-cyan-50 placeholder-slate-900/70 dark:placeholder-cyan-200/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+              className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 resize-none"
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-cyan-100/80 mb-2">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                 Size
               </label>
               <select
                 value={size}
                 onChange={(e) => setSize(e.target.value)}
-                className="w-full rounded-xl border border-cyan-300/30 bg-black/60 px-3 py-2 text-sm text-slate-900 dark:text-cyan-50 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+                className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
               >
                 {SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -189,7 +189,7 @@ export default function ImageGeneratorModal({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-cyan-100/80 mb-2">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                 Model (optional)
               </label>
               <input
@@ -197,7 +197,7 @@ export default function ImageGeneratorModal({
                 onChange={(e) => setModel(e.target.value)}
                 placeholder="Overrides env default"
                 list={modelOptions.length > 0 ? `image-models-${provider}` : undefined}
-                className="w-full rounded-xl border border-cyan-300/30 bg-black/60 px-3 py-2 text-sm text-slate-900 dark:text-cyan-50 placeholder-slate-900/70 dark:placeholder-cyan-200/40 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+                className="w-full rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 px-3 py-2 text-sm text-surface-900 dark:text-surface-50 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500"
               />
               {modelOptions.length > 0 && (
                 <datalist id={`image-models-${provider}`}>
@@ -211,16 +211,16 @@ export default function ImageGeneratorModal({
         </div>
 
         {(localError || error) && (
-          <div className="mt-4 text-xs text-red-200">
+          <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
             {localError || error}
           </div>
         )}
 
-        <div className="mt-5 flex items-center justify-end gap-2">
+        <div className="mt-8 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-cyan-200/30 text-cyan-100/80 hover:text-cyan-50 hover:border-cyan-200/50 transition-colors text-sm"
+            className="px-4 py-2 rounded-lg border border-surface-200 dark:border-surface-700 text-surface-700 dark:text-surface-300 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors text-sm font-medium"
           >
             Cancel
           </button>
@@ -228,7 +228,7 @@ export default function ImageGeneratorModal({
             type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="px-4 py-2 rounded-xl bg-cyan-200 text-black font-semibold text-sm hover:bg-cyan-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 rounded-lg bg-gold-500 hover:bg-gold-600 text-white font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
             {loading ? "Generating..." : "Generate"}
           </button>

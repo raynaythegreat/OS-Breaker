@@ -17,18 +17,18 @@ export default function DeploymentsPage() {
   );
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="px-4 sm:px-6 pt-4 sm:pt-6">
-        <div className="inline-flex rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
+    <div className="h-full flex flex-col bg-surface-50 dark:bg-black">
+      <div className="px-6 pt-6">
+        <div className="inline-flex rounded-lg border border-surface-200 dark:border-surface-800 bg-white dark:bg-surface-900 p-1 shadow-sm">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setProvider(tab.id)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
                 provider === tab.id
-                  ? "bg-black dark:bg-white text-white dark:text-black"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? "bg-gold-500 text-white shadow-sm"
+                  : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-200"
               }`}
             >
               {tab.label}
@@ -43,4 +43,3 @@ export default function DeploymentsPage() {
     </div>
   );
 }
-

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ok } from "@/lib/apiResponse";
-import { getOllamaBaseUrl, getPlatformHint, getRuntimeEnv, summarizeProvidersFromEnv } from "@/lib/config/runtime";
+import { getOllamaBaseUrl, getPlatformHint, summarizeProvidersFromEnv } from "@/lib/runtime";
+import { getRuntimeEnv } from "@/lib/runtime";
 import { normalizeBaseUrl } from "@/lib/config/schema";
 
 export const dynamic = "force-dynamic";
@@ -30,18 +31,27 @@ export async function GET() {
   const ollamaBaseUrl = getOllamaBaseUrl();
   const reachable = ollamaBaseUrl ? await checkOllamaReachable(ollamaBaseUrl) : null;
 
+  const providersObj: Record<string, any> = {
+    anthropic: providers.includes("claude") ? { configured: true, source: "env" } : { configured: false, source: "none" },
+    openai: providers.includes("openai") ? { configured: true, source: "env" } : { configured: false, source: "none" },
+    groq: providers.includes("groq") ? { configured: true, source: "env" } : { configured: false, source: "none" },
+    openrouter: providers.includes("openrouter") ? { configured: true, source: "env" } : { configured: false, source: "none" },
+    fireworks: providers.includes("fireworks") ? { configured: true, source: "env" } : { configured: false, source: "none" },
+    ollama: {
+      baseUrl: ollamaBaseUrl,
+      reachable
+    }
+  };
+
   return ok({
     runtime: {
-      nodeEnv: env.NODE_ENV ?? "production",
-      platformHint
+      nodeEnv: process.env.NODE_ENV ?? "production",
+      platformHint,
+      onCloud: env.onCloud,
+      onVercel: env.onVercel,
+      onRender: env.onRender
     },
-    providers: {
-      ...providers,
-      ollama: {
-        baseUrl: ollamaBaseUrl,
-        reachable
-      }
-    },
+    providers: providersObj,
     meta: {
       refreshedAt: Date.now()
     }
