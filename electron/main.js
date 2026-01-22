@@ -151,15 +151,26 @@ function installToApplications() {
     // For Linux, create desktop entry
     let execPath;
     
-    if (appPath.includes('AppImage')) {
-      // For AppImage, use the current executable
-      execPath = process.env.APPIMAGE || appPath;
+    if (process.env.APPIMAGE) {
+      // For AppImage, use the AppImage itself
+      execPath = process.env.APPIMAGE;
+    } else if (appPath.includes('AppImage')) {
+      // Fallback for AppImage
+      execPath = appPath;
+    } else if (fs.existsSync('/usr/local/bin/os-athena')) {
+      // If installed locally in /usr/local/bin
+      execPath = '/usr/local/bin/os-athena';
     } else if (fs.existsSync('/usr/bin/os-athena')) {
-      // If installed system-wide
+      // If installed system-wide in /usr/bin
       execPath = '/usr/bin/os-athena';
     } else {
-      // For development or local build
-      execPath = path.join(appPath, 'os-athena');
+      // For development or local build - use npm script
+      const packagePath = path.join(appPath, 'package.json');
+      if (fs.existsSync(packagePath)) {
+        execPath = `cd "${appPath}" && npm start`;
+      } else {
+        execPath = path.join(appPath, 'os-athena');
+      }
     }
     
     // Find icon in multiple possible locations
@@ -180,9 +191,9 @@ Comment=AI Assistant for Web Development
 Exec="${execPath}"
 Icon=${iconPath}
 Terminal=false
-Categories=Development;Utility;
+Categories=Development;
 StartupNotify=true
-MimeType=x-scheme-handler/athena;
+NoDisplay=false;
 `;
     
     // Create in both user applications and desktop for better visibility
