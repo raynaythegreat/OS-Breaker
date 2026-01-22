@@ -42,7 +42,29 @@ cd ~/OS-Athena
 
 ## 🔧 Troubleshooting
 
-### If the app doesn't launch:
+### If the app doesn't appear in your application menu:
+
+1. **Refresh the app menu:**
+   ```bash
+   cd ~/OS-Athena
+   ./electron/refresh-app-menu.sh
+   ```
+
+2. **Manually update desktop database:**
+   ```bash
+   update-desktop-database ~/.local/share/applications
+   ```
+
+3. **Logout and login again** (most reliable fix)
+   - This refreshes your desktop environment's app cache
+
+4. **For GNOME users:**
+   - Press `Alt+F2`, type `r`, press `Enter` to restart GNOME Shell
+
+5. **For KDE Plasma users:**
+   - Right-click panel → Edit Panel → More Options → Restart Plasma
+
+### If the app doesn't launch from the menu:
 
 1. **Run diagnostics:**
    ```bash
@@ -55,15 +77,21 @@ cd ~/OS-Athena
    tail -f ~/.local/share/os-athena/logs/launcher-*.log
    ```
 
-3. **View all logs:**
+3. **Build the standalone app:**
    ```bash
-   ls -lah ~/.local/share/os-athena/logs/
+   cd ~/OS-Athena
+   npm run build
    ```
 
 4. **Reinstall desktop integration:**
    ```bash
    cd ~/OS-Athena
    ./electron/install-desktop-entry.sh
+   ```
+
+5. **Test desktop entry directly:**
+   ```bash
+   gtk-launch os-athena
    ```
 
 ### Common Issues:

@@ -376,7 +376,7 @@ const SettingsPage: React.FC = () => {
       {/* Actions */}
       <div className="flex items-center justify-between pt-8 border-t-2 border-border">
         <div className="text-xs text-muted-foreground font-bold">
-          All API keys are stored locally in your browser's secure storage.
+          All API keys are stored locally in your browser&apos;s secure storage.
         </div>
         <div className="flex gap-3">
           <button
