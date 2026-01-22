@@ -2,6 +2,23 @@
 
 All notable changes to OS Athena will be documented in this file.
 
+## [1.2.0] - 2026-01-22
+
+### Added
+- **Automatic Desktop Integration**: Application now automatically installs to system menu on first run
+  - macOS: Creates application alias in Applications folder
+  - Linux: Creates desktop entry in applications menu
+  - Windows: Handled by installer MSI package
+  - Skip installation in development mode
+  - First run tracking to prevent repeated installations
+
+### Improved
+- **UI Polish**: Refined color scheme and button designs
+  - Consistent gold theme throughout application
+  - Smaller, cleaner button designs
+  - Fixed settings page scrolling issues
+  - Enhanced dropdown menu styling
+
 ## [1.1.0] - 2026-01-12
 
 ### Added

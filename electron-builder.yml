@@ -21,7 +21,7 @@ linux:
       arch:
         - x64
   category: Development
-  icon: build/icon.png
+  icon: assets/icon.png
   asarUnpack:
     - node_modules/@anthropic-ai/sdk/**/*
     - node_modules/@octokit/rest/**/*
