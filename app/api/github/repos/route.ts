@@ -3,10 +3,30 @@ import { GitHubService } from "@/services/github";
 
 export const dynamic = 'force-dynamic';
 
+// Helper function to get GitHub token from headers or environment
+function getGitHubToken(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-GitHub");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+  
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.GITHUB_TOKEN || null;
+}
+
 // GET - List repositories
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const github = new GitHubService();
+    const token = getGitHubToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: "GitHub token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const github = new GitHubService(token);
     const repos = await github.listRepositories();
     return NextResponse.json({ repos });
   } catch (error) {
@@ -35,7 +55,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Repository name is required" }, { status: 400 });
     }
 
-    const github = new GitHubService();
+    const token = getGitHubToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: "GitHub token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const github = new GitHubService(token);
     const repo = await github.createRepository({
       name,
       description,

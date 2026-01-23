@@ -7,6 +7,15 @@ interface Params {
   params: Promise<{ owner: string; repo: string }>;
 }
 
+// Helper function to get GitHub token from headers or environment
+function getGitHubToken(request: NextRequest): string | null {
+  const headerToken = request.headers.get("X-API-Key-GitHub");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+  return process.env.GITHUB_TOKEN || null;
+}
+
 export async function POST(request: NextRequest, { params }: Params) {
   try {
     const { owner, repo } = await params;
@@ -27,7 +36,15 @@ export async function POST(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "New repository name is required" }, { status: 400 });
     }
 
-    const github = new GitHubService();
+    const token = getGitHubToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: "GitHub token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const github = new GitHubService(token);
     const copied = await github.copyRepositorySnapshot(owner, repo, {
       name,
       description,

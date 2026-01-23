@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GitHubRepository } from "@/types/github.types";
+import { SecureStorage } from "@/lib/secureStorage";
 
 export default function ReposPage() {
   const [repos, setRepos] = useState<GitHubRepository[]>([]);
@@ -18,16 +19,40 @@ export default function ReposPage() {
   const [copyIsPrivate, setCopyIsPrivate] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [githubToken, setGithubToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadGithubToken();
+  }, []);
+
+  const loadGithubToken = async () => {
+    try {
+      const token = await SecureStorage.getKey('github');
+      setGithubToken(token || null);
+    } catch (error) {
+      console.error('Failed to load GitHub token:', error);
+      setError('Failed to load GitHub token from secure storage');
+    }
+  };
 
   useEffect(() => {
     fetchRepos();
-  }, []);
+  }, [githubToken]);
 
   const fetchRepos = async () => {
+    if (!githubToken) {
+      setError('GitHub token not configured. Please add it in Settings.');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/github/repos");
+      const response = await fetch("/api/github/repos", {
+        headers: {
+          'X-API-Key-GitHub': githubToken
+        }
+      });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
       setRepos(data.repos || []);
@@ -39,12 +64,19 @@ export default function ReposPage() {
   };
 
   const createRepo = async () => {
+    if (!githubToken) {
+      setError('GitHub token not configured. Please add it in Settings.');
+      return;
+    }
     if (!newRepo.name.trim()) return;
     setCreating(true);
     try {
       const response = await fetch("/api/github/repos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          'X-API-Key-GitHub': githubToken
+        },
         body: JSON.stringify(newRepo),
       });
       const data = await response.json();
@@ -68,6 +100,10 @@ export default function ReposPage() {
   };
 
   const copyRepo = async () => {
+    if (!githubToken) {
+      setError('GitHub token not configured. Please add it in Settings.');
+      return;
+    }
     if (!copySourceRepo || !copyRepoName.trim()) return;
 
     setCopying(true);
@@ -76,7 +112,10 @@ export default function ReposPage() {
       const [owner, repo] = copySourceRepo.full_name.split("/");
       const response = await fetch(`/api/github/repos/${owner}/${repo}/copy`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          'X-API-Key-GitHub': githubToken
+        },
         body: JSON.stringify({
           name: copyRepoName.trim(),
           isPrivate: copyIsPrivate,
@@ -99,11 +138,18 @@ export default function ReposPage() {
   };
 
   const deleteRepo = async (fullName: string) => {
+    if (!githubToken) {
+      setError('GitHub token not configured. Please add it in Settings.');
+      return;
+    }
     setDeleting(true);
     try {
       const [owner, repo] = fullName.split("/");
       const response = await fetch(`/api/github/repos/${owner}/${repo}`, {
         method: "DELETE",
+        headers: {
+          'X-API-Key-GitHub': githubToken
+        }
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
