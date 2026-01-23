@@ -16,5 +16,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 contextBridge.exposeInMainWorld('api', {
   minimize: () => ipcRenderer.invoke('window-minimize'),
   maximize: () => ipcRenderer.invoke('window-maximize'),
-  close: () => ipcRenderer.invoke('window-close')
+  close: () => ipcRenderer.invoke('window-close'),
+  getFileAccessStatus: () => ipcRenderer.invoke('get-file-access-status'),
+  toggleFileAccess: (enabled) => ipcRenderer.invoke('toggle-file-access', enabled),
+  readFile: (path) => ipcRenderer.invoke('read-file', path),
+  writeFile: (path, content) => ipcRenderer.invoke('write-file', { path, content }),
+  listDirectory: (path) => ipcRenderer.invoke('list-directory', path),
+  getFileStats: (path) => ipcRenderer.invoke('get-file-stats', path),
+  selectDirectory: () => ipcRenderer.invoke('select-directory')
 });

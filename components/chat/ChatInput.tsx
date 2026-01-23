@@ -143,7 +143,7 @@ export default function ChatInput({
         )}
 
         <div
-          className="flex items-end gap-2 bg-card rounded-lg border-2 border-gold-500/20 p-1.5 focus-within:border-gold-500/40 transition-all duration-200 shadow-xl"
+          className="flex items-end gap-2 bg-card rounded-xl border-2 border-gold-500/20 p-2 focus-within:border-gold-500/60 focus-within:shadow-xl focus-within:shadow-gold-500/10 transition-all duration-300"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -172,7 +172,7 @@ export default function ChatInput({
                 setShowAttachmentMenu((prev) => !prev);
               }}
               disabled={disabled}
-              className="flex-shrink-0 w-8 h-8 rounded-lg bg-secondary border-2 border-border text-muted-foreground hover:text-foreground hover:border-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center group"
+              className="flex-shrink-0 w-8 h-8 rounded-lg bg-secondary border-2 border-border text-muted-foreground hover:text-foreground hover:border-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center group hover:scale-105"
               aria-label="Attach"
             >
               <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

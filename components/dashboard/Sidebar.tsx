@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@/contexts/ThemeContext";
-import GlassesLogo from "@/components/ui/GlassesLogo";
+import AthenaLogo from "@/components/ui/AthenaLogo";
 
 interface NavItem {
   id: string;
@@ -71,7 +71,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-8">
         <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center border-3 border-primary shadow-flat-gold">
-          <GlassesLogo className="w-6 h-6" />
+          <AthenaLogo className="w-6 h-6" />
         </div>
         <div>
           <h1 className="font-sans font-bold text-xl text-foreground tracking-tight">OS Athena</h1>

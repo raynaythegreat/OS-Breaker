@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ApiTester, TestResult } from '@/services/apiTester';
+import { useFileAccess } from '@/contexts/FileAccessContext';
+import FileAccessPermissionModal from '@/components/FileAccessPermissionModal';
 
 interface CustomEndpoint {
   id: string;
@@ -88,6 +90,10 @@ const SettingsPage: React.FC = () => {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [customEndpoints, setCustomEndpoints] = useState<CustomEndpoint[]>([]);
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [requestedAction, setRequestedAction] = useState<'enable' | 'disable'>('enable');
+  const { enabled: fileAccessEnabled, toggleAccess: toggleFileAccess } = useFileAccess();
   const [newCustomEndpoint, setNewCustomEndpoint] = useState<Omit<CustomEndpoint, 'id'>>({
     name: '',
     baseUrl: '',
@@ -115,6 +121,11 @@ const SettingsPage: React.FC = () => {
         console.error('Failed to parse saved custom endpoints:', e);
       }
     }
+
+    const savedSystemPrompt = localStorage.getItem('system-prompt');
+    if (savedSystemPrompt) {
+      setSystemPrompt(savedSystemPrompt);
+    }
   }, []);
 
   // Auto-save to localStorage whenever keys change
@@ -124,6 +135,11 @@ const SettingsPage: React.FC = () => {
     const timer = setTimeout(() => setSaved(false), 2000);
     return () => clearTimeout(timer);
   }, [apiKeys]);
+
+  // Auto-save system prompt to localStorage
+  useEffect(() => {
+    localStorage.setItem('system-prompt', systemPrompt);
+  }, [systemPrompt]);
 
   const updateKey = (provider: keyof ApiKeys, value: string) => {
     setApiKeys(prev => ({ ...prev, [provider]: value }));
@@ -314,6 +330,11 @@ const SettingsPage: React.FC = () => {
     });
   };
 
+  const handleFileAccessToggle = () => {
+    setRequestedAction(fileAccessEnabled ? 'disable' : 'enable');
+    setShowPermissionModal(true);
+  };
+
   const testCustomEndpoint = async (endpoint: CustomEndpoint) => {
     setTesting(`custom-${endpoint.id}`);
     try {
@@ -399,7 +420,158 @@ const SettingsPage: React.FC = () => {
         </div>
       )}
 
-      {/* AI Providers */}
+      {/* Chat Configuration */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-black text-foreground uppercase tracking-tight">Chat Configuration</h2>
+          <p className="text-sm text-muted-foreground font-bold mt-1">
+            Customize AI behavior with a custom system prompt
+          </p>
+        </div>
+
+        <div className="max-w-3xl">
+          <div className="p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gold-500 text-white flex items-center justify-center text-xl border-2 border-gold-600 shadow-flat-gold">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-black text-foreground text-lg">System Prompt</h3>
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                    Guide AI responses
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSystemPrompt('')}
+                className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold border border-red-500/20 hover:bg-red-500/20 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">
+                System Prompt Instructions
+              </label>
+              <textarea
+                value={systemPrompt}
+                onChange={(e) => setSystemPrompt(e.target.value)}
+                placeholder="Example: You are a senior developer helping build modern web applications. Focus on clean, maintainable code with proper error handling. Always explain your reasoning before suggesting solutions."
+                className="w-full min-h-[120px] px-4 py-3 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:border-gold-500/40 focus:outline-none focus:ring-2 focus:ring-gold-500/10 transition-all font-mono text-sm resize-y"
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  {systemPrompt.length} characters
+                </span>
+                <span className="text-[10px] text-gold-600 dark:text-gold-400 font-medium">
+                  Auto-saved
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+       </div>
+ 
+       {/* File System Access */}
+       <div className="space-y-6">
+         <div>
+           <h2 className="text-xl font-black text-foreground uppercase tracking-tight">File System Access</h2>
+           <p className="text-sm text-muted-foreground font-bold mt-1">
+             Allow AI to read and edit files on your computer
+           </p>
+         </div>
+
+         <div className="max-w-3xl">
+           <div className="p-6 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover">
+             <div className="flex items-start gap-4">
+               <div className="w-12 h-12 rounded-lg bg-gold-500/10 text-gold-600 dark:text-gold-400 flex items-center justify-center text-xl border-2 border-gold-500/20 flex-shrink-0">
+                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                 </svg>
+               </div>
+               <div className="flex-1">
+                 <div className="flex items-start justify-between gap-4 mb-3">
+                   <div>
+                     <h3 className="font-black text-foreground text-lg">Local File Access</h3>
+                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                       Read & edit files on your computer
+                     </p>
+                   </div>
+                 </div>
+
+                  <div className="space-y-4">
+                    <p className="text-sm text-foreground leading-relaxed">
+                      When enabled, Athena can read files from your entire home directory, make edits, create new files, and browse directories. Use this for working with local projects and documents.
+                    </p>
+
+                   <div className={`p-4 rounded-lg border-2 ${
+                     fileAccessEnabled
+                       ? 'bg-emerald-500/10 border-emerald-500/30'
+                       : 'bg-surface-100 dark:bg-surface-900 border-gold-500/20'
+                   }`}>
+                     <div className="flex items-center gap-3">
+                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center border-2 ${
+                         fileAccessEnabled
+                           ? 'bg-emerald-500 text-white border-emerald-600'
+                           : 'bg-surface-200 dark:bg-surface-800 text-muted-foreground border-gold-500/20'
+                       }`}>
+                         {fileAccessEnabled ? (
+                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                           </svg>
+                         ) : (
+                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                           </svg>
+                         )}
+                       </div>
+                       <div className="flex-1">
+                         <div className="font-semibold text-sm mb-1">
+                           {fileAccessEnabled ? 'Access Enabled (Automatic)' : 'Access Disabled (Manual Confirmation)'}
+                         </div>
+                         <div className="text-xs text-muted-foreground">
+                           {fileAccessEnabled
+                             ? 'Athena can read and edit your files automatically'
+                             : 'Athena requires confirmation for each file operation'}
+                         </div>
+                       </div>
+                       <button
+                         onClick={handleFileAccessToggle}
+                         className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                           fileAccessEnabled
+                             ? 'bg-red-500/10 text-red-600 border-2 border-red-500/30 hover:bg-red-500/20'
+                             : 'bg-gradient-to-r from-gold-500 to-amber-500 text-black border-2 border-gold-600 hover:from-gold-600 hover:to-amber-600'
+                         }`}
+                       >
+                         {fileAccessEnabled ? 'Disable Access' : 'Enable Access'}
+                       </button>
+                     </div>
+                   </div>
+
+                   {fileAccessEnabled && (
+                     <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+                       <div className="flex items-start gap-2">
+                         <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                         </svg>
+                         <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                           File access is active with automatic operations. You can revoke access or require manual confirmation at any time.
+                         </p>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       {/* AI Providers */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -853,9 +1025,17 @@ const SettingsPage: React.FC = () => {
             {testing === 'all' ? 'Testing All Connections...' : 'Test All Connections'}
           </button>
         </div>
-      </div>
-    </div>
-  );
-};
+       </div>
+
+       {showPermissionModal && (
+         <FileAccessPermissionModal
+           isOpen={showPermissionModal}
+           onClose={() => setShowPermissionModal(false)}
+           requestedAction={requestedAction}
+         />
+       )}
+     </div>
+   );
+ };
 
 export default SettingsPage;

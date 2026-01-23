@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ChatHistoryProvider } from "@/contexts/ChatHistoryContext";
 import { ApiUsageProvider } from "@/contexts/ApiUsageContext";
 import { DeploymentProvider } from "@/contexts/DeploymentContext";
+import { FileAccessProvider } from "@/contexts/FileAccessContext";
 
 export const metadata: Metadata = {
   title: "OS Athena - AI Dev Command Center",
@@ -32,7 +33,9 @@ export default function RootLayout({
         <ThemeProvider>
           <ChatHistoryProvider>
             <ApiUsageProvider>
-              <DeploymentProvider>{children}</DeploymentProvider>
+              <DeploymentProvider>
+                <FileAccessProvider>{children}</FileAccessProvider>
+              </DeploymentProvider>
             </ApiUsageProvider>
           </ChatHistoryProvider>
         </ThemeProvider>

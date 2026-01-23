@@ -1,13 +1,19 @@
-const { app, BrowserWindow, ipcMain, safeStorage } = require('electron');
+const { app, BrowserWindow, ipcMain, safeStorage, dialog } = require('electron');
 const path = require('path');
-const fs = require('fs');
+const fsSync = require('fs');
+const fs = require('fs').promises;
+const os = require('os');
 const { exec } = require('child_process');
 const http = require('http');
 
 let mainWindow;
 let nextServer;
 const isDev = process.env.NODE_ENV !== 'production';
-const PORT = 3456; // Fixed port for the bundled app
+const PORT = 3456;
+
+// File access state
+let fileAccessEnabled = false;
+let allowedDirectories = []; // Fixed port for the bundled app
 
 // Logging setup
 const logDir = path.join(app.getPath('userData'), 'logs');
@@ -15,8 +21,8 @@ const logFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}
 
 function setupLogging() {
   try {
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
+    if (!fsSync.existsSync(logDir)) {
+      fsSync.mkdirSync(logDir, { recursive: true });
     }
   } catch (err) {
     console.error('Failed to create log directory:', err);
@@ -29,7 +35,7 @@ function log(message, level = 'INFO') {
   console.log(logMessage);
 
   try {
-    fs.appendFileSync(logFile, logMessage + '\n');
+    fsSync.appendFileSync(logFile, logMessage + '\n');
   } catch (err) {
     console.error('Failed to write to log file:', err);
   }
@@ -43,7 +49,7 @@ function createWindow() {
 
   for (const format of iconFormats) {
     const testPath = path.join(__dirname, '../assets/icon.' + format);
-    if (fs.existsSync(testPath)) {
+    if (fsSync.existsSync(testPath)) {
       iconPath = testPath;
       log(`Using icon: ${iconPath}`);
       break;
@@ -125,7 +131,7 @@ async function startNextServer() {
 
       log(`Looking for standalone server at: ${serverPath}`);
 
-      if (!fs.existsSync(serverPath)) {
+      if (!fsSync.existsSync(serverPath)) {
         const error = new Error('Standalone server not found. Run: npm run build');
         log(error.message, 'ERROR');
         reject(error);
@@ -191,7 +197,7 @@ function checkFirstRun() {
 
   log(`Checking first run: ${firstRunFile}`);
 
-  if (!fs.existsSync(firstRunFile)) {
+  if (!fsSync.existsSync(firstRunFile)) {
     log('First run detected');
     return true;
   }
@@ -206,11 +212,11 @@ function markFirstRunComplete() {
 
   try {
     const userDataDir = path.dirname(firstRunFile);
-    if (!fs.existsSync(userDataDir)) {
-      fs.mkdirSync(userDataDir, { recursive: true });
+    if (!fsSync.existsSync(userDataDir)) {
+      fsSync.mkdirSync(userDataDir, { recursive: true });
     }
 
-    fs.writeFileSync(firstRunFile, JSON.stringify({
+    fsSync.writeFileSync(firstRunFile, JSON.stringify({
       completedAt: new Date().toISOString(),
       version: app.getVersion()
     }));
@@ -330,8 +336,144 @@ ipcMain.handle('window-maximize', async () => {
   }
 });
 
-ipcMain.handle('window-close', async () => {
-  if (mainWindow) {
-    mainWindow.close();
+  ipcMain.handle('window-close', async () => {
+    if (mainWindow) {
+      mainWindow.close();
+    }
+  });
+
+  // File access handlers
+  ipcMain.handle('get-file-access-status', async () => {
+    return {
+      enabled: fileAccessEnabled,
+      directories: allowedDirectories
+    };
+  });
+
+  ipcMain.handle('toggle-file-access', async (event, enabled) => {
+    fileAccessEnabled = enabled;
+    allowedDirectories = enabled ? [os.homedir()] : [];
+    log(`File access ${enabled ? 'enabled' : 'disabled'}`);
+    return { success: true, enabled };
+  });
+
+  ipcMain.handle('read-file', async (event, filePath) => {
+    if (!fileAccessEnabled) {
+      throw new Error('File access is disabled. Please enable it in Settings.');
+    }
+
+    const isAllowed = await validatePath(filePath);
+    if (!isAllowed) {
+      throw new Error('Access denied: Path is not in allowed directory');
+    }
+
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      log(`Read file: ${filePath}`);
+      return { success: true, content };
+    } catch (error) {
+      log(`Failed to read file ${filePath}: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('write-file', async (event, { path: filePath, content }) => {
+    if (!fileAccessEnabled) {
+      throw new Error('File access is disabled. Please enable it in Settings.');
+    }
+
+    const isAllowed = await validatePath(filePath);
+    if (!isAllowed) {
+      throw new Error('Access denied: Path is not in allowed directory');
+    }
+
+    try {
+      const dir = path.dirname(filePath);
+      await fs.mkdir(dir, { recursive: true });
+      
+      await fs.writeFile(filePath, content, 'utf-8');
+      log(`Wrote file: ${filePath}`);
+      return { success: true };
+    } catch (error) {
+      log(`Failed to write file ${filePath}: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('list-directory', async (event, dirPath) => {
+    if (!fileAccessEnabled) {
+      throw new Error('File access is disabled. Please enable it in Settings.');
+    }
+
+    const isAllowed = await validatePath(dirPath);
+    if (!isAllowed) {
+      throw new Error('Access denied: Path is not in allowed directory');
+    }
+
+    try {
+      const files = await fs.readdir(dirPath, { withFileTypes: true });
+      log(`Listed directory: ${dirPath}`);
+      return { success: true, files };
+    } catch (error) {
+      log(`Failed to list directory ${dirPath}: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('get-file-stats', async (event, filePath) => {
+    if (!fileAccessEnabled) {
+      throw new Error('File access is disabled. Please enable it in Settings.');
+    }
+
+    const isAllowed = await validatePath(filePath);
+    if (!isAllowed) {
+      throw new Error('Access denied: Path is not in allowed directory');
+    }
+
+    try {
+      const stats = await fs.stat(filePath);
+      return { success: true, stats };
+    } catch (error) {
+      log(`Failed to get stats for ${filePath}: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('select-directory', async () => {
+    try {
+      const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory', 'createDirectory'],
+        title: 'Select Directory for File Access'
+      });
+
+      if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+        return { success: false, error: 'Selection canceled' };
+      }
+
+      const selectedPath = result.filePaths[0];
+      allowedDirectories = [selectedPath];
+      fileAccessEnabled = true;
+      
+      log(`Selected directory: ${selectedPath}`);
+      
+      return { success: true, path: selectedPath };
+    } catch (error) {
+      log(`Failed to select directory: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
+  });
+
+  async function validatePath(filePath) {
+    const normalizedPath = path.normalize(filePath);
+    
+    for (const allowedDir of allowedDirectories) {
+      const normalizedAllowed = path.normalize(allowedDir);
+      const relativePath = path.relative(normalizedAllowed, normalizedPath);
+      
+      if (!relativePath.startsWith('..') && !path.isAbsolute(relativePath)) {
+        return true;
+      }
+    }
+    
+    return false;
   }
-});

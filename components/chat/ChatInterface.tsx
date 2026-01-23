@@ -26,7 +26,7 @@ import ImageGeneratorModal, {
 import ApiUsageDisplay from "./ApiUsageDisplay";
 import NotificationPanel from "./NotificationPanel";
 import { useApiUsage } from "@/contexts/ApiUsageContext";
-import GlassesLogo from "@/components/ui/GlassesLogo";
+import AthenaLogo from "@/components/ui/AthenaLogo";
 import { useDeploymentProvider, type DeploymentProvider } from "@/contexts/DeploymentContext";
 import {
   buildVercelDeployStrategies,
@@ -1302,6 +1302,7 @@ export default function ChatInterface() {
   const [ollamaRetrying, setOllamaRetrying] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
   const [isClient, setIsClient] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
   const deployAbortControllerRef = useRef<AbortController | null>(null);
   const deployAutoFixAbortControllerRef = useRef<AbortController | null>(null);
@@ -1350,6 +1351,13 @@ export default function ChatInterface() {
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    const savedSystemPrompt = localStorage.getItem('system-prompt');
+    if (savedSystemPrompt) {
+      setSystemPrompt(savedSystemPrompt);
+    }
   }, []);
 
   useEffect(() => {
@@ -3503,6 +3511,7 @@ export default function ChatInterface() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          systemPrompt: systemPrompt || undefined,
           messages: requestMessages.map((m) => ({
             role: m.role,
             content: m.content,
@@ -3882,20 +3891,20 @@ export default function ChatInterface() {
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-full">
       {/* Compact Top Bar: Logo + Mode + Repo + Model + Actions */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-gold-500/20 bg-surface-50 dark:bg-surface-900">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3 border-b-2 border-gold-500/10 bg-gradient-to-r from-surface-50 to-white dark:from-surface-900 dark:to-surface-950 shadow-sm">
         {/* Left: Logo + Mode Toggle + Auto Approve */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Owl Logo */}
           <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gold-500/10 border-2 border-gold-500/20">
-            <GlassesLogo className="w-5 h-5 text-gold-600 dark:text-gold-400" />
+            <AthenaLogo className="w-5 h-5 text-gold-600 dark:text-gold-400" />
           </div>
 
           {/* Plan/Build Toggle */}
-          <div className="inline-flex rounded-lg border-2 border-gold-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
+          <div className="inline-flex rounded-full border-2 border-gold-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
             <button
               type="button"
               onClick={() => handleModeChange("plan")}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 active:scale-95 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
                 chatMode === "plan"
                   ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
                   : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
@@ -3907,7 +3916,7 @@ export default function ChatInterface() {
             <button
               type="button"
               onClick={() => handleModeChange("build")}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 active:scale-95 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
                 chatMode === "build"
                   ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
                   : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
@@ -3972,7 +3981,7 @@ export default function ChatInterface() {
                 e.stopPropagation();
                 setShowModelDropdown(!showModelDropdown);
               }}
-              className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-gold-500/40 dark:border-gold-500/30 bg-surface-50 dark:bg-surface-900 text-gold-700 dark:text-gold-200 hover:border-gold-500 dark:hover:border-gold-400 hover:shadow-flat transition-all duration-150"
+              className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-gold-500/40 dark:border-gold-500/30 bg-surface-50 dark:bg-surface-900 text-gold-700 dark:text-gold-200 hover:border-gold-500 dark:hover:border-gold-400 hover:border-gold-500/60 hover:shadow-flat transition-all duration-150"
               title={modelInfo.name}
             >
               <span className="min-w-0 font-medium truncate">
