@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, CSSProperties } from "react";
 
 declare global {
   interface Window {
@@ -12,8 +12,14 @@ declare global {
   }
 }
 
+interface DragStyles extends CSSProperties {
+  WebkitAppRegion?: 'drag' | 'no-drag';
+}
+
 export default function TitleBar() {
   const [isDark, setIsDark] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   useEffect(() => {
     const checkTheme = () => {
@@ -40,6 +46,7 @@ export default function TitleBar() {
 
   const handleMaximize = () => {
     if (typeof window !== "undefined" && window.api) {
+      setIsMaximized(!isMaximized);
       window.api.maximize();
     }
   };
@@ -50,11 +57,23 @@ export default function TitleBar() {
     }
   };
 
+  const dragStyle: DragStyles = {
+    WebkitAppRegion: 'drag',
+    userSelect: 'none'
+  };
+
+  const noDragStyle: DragStyles = {
+    WebkitAppRegion: 'no-drag'
+  };
+
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-between px-4 py-2 border-b border-gold-500/10 bg-surface-100 dark:bg-surface-900">
+    <div
+      className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-between px-4 py-2 border-b-2 border-gold-500/20 bg-gradient-to-b from-surface-100 to-surface-50 dark:from-surface-900 dark:to-surface-950 backdrop-blur-sm"
+      style={dragStyle}
+    >
       <div className="flex items-center gap-3">
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 transition-transform hover:scale-110 duration-200"
           viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -75,37 +94,65 @@ export default function TitleBar() {
             <circle cx="39" cy="26" r="1" fill="url(#goldGradient)" />
           </g>
         </svg>
-        <span className="text-sm font-semibold text-foreground">OS Athena</span>
+        <span className="text-sm font-bold text-foreground tracking-tight">OS Athena</span>
       </div>
 
-      <div className="flex items-center gap-1.5">
+      <div
+        className="flex items-center gap-1.5"
+        style={noDragStyle}
+      >
         <button
           onClick={handleMinimize}
-          className="w-9 h-9 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 flex items-center justify-center transition-colors"
+          onMouseEnter={() => setHoveredButton('minimize')}
+          onMouseLeave={() => setHoveredButton(null)}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border-2 border-transparent ${
+            hoveredButton === 'minimize'
+              ? 'bg-surface-200 dark:bg-surface-700 border-gold-500/30 scale-105'
+              : 'hover:bg-surface-200 dark:hover:bg-surface-700'
+          }`}
           title="Minimize"
           aria-label="Minimize"
         >
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="10" width="16" height="2" />
+          <svg className="w-3.5 h-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="11" width="16" height="2" />
           </svg>
         </button>
         <button
           onClick={handleMaximize}
-          className="w-9 h-9 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 flex items-center justify-center transition-colors"
-          title="Maximize"
-          aria-label="Maximize"
+          onMouseEnter={() => setHoveredButton('maximize')}
+          onMouseLeave={() => setHoveredButton(null)}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border-2 border-transparent ${
+            hoveredButton === 'maximize'
+              ? 'bg-surface-200 dark:bg-surface-700 border-gold-500/30 scale-105'
+              : 'hover:bg-surface-200 dark:hover:bg-surface-700'
+          }`}
+          title={isMaximized ? "Restore" : "Maximize"}
+          aria-label={isMaximized ? "Restore" : "Maximize"}
         >
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="4" width="16" height="16" rx="1" />
-          </svg>
+          {isMaximized ? (
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="6" y="8" width="12" height="12" rx="1" />
+              <path d="M8 6h10a2 2 0 0 1 2 2v10" />
+            </svg>
+          ) : (
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="5" width="14" height="14" rx="1" />
+            </svg>
+          )}
         </button>
         <button
           onClick={handleClose}
-          className="w-9 h-9 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors"
+          onMouseEnter={() => setHoveredButton('close')}
+          onMouseLeave={() => setHoveredButton(null)}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border-2 border-transparent ${
+            hoveredButton === 'close'
+              ? 'bg-red-500 border-red-600 scale-105 text-white'
+              : 'hover:bg-red-500/20 dark:hover:bg-red-500/30'
+          }`}
           title="Close"
           aria-label="Close"
         >
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-3.5 h-3.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>

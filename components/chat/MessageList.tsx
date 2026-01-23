@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChatMessage } from "@/contexts/ChatHistoryContext";
 import ReactMarkdown from "react-markdown";
@@ -28,8 +28,73 @@ const formatBytes = (bytes: number) => {
   return `${value.toFixed(precision)} ${units[unitIndex]}`;
 };
 
+const CodeBlock = memo(function CodeBlock({
+  code,
+  language
+}: {
+  code: string;
+  language?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group my-4 rounded-xl overflow-hidden border border-border/50">
+      <div className="absolute top-2 right-2 z-10">
+        <button
+          onClick={copyToClipboard}
+          className="px-3 py-1.5 bg-secondary/80 hover:bg-secondary text-foreground border border-border rounded-lg text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1.5"
+          title="Copy code"
+        >
+          {copied ? (
+            <>
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy
+            </>
+          )}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        style={oneDark as any}
+        language={language || 'text'}
+        PreTag="div"
+        customStyle={{
+          margin: "0",
+          padding: "1.25rem",
+          paddingTop: "2.5rem",
+          fontSize: "0.85rem",
+          lineHeight: "1.6",
+          background: "#0d0d0d",
+        }}
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  );
+});
+
 const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
+  const timestamp = new Date(message.timestamp || Date.now()).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+
   return (
     <div
       className={`flex gap-4 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-500`}
@@ -82,40 +147,32 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
             ) : null}
           </div>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed">
-            <ReactMarkdown
-              components={{
-                code({ className, children, ...props }) {
-                  const match = /language-(\w+)/.exec(className || "");
-                  const isBlock = Boolean(match);
-                  return isBlock ? (
-                    <div className="my-4 rounded-xl overflow-hidden border border-border/50">
-                      <SyntaxHighlighter
-                        style={oneDark as any}
+          <div className="space-y-2">
+            <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed">
+              <ReactMarkdown
+                components={{
+                  code({ className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || "");
+                    const isBlock = Boolean(match);
+                    return isBlock ? (
+                      <CodeBlock
+                        code={String(children).replace(/\n$/, "")}
                         language={match ? match[1] : undefined}
-                        PreTag="div"
-                        customStyle={{
-                          margin: "0",
-                          padding: "1.25rem",
-                          fontSize: "0.85rem",
-                          lineHeight: "1.6",
-                          background: "#0d0d0d",
-                        }}
-                        {...(props as any)}
-                      >
-                        {String(children).replace(/\n$/, "")}
-                      </SyntaxHighlighter>
-                    </div>
-                  ) : (
-                    <code className="bg-secondary px-1.5 py-0.5 rounded-md text-[0.9em] font-mono text-foreground font-medium" {...(props as any)}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-            >
-              {message.content || ""}
-            </ReactMarkdown>
+                      />
+                    ) : (
+                      <code className="bg-secondary px-1.5 py-0.5 rounded-md text-[0.9em] font-mono text-foreground font-medium" {...(props as any)}>
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {message.content || ""}
+              </ReactMarkdown>
+            </div>
+            <div className="text-[10px] text-muted-foreground/60 font-medium">
+              {timestamp}
+            </div>
             {message.attachments && message.attachments.length > 0 && (
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {message.attachments.map((attachment) => (
@@ -143,6 +200,23 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
   );
 });
 
+const TypingIndicator = memo(function TypingIndicator() {
+  return (
+    <div className="flex gap-4 justify-start animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-card text-foreground border border-border shadow-lovable dark:shadow-lovable-dark">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+          <span className="text-xs text-muted-foreground font-medium">AI is thinking...</span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function MessageList({
   messages,
   isLoading,
@@ -153,7 +227,9 @@ export default function MessageList({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: isLoading ? "auto" : "smooth" });
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
   }, [messages, isLoading]);
 
   if (messages.length === 0 && chatMode === "plan") {
@@ -278,17 +354,7 @@ export default function MessageList({
         {messages.map((message, index) => (
           <MessageBubble key={message.timestamp ?? index} message={message} />
         ))}
-        {isLoading && (
-          <div className="flex gap-3 justify-start animate-in fade-in">
-            <div className="max-w-[80%] rounded-2xl px-4 py-3 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
-              </div>
-            </div>
-          </div>
-        )}
+        {isLoading && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
     </div>

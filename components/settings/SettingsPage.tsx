@@ -3,6 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { ApiTester, TestResult } from '@/services/apiTester';
 
+interface CustomEndpoint {
+  id: string;
+  name: string;
+  baseUrl: string;
+  endpoint: string;
+  apiKey?: string;
+  authHeader?: string;
+}
+
 interface ApiKeys {
   anthropic: string;
   openai: string;
@@ -10,6 +19,9 @@ interface ApiKeys {
   openrouter: string;
   fireworks: string;
   gemini: string;
+  mistral: string;
+  cohere: string;
+  perplexity: string;
   github: string;
   vercel: string;
   render: string;
@@ -35,6 +47,9 @@ const providers: ProviderConfig[] = [
   { key: 'openrouter', label: 'OpenRouter', placeholder: 'sk-or-v1-...', icon: '🌐', category: 'ai', description: 'Access 100+ models' },
   { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform' },
   { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra' },
+  { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium' },
+  { key: 'cohere', label: 'Cohere', placeholder: 'Enter API key', icon: '🧠', category: 'ai', description: 'Command & Embed models' },
+  { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search' },
 
   // Development Tools
   { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management' },
@@ -54,6 +69,9 @@ const SettingsPage: React.FC = () => {
     openrouter: '',
     fireworks: '',
     gemini: '',
+    mistral: '',
+    cohere: '',
+    perplexity: '',
     github: '',
     vercel: '',
     render: '',
@@ -65,6 +83,14 @@ const SettingsPage: React.FC = () => {
   const [testing, setTesting] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [showAddCustom, setShowAddCustom] = useState(false);
+  const [customEndpoints, setCustomEndpoints] = useState<CustomEndpoint[]>([]);
+  const [newCustomEndpoint, setNewCustomEndpoint] = useState<Omit<CustomEndpoint, 'id'>>({
+    name: '',
+    baseUrl: '',
+    endpoint: '',
+    apiKey: '',
+    authHeader: 'Authorization',
+  });
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -74,6 +100,15 @@ const SettingsPage: React.FC = () => {
         setApiKeys(JSON.parse(saved));
       } catch (e) {
         console.error('Failed to parse saved API keys:', e);
+      }
+    }
+
+    const savedCustom = localStorage.getItem('custom-endpoints');
+    if (savedCustom) {
+      try {
+        setCustomEndpoints(JSON.parse(savedCustom));
+      } catch (e) {
+        console.error('Failed to parse saved custom endpoints:', e);
       }
     }
   }, []);
@@ -117,6 +152,15 @@ const SettingsPage: React.FC = () => {
         case 'gemini':
           result = await ApiTester.testGemini(apiKeys.gemini);
           break;
+        case 'mistral':
+          result = await ApiTester.testMistral(apiKeys.mistral);
+          break;
+        case 'cohere':
+          result = await ApiTester.testCohere(apiKeys.cohere);
+          break;
+        case 'perplexity':
+          result = await ApiTester.testPerplexity(apiKeys.perplexity);
+          break;
         case 'github':
           result = await ApiTester.testGitHub(apiKeys.github);
           break;
@@ -152,6 +196,59 @@ const SettingsPage: React.FC = () => {
       await runTest(provider);
     }
 
+    setTesting(null);
+  };
+
+  const addCustomEndpoint = () => {
+    if (!newCustomEndpoint.name || !newCustomEndpoint.baseUrl) {
+      return;
+    }
+
+    const endpoint: CustomEndpoint = {
+      id: Date.now().toString(),
+      ...newCustomEndpoint,
+    };
+
+    const updated = [...customEndpoints, endpoint];
+    setCustomEndpoints(updated);
+    localStorage.setItem('custom-endpoints', JSON.stringify(updated));
+
+    // Reset form
+    setNewCustomEndpoint({
+      name: '',
+      baseUrl: '',
+      endpoint: '',
+      apiKey: '',
+      authHeader: 'Authorization',
+    });
+  };
+
+  const removeCustomEndpoint = (id: string) => {
+    const updated = customEndpoints.filter(e => e.id !== id);
+    setCustomEndpoints(updated);
+    localStorage.setItem('custom-endpoints', JSON.stringify(updated));
+    // Remove test result
+    setTestResults(prev => {
+      const newResults = { ...prev };
+      delete newResults[`custom-${id}`];
+      return newResults;
+    });
+  };
+
+  const testCustomEndpoint = async (endpoint: CustomEndpoint) => {
+    setTesting(`custom-${endpoint.id}`);
+    try {
+      const result = await ApiTester.testCustom(endpoint.baseUrl, endpoint.endpoint, endpoint.apiKey);
+      setTestResults(prev => ({ ...prev, [`custom-${endpoint.id}`]: result }));
+    } catch (error) {
+      setTestResults(prev => ({
+        ...prev,
+        [`custom-${endpoint.id}`]: {
+          status: 'error',
+          message: error instanceof Error ? error.message : 'Test failed'
+        }
+      }));
+    }
     setTesting(null);
   };
 
@@ -437,91 +534,161 @@ const SettingsPage: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-black text-foreground uppercase tracking-tight">Custom Models</h2>
+            <h2 className="text-xl font-black text-foreground uppercase tracking-tight">Custom Endpoints</h2>
             <p className="text-sm text-muted-foreground font-bold mt-1">
-              Add custom model configurations with custom base URLs and endpoints.
+              Add custom API endpoints with authentication support.
             </p>
           </div>
           <button
             onClick={() => setShowAddCustom(!showAddCustom)}
             className="px-3 py-1.5 rounded-lg bg-gold-500/10 dark:bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
           >
-            {showAddCustom ? 'Hide Form' : '+ Add Custom Model'}
+            {showAddCustom ? 'Cancel' : '+ Add Custom Endpoint'}
           </button>
         </div>
 
+        {/* Add new custom endpoint form */}
         {showAddCustom && (
-          <div className="space-y-4 mt-4">
-            {customProviders.map(({ key, label, placeholder, icon, description }) => (
-              <div
-                key={key}
-                className="p-5 rounded-xl bg-gradient-to-r from-gold-100/50 to-amber-100/50 dark:from-gold-500/10 dark:to-amber-500/10 border-2 border-gold-500/20 shadow-md"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gold-500 dark:bg-gold-600 text-white flex items-center justify-center text-xl border-2 border-gold-600 shadow-flat-gold">
-                      {icon}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground">{label}</h3>
-                      <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider mt-1">
-                        {description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          <div className="p-6 rounded-xl bg-gradient-to-r from-gold-100/50 to-amber-100/50 dark:from-gold-500/10 dark:to-amber-500/10 border-2 border-gold-500/20 shadow-md space-y-4">
+            <h3 className="text-lg font-black text-foreground flex items-center gap-2">
+              <span className="text-2xl">🔗</span>
+              Add New Custom Endpoint
+            </h3>
 
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                    {key === 'customBaseUrl' ? 'Base URL' : 'Endpoint'}
-                  </label>
-                  <input
-                    type="text"
-                    value={apiKeys[key]}
-                    onChange={(e) => updateKey(key, e.target.value)}
-                    placeholder={placeholder}
-                    className="w-full px-3 py-2 mb-3 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 focus:border-gold-500/30 transition-colors font-mono text-sm input-flat"
-                  />
-
-                  <button
-                    onClick={() => runTest(key)}
-                    disabled={testing === key || testing === 'all' || !apiKeys[key]}
-                    className="w-full px-3 py-2 bg-gold-500 dark:bg-gold-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg border-2 border-gold-500 hover:bg-gold-600 dark:hover:border-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-gold disabled:shadow-flat-hover"
-                  >
-                    {testing === key ? 'Testing...' : 'Test & Add'}
-                  </button>
-
-                  {testResults[key] && (
-                    <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border-2 ${
-                      testResults[key].status === 'success'
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                        : testResults[key].status === 'not_configured'
-                          ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400'
-                          : 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
-                    }`}>
-                      <div className={`w-2 h-2 rounded-full ${
-                        testResults[key].status === 'success' ? 'bg-emerald-500' :
-                        testResults[key].status === 'not_configured' ? 'bg-yellow-500' : 'bg-red-500'
-                      }`} />
-                      <span className="text-xs font-black uppercase tracking-wider flex-1">
-                        {testResults[key].message}
-                      </span>
-                    </div>
-                  )}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  value={newCustomEndpoint.name}
+                  onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, name: e.target.value })}
+                  placeholder="My Custom API"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors text-sm"
+                />
               </div>
-            ))}
+
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+                  Base URL *
+                </label>
+                <input
+                  type="text"
+                  value={newCustomEndpoint.baseUrl}
+                  onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, baseUrl: e.target.value })}
+                  placeholder="https://api.example.com"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+                  Endpoint Path
+                </label>
+                <input
+                  type="text"
+                  value={newCustomEndpoint.endpoint}
+                  onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, endpoint: e.target.value })}
+                  placeholder="/v1/chat/completions"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
+                  API Key (Optional)
+                </label>
+                <input
+                  type="password"
+                  value={newCustomEndpoint.apiKey}
+                  onChange={(e) => setNewCustomEndpoint({ ...newCustomEndpoint, apiKey: e.target.value })}
+                  placeholder="Enter API key if required"
+                  className="w-full px-3 py-2 rounded-lg border-2 border-gold-500/20 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-gold-500 transition-colors font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={addCustomEndpoint}
+              disabled={!newCustomEndpoint.name || !newCustomEndpoint.baseUrl}
+              className="w-full px-4 py-3 bg-gold-500 dark:bg-gold-600 text-white text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-gold-500 hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-flat-gold"
+            >
+              Add Endpoint
+            </button>
           </div>
         )}
 
-        {!showAddCustom && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No custom models configured</p>
+        {/* List of custom endpoints */}
+        {customEndpoints.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {customEndpoints.map((endpoint) => (
+              <div
+                key={endpoint.id}
+                className="p-5 rounded-lg bg-card border-2 border-border hover:border-gold-500/50 transition-all shadow-flat"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gold-500 text-white flex items-center justify-center text-xl border-2 border-gold-600 shadow-flat-gold">
+                      🔗
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-black text-foreground text-sm truncate">{endpoint.name}</h3>
+                      <p className="text-[10px] text-muted-foreground font-mono truncate">
+                        {endpoint.baseUrl}{endpoint.endpoint}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeCustomEndpoint(endpoint.id)}
+                    className="text-red-500 hover:text-red-600 text-lg"
+                    title="Remove endpoint"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => testCustomEndpoint(endpoint)}
+                    disabled={testing === `custom-${endpoint.id}`}
+                    className="flex-1 px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-gold-500 hover:bg-gold-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {testing === `custom-${endpoint.id}` ? 'Testing...' : 'Test Connection'}
+                  </button>
+                </div>
+
+                {testResults[`custom-${endpoint.id}`] && (
+                  <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border-2 ${
+                    testResults[`custom-${endpoint.id}`].status === 'success'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      testResults[`custom-${endpoint.id}`].status === 'success' ? 'bg-emerald-500' : 'bg-red-500'
+                    }`} />
+                    <span className="text-[10px] font-black uppercase tracking-wider flex-1">
+                      {testResults[`custom-${endpoint.id}`].message}
+                    </span>
+                    {testResults[`custom-${endpoint.id}`].latency && (
+                      <span className="text-[10px] font-mono">
+                        {testResults[`custom-${endpoint.id}`].latency}ms
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : !showAddCustom && (
+          <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
+            <div className="text-4xl mb-3">🔗</div>
+            <p className="text-muted-foreground mb-4">No custom endpoints configured</p>
             <button
               onClick={() => setShowAddCustom(true)}
-              className="px-4 py-2 rounded-lg bg-gold-500/10 dark:bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
+              className="px-4 py-2 rounded-lg bg-gold-500/10 border border-gold-500/20 text-gold-700 dark:text-gold-300 text-xs font-bold hover:bg-gold-500/20 transition-colors"
             >
-              + Add First Custom Model
+              + Add First Custom Endpoint
             </button>
           </div>
         )}
