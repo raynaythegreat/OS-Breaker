@@ -155,6 +155,25 @@ const SettingsPage: React.FC = () => {
       await SecureStorage.saveKeys({ [provider]: apiKeys[provider] });
       console.log(`Settings: Saved ${providerConfig.label} API key securely`);
 
+      // Also save to .env.local using the /api/settings/env endpoint
+      try {
+        const envResponse = await fetch('/api/settings/env', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: providerConfig.envKey,
+            value: apiKeys[provider],
+          }),
+        });
+        if (!envResponse.ok) {
+          throw new Error(`Failed to save to .env.local: ${envResponse.statusText}`);
+        }
+        console.log(`Settings: Saved ${providerConfig.label} API key to .env.local`);
+      } catch (envError) {
+        console.error('Error saving API key to .env.local:', envError);
+        // Optionally alert the user or handle this error appropriately
+      }
+
       // Verify it was saved
       const savedKeys = await SecureStorage.loadKeys();
       console.log(`Settings: Verification - ${provider} key exists:`, !!(savedKeys as any)[provider]);

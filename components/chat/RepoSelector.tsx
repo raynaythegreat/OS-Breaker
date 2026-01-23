@@ -305,7 +305,7 @@ export default function RepoSelector({ selectedRepo, onSelect }: RepoSelectorPro
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search existing repositories..."
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-700 bg-surface-800 text-foreground placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-700 dark:bg-surface-800 bg-white text-foreground placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
                 />
               </div>
 
