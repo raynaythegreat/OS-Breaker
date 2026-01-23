@@ -65,16 +65,18 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: true,
+      contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; font-src 'self' data: https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     },
     ...(iconPath && { icon: iconPath }),
     backgroundColor: '#0a0a0f',
     title: 'OS Athena',
-    show: false, // Don't show until ready
-    autoHideMenuBar: true, // Hide menu bar (can be shown with Alt key)
-    frame: false, // Custom frame for themed titlebar
-    titleBarStyle: 'hidden', // Hide default title bar
-    transparent: false // Not transparent for better performance
+    show: false,
+    autoHideMenuBar: true,
+    frame: false,
+    titleBarStyle: 'hidden',
+    transparent: false
   });
 
   // Remove application menu completely for cleaner UI
