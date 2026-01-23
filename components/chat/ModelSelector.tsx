@@ -12,7 +12,7 @@ export type ModelProvider =
   | "fireworks"
   | "mistral"
   | "perplexity"
-  | "huggingface";
+  | "zai";
 
 export interface ModelOption {
   id: string;
@@ -46,10 +46,15 @@ export const MODELS: ModelOption[] = [
   { id: 'gemini-pro', name: 'Gemini Pro', provider: 'gemini', icon: '💎', description: 'Google\'s best' },
   { id: 'gemini-pro-vision', name: 'Gemini Pro Vision', provider: 'gemini', icon: '💎', description: 'Multimodal analysis' },
 
-  // Hugging Face
-  { id: 'meta-llama/Meta-Llama-3-70B-Instruct', name: 'Llama 3 70B Instruct', provider: 'huggingface', icon: '🤗', description: 'Open-source reasoning' },
-  { id: 'mistralai/Mistral-Nemo-Base-2407', name: 'Mistral Nemo 12B', provider: 'huggingface', icon: '🤗', description: 'Fast efficient model' },
-  { id: 'Qwen/Qwen2.5-Coder-32B-Instruct', name: 'Qwen 2.5 Coder 32B', provider: 'huggingface', icon: '🤗', description: 'Code generation' },
+  // Fireworks
+  { id: 'accounts/fireworks/models/llama-v3p3-70b-instruct', name: 'Llama 3.3 70B Instruct', provider: 'fireworks', icon: '🎆', description: 'Latest Llama model' },
+  { id: 'accounts/fireworks/models/llama-v3p1-70b-instruct', name: 'Llama 3.1 70B Instruct', provider: 'fireworks', icon: '🎆', description: 'Powerful reasoning' },
+  { id: 'accounts/fireworks/models/llama-v3p1-8b-instruct', name: 'Llama 3.1 8B Instruct', provider: 'fireworks', icon: '🎆', description: 'Fast and efficient' },
+  { id: 'accounts/fireworks/models/qwen2p5-72b-instruct', name: 'Qwen 2.5 72B Instruct', provider: 'fireworks', icon: '🎆', description: 'Advanced Chinese & English' },
+
+  // Z.ai
+  { id: 'glm-4.7', name: 'GLM-4.7', provider: 'zai', icon: '⚡', description: 'Flagship coding model' },
+  { id: 'glm-4.6v', name: 'GLM-4.6V', provider: 'zai', icon: '⚡', description: 'Multimodal with vision' },
 
   // Mistral
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'mistral', icon: '🌊', description: 'Top-tier reasoning' },
@@ -93,7 +98,7 @@ export default function ModelSelector({
         if (keys.gemini && keys.gemini.trim()) providers.push('gemini' as ModelProvider);
         if (keys.mistral && keys.mistral.trim()) providers.push('mistral' as ModelProvider);
         if (keys.perplexity && keys.perplexity.trim()) providers.push('perplexity' as ModelProvider);
-        if (keys.huggingface && keys.huggingface.trim()) providers.push('huggingface' as ModelProvider);
+        if (keys.zai && keys.zai.trim()) providers.push('zai' as ModelProvider);
         // Ollama is always available (local)
         providers.push('ollama' as ModelProvider);
 

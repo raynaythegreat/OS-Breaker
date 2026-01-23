@@ -24,7 +24,7 @@ interface ApiKeys {
   gemini: string;
   mistral: string;
   perplexity: string;
-  huggingface: string;
+  zai: string;
   github: string;
   vercel: string;
   render: string;
@@ -54,7 +54,7 @@ const providers: ProviderConfig[] = [
   { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra', docsUrl: 'https://aistudio.google.com/app/apikey', envKey: 'GEMINI_API_KEY' },
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
   { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
-  { key: 'huggingface', label: 'Hugging Face', placeholder: 'hf_...', icon: '🤗', category: 'ai', description: 'Access thousands of open-source models', docsUrl: 'https://huggingface.co/settings/tokens', envKey: 'HUGGINGFACE_API_KEY' },
+  { key: 'zai', label: 'Z.ai', placeholder: 'Enter API key', icon: '⚡', category: 'ai', description: 'GLM-4.7 flagship coding models', docsUrl: 'https://z.ai/model-api', envKey: 'ZAI_API_KEY' },
 
   // Development Tools
   { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management', docsUrl: 'https://github.com/settings/tokens', envKey: 'GITHUB_TOKEN' },
@@ -76,7 +76,7 @@ const SettingsPage: React.FC = () => {
     gemini: '',
     mistral: '',
     perplexity: '',
-    huggingface: '',
+    zai: '',
     github: '',
     vercel: '',
     render: '',
@@ -155,32 +155,14 @@ const SettingsPage: React.FC = () => {
       await SecureStorage.saveKeys({ [provider]: apiKeys[provider] });
       console.log(`Settings: Saved ${providerConfig.label} API key securely`);
 
-      // Also save to .env.local using the /api/settings/env endpoint
-      try {
-        const envResponse = await fetch('/api/settings/env', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            key: providerConfig.envKey,
-            value: apiKeys[provider],
-          }),
-        });
-        if (!envResponse.ok) {
-          throw new Error(`Failed to save to .env.local: ${envResponse.statusText}`);
-        }
-        console.log(`Settings: Saved ${providerConfig.label} API key to .env.local`);
-      } catch (envError) {
-        console.error('Error saving API key to .env.local:', envError);
-        // Optionally alert the user or handle this error appropriately
-      }
-
       // Verify it was saved
       const savedKeys = await SecureStorage.loadKeys();
-      console.log(`Settings: Verification - ${provider} key exists:`, !!(savedKeys as any)[provider]);
-
       // Show success feedback
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('api-keys-updated'));
     } catch (error) {
       console.error('Error saving API key:', error);
       alert(`Failed to save ${providerConfig.label} API key. Please check console for details.`);
@@ -275,8 +257,8 @@ const SettingsPage: React.FC = () => {
         case 'perplexity':
           result = await ApiTester.testPerplexity(apiKeys.perplexity || '');
           break;
-        case 'huggingface':
-          result = await ApiTester.testHuggingFace(apiKeys.huggingface || '');
+        case 'zai':
+          result = await ApiTester.testZai(apiKeys.zai || '');
           break;
         case 'github':
           result = await ApiTester.testGitHub(apiKeys.github || '');

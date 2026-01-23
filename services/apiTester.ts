@@ -370,30 +370,36 @@ export class ApiTester {
     }
   }
 
-  static async testHuggingFace(apiKey: string): Promise<TestResult> {
+  static async testZai(apiKey: string): Promise<TestResult> {
     if (!validateApiKey(apiKey)) {
       return { status: 'not_configured', message: 'API key not configured' };
     }
 
-    // Validate Hugging Face token format (starts with hf_)
-    if (!apiKey.startsWith('hf_')) {
-      return { status: 'error', message: 'Invalid token format (should start with hf_)' };
-    }
-
     try {
       const start = Date.now();
-      const response = await fetchWithTimeout('https://huggingface.co/api/whoami', {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
-      }, 5000);
-      if (response.status === 401) throw new Error('Invalid token - verify at huggingface.co/settings/tokens');
-      if (response.status === 403) throw new Error('Token lacks required permissions');
+      // Test using Z.ai chat completions endpoint
+      const response = await fetchWithTimeout('https://api.z.ai/api/paas/v4/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'glm-4.7',
+          messages: [{ role: 'user', content: 'Hi' }],
+          max_tokens: 10
+        })
+      }, 8000);
+      if (response.status === 401) throw new Error('Invalid API key - verify at z.ai/manage-apikey/apikey-list');
+      if (response.status === 403) throw new Error('API key lacks permissions or quota exceeded');
+      if (response.status === 429) throw new Error('Rate limited - try again later');
       if (!response.ok) throw new Error(`API error: ${response.status}`);
       const latency = Date.now() - start;
-      return { status: 'success', message: 'Connected successfully', latency };
+      return { status: 'success', message: 'Connected - GLM models available', latency };
     } catch (error) {
-      // If it's a network/CORS error but key format looks valid, assume it's OK
-      if (error instanceof Error && error.message.includes('Failed to fetch') && apiKey.startsWith('hf_') && apiKey.length > 20) {
-        return { status: 'success', message: 'Token format valid (will verify on first use)', latency: 0 };
+      // If it's a network/CORS error but key looks valid, assume it's OK
+      if (error instanceof Error && error.message.includes('Failed to fetch') && apiKey.length > 20) {
+        return { status: 'success', message: 'API key saved (will verify on first use)', latency: 0 };
       }
       return { status: 'error', message: formatError(error) };
     }
