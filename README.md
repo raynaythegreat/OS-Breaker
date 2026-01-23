@@ -29,6 +29,10 @@ npm run build
 chmod +x electron/install-desktop-entry.sh
 ./electron/install-desktop-entry.sh
 
+# Set up your API keys (see Configuration section below)
+cp .env.local.example .env.local
+# Edit .env.local and add your API keys
+
 # Logout and login to refresh app menu
 # Then search for "OS Athena" in your application menu
 # Or launch from terminal: os-athena
@@ -48,6 +52,36 @@ chmod +x OS-Athena-*.AppImage
 ### Windows & macOS
 
 Coming soon! Currently focused on Linux-first development.
+
+## Configuration
+
+### Setting Up API Keys
+
+OS Athena supports 11 AI providers and 3 deployment platforms. You'll need at least one AI provider API key to get started.
+
+**Quick Setup (Recommended):**
+1. Launch OS Athena
+2. Go to **Settings** tab
+3. Click 🔑 **Get API Key** for your preferred provider
+4. Copy and paste your API key
+5. Click **Save** to store it persistently
+6. Click **Test** to verify the connection
+
+**Manual Setup:**
+```bash
+# Copy the example file
+cp .env.local.example .env.local
+
+# Edit and add your API keys
+nano .env.local
+```
+
+**Supported Providers:**
+- 🤖 **AI Models**: Anthropic Claude, OpenAI, Groq, Google Gemini, Mistral AI, Cohere, Perplexity, OpenRouter, Fireworks AI
+- 🦙 **Local AI**: Ollama (free, runs locally)
+- 🚀 **Deployment**: GitHub, Vercel, Render
+
+📖 **[Complete Setup Guide](./SETUP.md)** - Detailed instructions and links to get API keys
 
 ### Troubleshooting
 
