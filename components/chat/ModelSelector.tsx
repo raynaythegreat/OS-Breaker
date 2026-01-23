@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 export type ModelProvider =
   | "claude"
@@ -81,39 +81,47 @@ export default function ModelSelector({
   const [availableProviders, setAvailableProviders] = useState<Set<ModelProvider>>(new Set());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Check available API keys on mount
-  useEffect(() => {
-    const checkAvailableKeys = async () => {
-      try {
-        const { SecureStorage } = await import('@/lib/secureStorage');
-        const keys = await SecureStorage.loadKeys();
-        console.log('Raw API keys loaded:', Object.keys(keys));
+  // Check available API keys on mount and when dropdown opens
+  const checkAvailableKeys = useCallback(async () => {
+    try {
+      const { SecureStorage } = await import('@/lib/secureStorage');
+      const keys = await SecureStorage.loadKeys();
+      console.log('Raw API keys loaded:', Object.keys(keys));
 
-        const providers: ModelProvider[] = [];
-        if (keys.anthropic && keys.anthropic.trim()) providers.push('claude' as ModelProvider);
-        if (keys.openai && keys.openai.trim()) providers.push('openai' as ModelProvider);
-        if (keys.groq && keys.groq.trim()) providers.push('groq' as ModelProvider);
-        if (keys.openrouter && keys.openrouter.trim()) providers.push('openrouter' as ModelProvider);
-        if (keys.fireworks && keys.fireworks.trim()) providers.push('fireworks' as ModelProvider);
-        if (keys.gemini && keys.gemini.trim()) providers.push('gemini' as ModelProvider);
-        if (keys.mistral && keys.mistral.trim()) providers.push('mistral' as ModelProvider);
-        if (keys.perplexity && keys.perplexity.trim()) providers.push('perplexity' as ModelProvider);
-        if (keys.zai && keys.zai.trim()) providers.push('zai' as ModelProvider);
-        // Ollama is always available (local)
-        providers.push('ollama' as ModelProvider);
+      const providers: ModelProvider[] = [];
+      if (keys.anthropic && keys.anthropic.trim()) providers.push('claude' as ModelProvider);
+      if (keys.openai && keys.openai.trim()) providers.push('openai' as ModelProvider);
+      if (keys.groq && keys.groq.trim()) providers.push('groq' as ModelProvider);
+      if (keys.openrouter && keys.openrouter.trim()) providers.push('openrouter' as ModelProvider);
+      if (keys.fireworks && keys.fireworks.trim()) providers.push('fireworks' as ModelProvider);
+      if (keys.gemini && keys.gemini.trim()) providers.push('gemini' as ModelProvider);
+      if (keys.mistral && keys.mistral.trim()) providers.push('mistral' as ModelProvider);
+      if (keys.perplexity && keys.perplexity.trim()) providers.push('perplexity' as ModelProvider);
+      if (keys.zai && keys.zai.trim()) providers.push('zai' as ModelProvider);
+      // Ollama is always available (local)
+      providers.push('ollama' as ModelProvider);
 
-        console.log('Available API key providers:', providers);
-        setAvailableProviders(new Set<ModelProvider>(providers));
-      } catch (error) {
-        console.error('Failed to check available API keys:', error);
-        // Fallback to only Ollama when no keys are available
-        console.log('Falling back to only Ollama models');
-        setAvailableProviders(new Set<ModelProvider>(['ollama']));
-      }
-    };
-
-    checkAvailableKeys();
+      console.log('Available API key providers:', providers);
+      setAvailableProviders(new Set<ModelProvider>(providers));
+    } catch (error) {
+      console.error('Failed to check available API keys:', error);
+      // Fallback to only Ollama when no keys are available
+      console.log('Falling back to only Ollama models');
+      setAvailableProviders(new Set<ModelProvider>(['ollama']));
+    }
   }, []);
+
+  // Check on mount
+  useEffect(() => {
+    checkAvailableKeys();
+  }, [checkAvailableKeys]);
+
+  // Re-check when dropdown opens
+  useEffect(() => {
+    if (isOpen) {
+      checkAvailableKeys();
+    }
+  }, [isOpen, checkAvailableKeys]);
 
   // Filter models by available providers and search query
   const availableModels = MODELS.filter(model => availableProviders.has(model.provider));

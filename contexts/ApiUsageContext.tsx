@@ -20,7 +20,8 @@ type Provider =
   | "fireworks"
   | "mistral"
   | "cohere"
-  | "perplexity";
+  | "perplexity"
+  | "zai";
 
 interface UsageRecord {
   provider: Provider;
@@ -51,6 +52,7 @@ interface ApiUsageState {
   mistral: ProviderUsage;
   cohere: ProviderUsage;
   perplexity: ProviderUsage;
+  zai: ProviderUsage;
 }
 
 interface ApiLimits {
@@ -65,6 +67,7 @@ interface ApiLimits {
   mistral: { daily: number; weekly: number; note: string };
   cohere: { daily: number; weekly: number; note: string };
   perplexity: { daily: number; weekly: number; note: string };
+  zai: { daily: number; weekly: number; note: string };
 }
 
 interface ProviderBilling {
@@ -172,6 +175,11 @@ const DEFAULT_LIMITS: ApiLimits = {
     weekly: Infinity,
     note: "Paid API - online search models",
   },
+  zai: {
+    daily: Infinity,
+    weekly: Infinity,
+    note: "Paid API - GLM flagship models",
+  },
 };
 
 const DEFAULT_USAGE: ProviderUsage = {
@@ -192,6 +200,7 @@ const DEFAULT_STATE: ApiUsageState = {
   mistral: { ...DEFAULT_USAGE },
   cohere: { ...DEFAULT_USAGE },
   perplexity: { ...DEFAULT_USAGE },
+  zai: { ...DEFAULT_USAGE },
 };
 
 const DEFAULT_BILLING: ProviderBilling = {
@@ -222,6 +231,7 @@ const DEFAULT_BILLING_STATE: BillingState = {
   mistral: { ...DEFAULT_BILLING },
   cohere: { ...DEFAULT_BILLING },
   perplexity: { ...DEFAULT_BILLING },
+  zai: { ...DEFAULT_BILLING },
 };
 
 const DEFAULT_RATE_LIMIT_BUCKET: RateLimitBucket = {
@@ -249,6 +259,7 @@ const DEFAULT_RATE_LIMITS_STATE: RateLimitsState = {
   mistral: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   cohere: { ...DEFAULT_PROVIDER_RATE_LIMIT },
   perplexity: { ...DEFAULT_PROVIDER_RATE_LIMIT },
+  zai: { ...DEFAULT_PROVIDER_RATE_LIMIT },
 };
 
 function getStartOfDay(date: Date = new Date()): number {
@@ -333,6 +344,7 @@ export function ApiUsageProvider({ children }: { children: ReactNode }) {
       mistral: { today: 0, thisWeek: 0, thisMonth: 0 },
       cohere: { today: 0, thisWeek: 0, thisMonth: 0 },
       perplexity: { today: 0, thisWeek: 0, thisMonth: 0 },
+      zai: { today: 0, thisWeek: 0, thisMonth: 0 },
     };
 
     for (const record of records) {

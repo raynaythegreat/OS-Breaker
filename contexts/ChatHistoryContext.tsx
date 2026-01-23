@@ -43,7 +43,8 @@ export interface ChatSession {
     | "fireworks"
     | "mistral"
     | "cohere"
-    | "perplexity";
+    | "perplexity"
+    | "zai";
   model?: string;
   repoName?: string | null;
   repoFullName?: string | null;

@@ -278,6 +278,15 @@ export async function GET() {
         process.env.IDEOGRAM_IMAGE_API_KEY || process.env.IDEOGRAM_API_KEY,
       ),
     },
+    mistral: {
+      configured: Boolean(process.env.MISTRAL_API_KEY),
+    },
+    perplexity: {
+      configured: Boolean(process.env.PERPLEXITY_API_KEY),
+    },
+    zai: {
+      configured: Boolean(process.env.ZAI_API_KEY),
+    },
     ollama: ollamaStatus,
     github: {
       configured: Boolean(process.env.GITHUB_TOKEN),

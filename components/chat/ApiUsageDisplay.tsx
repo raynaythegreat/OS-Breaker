@@ -54,6 +54,7 @@ const providerLabels: Record<Provider, string> = {
   mistral: "Mistral",
   cohere: "Cohere",
   perplexity: "Perplexity",
+  zai: "Z.ai",
 };
 
 const providerIcons: Record<Provider, React.ReactNode> = {
@@ -110,6 +111,11 @@ const providerIcons: Record<Provider, React.ReactNode> = {
   perplexity: (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2l9.6 5.5v11L12 24l-9.6-5.5v-11L12 2zm0 2.3l-7.2 4.2v8.4L12 21.7l7.2-4.2V8.5L12 4.3z" />
+    </svg>
+  ),
+  zai: (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
     </svg>
   ),
 };
@@ -224,6 +230,9 @@ function ApiUsagePanel({
     "ollama",
     "opencodezen",
     "fireworks",
+    "mistral",
+    "perplexity",
+    "zai",
   ];
 
   useEffect(() => {

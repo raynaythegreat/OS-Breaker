@@ -73,7 +73,8 @@ type ModelProvider =
   | "fireworks"
   | "mistral"
   | "cohere"
-  | "perplexity";
+  | "perplexity"
+  | "zai";
 const MODEL_PROVIDERS: ModelProvider[] = [
   "claude",
   "openai",
@@ -86,6 +87,7 @@ const MODEL_PROVIDERS: ModelProvider[] = [
   "mistral",
   "cohere",
   "perplexity",
+  "zai",
 ];
 
 interface ModelOption {
