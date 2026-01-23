@@ -37,24 +37,26 @@ interface ProviderConfig {
   icon: string;
   category: 'ai' | 'deployment' | 'local' | 'custom';
   description?: string;
+  docsUrl?: string;
+  envKey?: string;
 }
 
 const providers: ProviderConfig[] = [
   // AI Providers
-  { key: 'anthropic', label: 'Anthropic (Claude)', placeholder: 'sk-ant-api03-...', icon: '🤖', category: 'ai', description: 'Claude 3.5 Sonnet & Opus' },
-  { key: 'openai', label: 'OpenAI', placeholder: 'sk-...', icon: '🔮', category: 'ai', description: 'GPT-4, GPT-4o, GPT-3.5' },
-  { key: 'groq', label: 'Groq', placeholder: 'gsk_...', icon: '⚡', category: 'ai', description: 'Ultra-fast LLM inference' },
-  { key: 'openrouter', label: 'OpenRouter', placeholder: 'sk-or-v1-...', icon: '🌐', category: 'ai', description: 'Access 100+ models' },
-  { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform' },
-  { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra' },
-  { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium' },
-  { key: 'cohere', label: 'Cohere', placeholder: 'Enter API key', icon: '🧠', category: 'ai', description: 'Command & Embed models' },
-  { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search' },
+  { key: 'anthropic', label: 'Anthropic (Claude)', placeholder: 'sk-ant-api03-...', icon: '🤖', category: 'ai', description: 'Claude 3.5 Sonnet & Opus', docsUrl: 'https://console.anthropic.com/settings/keys', envKey: 'CLAUDE_API_KEY' },
+  { key: 'openai', label: 'OpenAI', placeholder: 'sk-...', icon: '🔮', category: 'ai', description: 'GPT-4, GPT-4o, GPT-3.5', docsUrl: 'https://platform.openai.com/api-keys', envKey: 'OPENAI_API_KEY' },
+  { key: 'groq', label: 'Groq', placeholder: 'gsk_...', icon: '⚡', category: 'ai', description: 'Ultra-fast LLM inference', docsUrl: 'https://console.groq.com/keys', envKey: 'GROQ_API_KEY' },
+  { key: 'openrouter', label: 'OpenRouter', placeholder: 'sk-or-v1-...', icon: '🌐', category: 'ai', description: 'Access 100+ models', docsUrl: 'https://openrouter.ai/keys', envKey: 'OPENROUTER_API_KEY' },
+  { key: 'fireworks', label: 'Fireworks AI', placeholder: 'fw_...', icon: '🎆', category: 'ai', description: 'Fast inference platform', docsUrl: 'https://fireworks.ai/api-keys', envKey: 'FIREWORKS_API_KEY' },
+  { key: 'gemini', label: 'Google Gemini', placeholder: 'AIza...', icon: '💎', category: 'ai', description: 'Gemini Pro & Ultra', docsUrl: 'https://aistudio.google.com/app/apikey', envKey: 'GEMINI_API_KEY' },
+  { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
+  { key: 'cohere', label: 'Cohere', placeholder: 'Enter API key', icon: '🧠', category: 'ai', description: 'Command & Embed models', docsUrl: 'https://dashboard.cohere.com/api-keys', envKey: 'COHERE_API_KEY' },
+  { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
 
   // Development Tools
-  { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management' },
-  { key: 'vercel', label: 'Vercel', placeholder: 'vercel_...', icon: '▲', category: 'deployment', description: 'One-click deployments' },
-  { key: 'render', label: 'Render', placeholder: 'rnd_...', icon: '🚀', category: 'deployment', description: 'Cloud deployment platform' },
+  { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management', docsUrl: 'https://github.com/settings/tokens', envKey: 'GITHUB_TOKEN' },
+  { key: 'vercel', label: 'Vercel', placeholder: 'vercel_...', icon: '▲', category: 'deployment', description: 'One-click deployments', docsUrl: 'https://vercel.com/account/tokens', envKey: 'VERCEL_TOKEN' },
+  { key: 'render', label: 'Render', placeholder: 'rnd_...', icon: '🚀', category: 'deployment', description: 'Cloud deployment platform', docsUrl: 'https://dashboard.render.com/u/settings#api-keys', envKey: 'RENDER_API_KEY' },
 
   // Custom Models
   { key: 'customBaseUrl', label: 'Custom Base URL', placeholder: 'https://api.example.com', icon: '🔗', category: 'custom', description: 'Custom API base URL' },
@@ -82,6 +84,8 @@ const SettingsPage: React.FC = () => {
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
   const [testing, setTesting] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [customEndpoints, setCustomEndpoints] = useState<CustomEndpoint[]>([]);
   const [newCustomEndpoint, setNewCustomEndpoint] = useState<Omit<CustomEndpoint, 'id'>>({
@@ -123,6 +127,81 @@ const SettingsPage: React.FC = () => {
 
   const updateKey = (provider: keyof ApiKeys, value: string) => {
     setApiKeys(prev => ({ ...prev, [provider]: value }));
+  };
+
+  // Save API key to .env.local
+  const saveToEnv = async (provider: keyof ApiKeys) => {
+    const providerConfig = providers.find(p => p.key === provider);
+    if (!providerConfig?.envKey || !apiKeys[provider]) return;
+
+    setSaving(provider);
+    try {
+      const response = await fetch('/api/settings/env', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: providerConfig.envKey,
+          value: apiKeys[provider],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save to .env.local');
+      }
+
+      // Show success feedback
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error('Error saving to .env.local:', error);
+      alert('Failed to save API key to .env.local. Please check console for details.');
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  // Delete API key from .env.local
+  const deleteFromEnv = async (provider: keyof ApiKeys) => {
+    const providerConfig = providers.find(p => p.key === provider);
+    if (!providerConfig?.envKey) return;
+
+    if (!confirm(`Delete ${providerConfig.label} API key from .env.local?`)) {
+      return;
+    }
+
+    setDeleting(provider);
+    try {
+      const response = await fetch('/api/settings/env', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: providerConfig.envKey,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete from .env.local');
+      }
+
+      // Clear the key from state
+      updateKey(provider, '');
+
+      // Clear test result
+      setTestResults(prev => {
+        const newResults = { ...prev };
+        delete newResults[provider];
+        return newResults;
+      });
+
+      // Show success feedback
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error('Error deleting from .env.local:', error);
+      alert('Failed to delete API key from .env.local. Please check console for details.');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const runTest = async (provider: string) => {
@@ -326,13 +405,13 @@ const SettingsPage: React.FC = () => {
           <div>
             <h2 className="text-xl font-black text-foreground uppercase tracking-tight">AI Providers</h2>
             <p className="text-sm text-muted-foreground font-bold mt-1">
-              Configure your AI model providers. Keys are stored locally and encrypted.
+              Configure your AI model providers. Click &quot;Save&quot; to store keys in .env.local for persistent use.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {aiProviders.map(({ key, label, placeholder, icon, description }) => (
+          {aiProviders.map(({ key, label, placeholder, icon, description, docsUrl }) => (
             <div
               key={key}
               className="group p-5 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover"
@@ -342,13 +421,26 @@ const SettingsPage: React.FC = () => {
                   <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xl border-2 border-primary shadow-flat-gold">
                     {icon}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-black text-foreground text-sm">{label}</h3>
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                       {description}
                     </p>
                   </div>
                 </div>
+                {docsUrl && (
+                  <a
+                    href={docsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-primary hover:text-primary-foreground hover:bg-primary rounded border border-primary transition-colors"
+                    title="Get API Key"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                  </a>
+                )}
               </div>
 
               <input
@@ -359,13 +451,33 @@ const SettingsPage: React.FC = () => {
                 className="w-full px-3 py-2 mb-3 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-xs input-flat"
               />
 
-              <button
-                onClick={() => runTest(key)}
-                disabled={testing === key || testing === 'all' || !apiKeys[key]}
-                className="w-full px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-flat-secondary"
-              >
-                {testing === key ? 'Testing...' : 'Test & Save'}
-              </button>
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={() => runTest(key)}
+                  disabled={testing === key || testing === 'all' || !apiKeys[key]}
+                  className="flex-1 px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-flat-secondary"
+                >
+                  {testing === key ? 'Testing...' : 'Test'}
+                </button>
+                <button
+                  onClick={() => saveToEnv(key)}
+                  disabled={saving === key || !apiKeys[key]}
+                  className="flex-1 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border-2 border-emerald-500/30 hover:bg-emerald-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  title="Save to .env.local"
+                >
+                  {saving === key ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+
+              {apiKeys[key] && (
+                <button
+                  onClick={() => deleteFromEnv(key)}
+                  disabled={deleting === key}
+                  className="w-full px-3 py-2 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg border-2 border-red-500/30 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {deleting === key ? 'Deleting...' : 'Delete API Key'}
+                </button>
+              )}
 
               {testResults[key] && (
                 <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border-2 ${
@@ -404,7 +516,7 @@ const SettingsPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {deploymentProviders.map(({ key, label, placeholder, icon, description }) => (
+          {deploymentProviders.map(({ key, label, placeholder, icon, description, docsUrl }) => (
             <div
               key={key}
               className="group p-5 rounded-lg bg-card border-2 border-border hover:border-primary transition-all shadow-flat card-flat-hover"
@@ -414,13 +526,26 @@ const SettingsPage: React.FC = () => {
                   <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xl border-2 border-primary shadow-flat-gold">
                     {icon}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-black text-foreground text-sm">{label}</h3>
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                       {description}
                     </p>
                   </div>
                 </div>
+                {docsUrl && (
+                  <a
+                    href={docsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-primary hover:text-primary-foreground hover:bg-primary rounded border border-primary transition-colors"
+                    title="Get API Key"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                  </a>
+                )}
               </div>
 
               <input
@@ -431,13 +556,33 @@ const SettingsPage: React.FC = () => {
                 className="w-full px-3 py-2 mb-3 rounded-lg border-2 border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors font-mono text-xs input-flat"
               />
 
-              <button
-                onClick={() => runTest(key)}
-                disabled={testing === key || testing === 'all' || !apiKeys[key]}
-                className="w-full px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-flat-secondary"
-              >
-                {testing === key ? 'Testing...' : 'Test & Save'}
-              </button>
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={() => runTest(key)}
+                  disabled={testing === key || testing === 'all' || !apiKeys[key]}
+                  className="flex-1 px-3 py-2 bg-secondary text-foreground text-xs font-bold rounded-lg border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all btn-flat-secondary"
+                >
+                  {testing === key ? 'Testing...' : 'Test'}
+                </button>
+                <button
+                  onClick={() => saveToEnv(key)}
+                  disabled={saving === key || !apiKeys[key]}
+                  className="flex-1 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-lg border-2 border-emerald-500/30 hover:bg-emerald-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  title="Save to .env.local"
+                >
+                  {saving === key ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+
+              {apiKeys[key] && (
+                <button
+                  onClick={() => deleteFromEnv(key)}
+                  disabled={deleting === key}
+                  className="w-full px-3 py-2 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg border-2 border-red-500/30 hover:bg-red-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {deleting === key ? 'Deleting...' : 'Delete API Key'}
+                </button>
+              )}
 
               {testResults[key] && (
                 <div className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg border-2 ${
