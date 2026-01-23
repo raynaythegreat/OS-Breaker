@@ -85,8 +85,8 @@ export default function ChatInput({
   const showStop = Boolean(loading);
 
   return (
-    <div className="bg-background px-3 py-6 sm:px-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-background px-3 sm:px-6 py-4 sm:py-8">
+      <div className="max-w-5xl mx-auto">
         {attachments.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
             {attachments.map((attachment) => (
@@ -143,7 +143,7 @@ export default function ChatInput({
         )}
 
         <div
-          className="flex items-end gap-2 bg-card rounded-lg border-2 border-border p-1.5 focus-within:border-primary transition-all duration-200 shadow-flat"
+          className="flex items-end gap-2 bg-card rounded-lg border-2 border-gold-500/20 p-1.5 focus-within:border-gold-500/40 transition-all duration-200 shadow-xl"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -262,7 +262,7 @@ export default function ChatInput({
             </button>
           )}
         </div>
-        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest text-center mt-4">
+        <p className="text-[10px] text-center text-muted-foreground/50 mt-3">
           Professional AI Command Center • OS Athena v1.2.0
         </p>
       </div>

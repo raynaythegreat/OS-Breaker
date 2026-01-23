@@ -25,8 +25,8 @@ import ImageGeneratorModal, {
 } from "./ImageGeneratorModal";
 import ApiUsageDisplay from "./ApiUsageDisplay";
 import NotificationPanel from "./NotificationPanel";
-import TitleBar from "@/components/ui/TitleBar";
 import { useApiUsage } from "@/contexts/ApiUsageContext";
+import GlassesLogo from "@/components/ui/GlassesLogo";
 import { useDeploymentProvider, type DeploymentProvider } from "@/contexts/DeploymentContext";
 import {
   buildVercelDeployStrategies,
@@ -1151,7 +1151,9 @@ export default function ChatInterface() {
   } = useChatHistory();
   const { recordUsage, refreshBilling, updateRateLimit } = useApiUsage();
   const { provider: deploymentProvider, setProvider: setDeploymentProvider } = useDeploymentProvider();
-  const [chatMode, setChatMode] = useState<"plan" | "build">("plan");
+  const [chatMode, setChatMode] = useState<"plan" | "build">(
+    currentSession?.chatMode ?? "plan"
+  );
   const [autoApprove, setAutoApprove] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -1244,6 +1246,23 @@ export default function ChatInterface() {
   const stopGenerating = useCallback(() => {
     abortControllerRef.current?.abort();
   }, []);
+
+  const handleModeChange = useCallback(
+    (mode: "plan" | "build") => {
+      setChatMode(mode);
+      if (currentSessionId) {
+        updateCurrentSession(messages, { chatMode: mode }, currentSessionId);
+      }
+    },
+    [currentSessionId, messages, updateCurrentSession]
+  );
+
+  // Sync chatMode when session changes
+  useEffect(() => {
+    if (currentSession?.chatMode && currentSession.chatMode !== chatMode) {
+      setChatMode(currentSession.chatMode);
+    }
+  }, [currentSession?.id, currentSession?.chatMode]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -2971,6 +2990,7 @@ export default function ChatInterface() {
             model: selectedModel,
             provider: selectedModelInfo.provider,
             messages: storedNext,
+            chatMode,
           });
         } else {
           updateCurrentSession(
@@ -2978,6 +2998,7 @@ export default function ChatInterface() {
             {
               repoName: selectedRepo?.name ?? null,
               repoFullName: selectedRepo?.full_name ?? null,
+              chatMode,
             },
             currentSessionId,
           );
@@ -3131,7 +3152,8 @@ export default function ChatInterface() {
 
   useEffect(() => {
     if (!pendingRepoChanges || !selectedRepo) return;
-    if (chatMode !== "build" && !autoApprove) return;
+    if (chatMode === "plan") return; // NEVER auto-apply in plan mode
+    if (chatMode === "build" && !autoApprove) return; // Build mode requires auto-approve
     if (applyingRepoChanges) return;
     if (
       pendingRepoChangesRepoFullName &&
@@ -3388,6 +3410,7 @@ export default function ChatInterface() {
         model: modelToUse,
         provider: providerToUse,
         messages: storedPendingMessages,
+        chatMode,
       });
 
     if (currentSessionId) {
@@ -3564,6 +3587,7 @@ export default function ChatInterface() {
         model: selectedModel,
         provider: selectedModelInfo.provider,
         messages: stripAttachmentPreviews(messages),
+        chatMode,
       });
     }
     await deployWithAutoRetry({
@@ -3782,18 +3806,90 @@ export default function ChatInterface() {
   ) : null;
 
   return (
-    <div className="flex flex-col h-full pt-12">
-      <TitleBar />
-      {/* Header 1: Repo / Projects + Models */}
-      <div className="relative z-10 px-2 sm:px-3 py-2 border-b border-gold-500/20 bg-surface-100 dark:bg-black/60 backdrop-blur-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
-          <div className="flex-1 w-full">
-            <RepoSelector selectedRepo={selectedRepo} onSelect={setSelectedRepo} />
+    <div className="grid grid-rows-[auto_1fr_auto] h-full">
+      {/* Compact Top Bar: Logo + Mode + Repo + Model + Actions */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-b border-gold-500/20 bg-surface-50 dark:bg-surface-900">
+        {/* Left: Logo + Mode Toggle + Auto Approve */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Owl Logo */}
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gold-500/10 border-2 border-gold-500/20">
+            <GlassesLogo className="w-5 h-5 text-gold-600 dark:text-gold-400" />
           </div>
 
+          {/* Plan/Build Toggle */}
+          <div className="inline-flex rounded-lg border-2 border-gold-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
+            <button
+              type="button"
+              onClick={() => handleModeChange("plan")}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 active:scale-95 ${
+                chatMode === "plan"
+                  ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
+                  : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
+              }`}
+              title="Plan mode: Review and approve changes before committing"
+            >
+              Plan
+            </button>
+            <button
+              type="button"
+              onClick={() => handleModeChange("build")}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 active:scale-95 ${
+                chatMode === "build"
+                  ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
+                  : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
+              }`}
+              title="Build mode: Apply and commit planned changes"
+            >
+              Build
+            </button>
+          </div>
+
+          {/* Mode Status */}
+          {chatMode === "plan" ? (
+            <span className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500 text-white text-xs font-bold border border-blue-600">
+              <span>📋</span>
+              <span>Planning</span>
+            </span>
+          ) : (
+            <span className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-500 text-white text-xs font-bold border border-green-600">
+              <span>🔨</span>
+              <span>Building</span>
+            </span>
+          )}
+
+          {/* Auto Approve Toggle - only show in build mode */}
+          {chatMode === "build" && (
+            <button
+              type="button"
+              onClick={() => {
+                const nextAutoApprove = !autoApprove;
+                setAutoApprove(nextAutoApprove);
+              }}
+              className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
+                autoApprove
+                  ? "bg-gold-500 text-white border-gold-500"
+                  : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-gold-500/20 hover:border-gold-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
+              }`}
+              title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="hidden sm:inline">Auto</span>
+            </button>
+          )}
+        </div>
+
+        {/* Center: Repo Selector */}
+        <div className="flex-1 min-w-0">
+          <RepoSelector selectedRepo={selectedRepo} onSelect={setSelectedRepo} />
+        </div>
+
+        {/* Right: Model + Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Model Selector */}
           <div
-            className="relative w-full sm:w-40 md:w-48 lg:w-48 flex-shrink-0"
+            className="relative w-full sm:w-auto sm:min-w-[160px] flex-shrink-0"
             ref={dropdownRef}
           >
             <button
@@ -3802,7 +3898,7 @@ export default function ChatInterface() {
                 e.stopPropagation();
                 setShowModelDropdown(!showModelDropdown);
               }}
-              className="flex items-center justify-between gap-1.5 w-full px-2.5 py-1.5 text-xs rounded-lg border border-gold-500/30 bg-surface-100 dark:bg-black/60 text-gold-700 dark:text-gold-100 hover:border-gold-500/70 transition-colors"
+              className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-gold-500/40 dark:border-gold-500/30 bg-surface-50 dark:bg-surface-900 text-gold-700 dark:text-gold-200 hover:border-gold-500 dark:hover:border-gold-400 hover:shadow-flat transition-all duration-150"
               title={modelInfo.name}
             >
               <span className="min-w-0 font-medium truncate">
@@ -3828,271 +3924,191 @@ export default function ChatInterface() {
                 ? createPortal(modelDropdown, document.body)
                 : modelDropdown)}
           </div>
-        </div>
-      </div>
 
-      {/* Header 2: Actions */}
-      <div className="px-2 sm:px-3 py-2 border-b border-gold-500/10 bg-surface-50/80 dark:bg-black/50 backdrop-blur-xl">
-        <div className="flex flex-wrap items-center justify-between gap-2 w-full">
-          {/* Left Side: Plan/Build Toggle and Auto Button */}
-           <div className="flex items-center gap-2">
-             {/* Plan/Build Toggle */}
-             <div className="inline-flex rounded-lg border border-gold-500/20 bg-surface-100 dark:bg-surface-900 p-0.5">
-               <button
-                 type="button"
-                 onClick={() => {
-                   setChatMode("plan");
-                 }}
-                 className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
-                   chatMode === "plan"
-                     ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
-                     : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
-                 }`}
-                 title="Plan mode: Review and approve changes before committing"
-               >
-                Plan
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setChatMode("build");
-                }}
-                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
-                  chatMode === "build"
-                    ? "bg-gold-500/20 text-gold-600 dark:text-gold-400 shadow-sm border border-gold-500/30"
-                    : "text-muted-foreground hover:text-foreground hover:bg-surface-200 dark:hover:bg-surface-800"
-                }`}
-                title="Build mode: Apply and commit planned changes"
-               >
-                Build
-              </button>
-            </div>
-
-            {/* Mode Status */}
-            {chatMode === "plan" ? (
-              <span className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium border bg-blue-500/10 dark:bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300">
-                <span>📋</span>
-                <span>Planning</span>
-              </span>
-            ) : (
-              <span className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium border bg-green-500/10 dark:bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-300">
-                <span>🔨</span>
-                <span>Building</span>
-              </span>
-            )}
-
-            {/* Auto Approve Toggle */}
+          {/* Refresh Button - only show when repo selected */}
+          {selectedRepo && (
             <button
               type="button"
-              onClick={() => {
-                const nextAutoApprove = !autoApprove;
-                setAutoApprove(nextAutoApprove);
-                if (
-                  nextAutoApprove &&
-                  chatMode === "plan" &&
-                  pendingRepoChanges &&
-                  !applyingRepoChanges
-                ) {
-                  void applyPendingRepoChanges();
-                }
-              }}
-              className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
-                autoApprove
-                  ? "bg-gold-500 text-white border-gold-500"
-                  : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-gold-500/20 hover:border-gold-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
-              }`}
-              title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
+              onClick={() => loadRepoContext(selectedRepo)}
+              disabled={loadingContext}
+              className="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-900 text-muted-foreground hover:bg-surface-200 dark:hover:bg-surface-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center border border-gold-500/10"
+              title="Refresh repo context"
+              aria-label="Refresh repo context"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              <svg
+                className={`w-3.5 h-3.5 ${loadingContext ? "animate-spin" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                />
               </svg>
-              <span>Auto</span>
             </button>
-          </div>
-
-          {/* Right Side: Action Buttons */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Refresh Button - only show when repo selected */}
-            {selectedRepo && (
-              <button
-                type="button"
-                onClick={() => loadRepoContext(selectedRepo)}
-                disabled={loadingContext}
-                className="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-900 text-muted-foreground hover:bg-surface-200 dark:hover:bg-surface-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center border border-gold-500/10"
-                title="Refresh repo context"
-                aria-label="Refresh repo context"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 ${loadingContext ? "animate-spin" : ""}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-                  />
-                </svg>
-              </button>
-            )}
-
-            {/* Deployment Buttons */}
-            {selectedRepo && (
-            <>
-              <button
-                onClick={async () => {
-                  if (!selectedRepo) return;
-                  setDeploymentProvider("vercel");
-                  if (!currentSessionId) {
-                    createNewSession({
-                      repoName: selectedRepo.name,
-                      repoFullName: selectedRepo.full_name,
-                      model: selectedModel,
-                      provider: selectedModelInfo.provider,
-                      messages: stripAttachmentPreviews(messages),
-                    });
-                  }
-                  await deployWithAutoRetry({
-                    provider: "vercel",
-                    repository: selectedRepo.full_name,
-                    projectName: selectedRepo.name,
-                    branch: selectedRepo.default_branch || "main",
-                  });
-                }}
-                disabled={
-                  deploying ||
-                  deployAutoFixing ||
-                  !status?.vercel?.configured
-                }
-                className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
-                title={
-                  status?.vercel?.configured
-                    ? "Deploy to Vercel"
-                    : "Configure Vercel in Settings"
-                }
-              >
-                {deploying && deploymentProvider === "vercel" ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    <span>Deploying...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 76 65" fill="currentColor">
-                      <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
-                    </svg>
-                    <span className="hidden sm:inline">Vercel</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={async () => {
-                  if (!selectedRepo) return;
-                  setDeploymentProvider("render");
-                  if (!currentSessionId) {
-                    createNewSession({
-                      repoName: selectedRepo.name,
-                      repoFullName: selectedRepo.full_name,
-                      model: selectedModel,
-                      provider: selectedModelInfo.provider,
-                      messages: stripAttachmentPreviews(messages),
-                    });
-                  }
-                  await deployWithAutoRetry({
-                    provider: "render",
-                    repository: selectedRepo.full_name,
-                    projectName: selectedRepo.name,
-                    branch: selectedRepo.default_branch || "main",
-                  });
-                }}
-                disabled={
-                  deploying ||
-                  deployAutoFixing ||
-                  !status?.render?.configured
-                }
-                className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
-                title={
-                  status?.render?.configured
-                    ? "Deploy to Render"
-                    : "Configure Render in Settings"
-                }
-              >
-                {deploying && deploymentProvider === "render" ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    <span>Deploying...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5L12 2z" />
-                    </svg>
-                    <span className="hidden sm:inline">Render</span>
-                  </>
-                )}
-              </button>
-            </>
           )}
 
-          <button
-            onClick={handleNewChat}
-            className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500/10 dark:bg-gold-500/10 text-gold-700 dark:text-gold-300 hover:bg-gold-500/20 dark:hover:bg-gold-500/20 border border-gold-500/20 transition-colors flex items-center justify-center gap-1 sm:gap-1.5"
-            title="New chat"
-            aria-label="New chat"
-          >
-            <svg
-              className="w-3.5 h-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+          {/* Deployment Buttons */}
+          {selectedRepo && (
+          <>
+            <button
+              onClick={async () => {
+                if (!selectedRepo) return;
+                setDeploymentProvider("vercel");
+                if (!currentSessionId) {
+                  createNewSession({
+                    repoName: selectedRepo.name,
+                    repoFullName: selectedRepo.full_name,
+                    model: selectedModel,
+                    provider: selectedModelInfo.provider,
+                    messages: stripAttachmentPreviews(messages),
+                    chatMode,
+                  });
+                }
+                await deployWithAutoRetry({
+                  provider: "vercel",
+                  repository: selectedRepo.full_name,
+                  projectName: selectedRepo.name,
+                  branch: selectedRepo.default_branch || "main",
+                });
+              }}
+              disabled={
+                chatMode === "plan" ||
+                deploying ||
+                deployAutoFixing ||
+                !status?.vercel?.configured
+              }
+              className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
+              title={
+                status?.vercel?.configured
+                  ? "Deploy to Vercel"
+                  : "Configure Vercel in Settings"
+              }
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span className="hidden sm:inline">New</span>
-          </button>
+              {deploying && deploymentProvider === "vercel" ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  <span className="hidden sm:inline">Deploying...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 76 65" fill="currentColor">
+                    <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+                  </svg>
+                  <span className="hidden sm:inline">Vercel</span>
+                </>
+              )}
+            </button>
 
-          {/* API Usage Display - always visible, compact */}
-          <ApiUsageDisplay currentProvider={modelInfo.provider} compact />
+            <button
+              onClick={async () => {
+                if (!selectedRepo) return;
+                setDeploymentProvider("render");
+                if (!currentSessionId) {
+                  createNewSession({
+                    repoName: selectedRepo.name,
+                    repoFullName: selectedRepo.full_name,
+                    model: selectedModel,
+                    provider: selectedModelInfo.provider,
+                    messages: stripAttachmentPreviews(messages),
+                    chatMode,
+                  });
+                }
+                await deployWithAutoRetry({
+                  provider: "render",
+                  repository: selectedRepo.full_name,
+                  projectName: selectedRepo.name,
+                  branch: selectedRepo.default_branch || "main",
+                });
+              }}
+              disabled={
+                chatMode === "plan" ||
+                deploying ||
+                deployAutoFixing ||
+                !status?.render?.configured
+              }
+              className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
+              title={
+                status?.render?.configured
+                  ? "Deploy to Render"
+                  : "Configure Render in Settings"
+              }
+            >
+              {deploying && deploymentProvider === "render" ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  <span className="hidden sm:inline">Deploying...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5L12 2z" />
+                  </svg>
+                  <span className="hidden sm:inline">Render</span>
+                </>
+              )}
+            </button>
+          </>
+        )}
+
+        <button
+          onClick={handleNewChat}
+          className="px-3 py-2 text-xs font-bold rounded-lg bg-gold-500 dark:bg-gold-600 text-black dark:text-black hover:bg-gold-600 dark:hover:bg-gold-700 border-2 border-gold-600 dark:border-gold-700 shadow-flat-gold hover:shadow-flat-lg transition-all duration-150 active:translate-y-[1px] flex items-center justify-center gap-1.5"
+          title="New chat"
+          aria-label="New chat"
+        >
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <span className="hidden sm:inline">New</span>
+        </button>
+
+        {/* API Usage Display - always visible, compact */}
+        <ApiUsageDisplay currentProvider={modelInfo.provider} compact />
         </div>
-      </div>
       </div>
 
       {!providerConfigured && status && (
@@ -4352,7 +4368,7 @@ export default function ChatInterface() {
         )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-hidden bg-gradient-to-b from-background via-surface-50 dark:via-surface-950 to-surface-100 dark:to-surface-900/80">
+      <div className="flex-1 overflow-hidden bg-background">
         <MessageList
           messages={messages}
           isLoading={isLoading}
@@ -4409,11 +4425,11 @@ export default function ChatInterface() {
           placeholder={
             selectedRepo
               ? chatMode === "plan"
-                ? `Plan the next move for ${selectedRepo.name}...`
-                : `Build on ${selectedRepo.name}...`
+                ? `💡 Plan changes for ${selectedRepo.name}...`
+                : `🔨 Build on ${selectedRepo.name}...`
               : chatMode === "plan"
-                ? "Describe your mission and constraints..."
-                : "Start building with a clear command..."
+                ? "💡 Describe your vision and I'll plan the approach..."
+                : "🔨 Give me a command and I'll build it..."
             }
         />
       </div>

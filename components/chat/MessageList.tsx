@@ -238,7 +238,7 @@ export default function MessageList({
     return (
       <div className="relative z-0 flex flex-col items-center justify-center h-full px-4 py-6 overflow-y-auto">
         <div className="w-full max-w-5xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {templates.map((template) => (
               <button
                 key={template.title}
@@ -274,7 +274,7 @@ export default function MessageList({
 
   return (
     <div className="relative z-0 h-full overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6 bg-surface-50 dark:bg-black">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-8">
         {messages.map((message, index) => (
           <MessageBubble key={message.timestamp ?? index} message={message} />
         ))}

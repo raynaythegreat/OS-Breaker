@@ -9,20 +9,67 @@ export interface TestResult {
 export class ApiTester {
   static async testAnthropic(apiKey: string): Promise<TestResult> {
     if (!apiKey) return { status: 'not_configured', message: 'API key not configured' };
-    // Mock test - in real implementation, use Anthropic SDK
-    return { status: 'error', message: 'Anthropic SDK not available - add @anthropic-ai/sdk to package.json' };
+    try {
+      const start = Date.now();
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: 'Hi' }]
+        })
+      });
+
+      if (response.status === 401) throw new Error('Invalid API key');
+      if (response.status === 403) throw new Error('API key does not have permission');
+      if (!response.ok && response.status !== 400) throw new Error(`API error: ${response.status}`);
+
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'Connected successfully', latency };
+    } catch (error) {
+      return { status: 'error', message: error instanceof Error ? error.message : 'Connection failed' };
+    }
   }
 
   static async testOpenAI(apiKey: string): Promise<TestResult> {
     if (!apiKey) return { status: 'not_configured', message: 'API key not configured' };
-    // Mock test - in real implementation, use OpenAI SDK
-    return { status: 'error', message: 'OpenAI SDK not available - add openai to package.json' };
+    try {
+      const start = Date.now();
+      const response = await fetch('https://api.openai.com/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+
+      if (response.status === 401) throw new Error('Invalid API key');
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'Connected successfully', latency };
+    } catch (error) {
+      return { status: 'error', message: error instanceof Error ? error.message : 'Connection failed' };
+    }
   }
 
   static async testGroq(apiKey: string): Promise<TestResult> {
     if (!apiKey) return { status: 'not_configured', message: 'API key not configured' };
-    // Mock test - in real implementation, use Groq SDK
-    return { status: 'error', message: 'Groq SDK not available - add groq-sdk to package.json' };
+    try {
+      const start = Date.now();
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+
+      if (response.status === 401) throw new Error('Invalid API key');
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'Connected successfully', latency };
+    } catch (error) {
+      return { status: 'error', message: error instanceof Error ? error.message : 'Connection failed' };
+    }
   }
 
   static async testOllama(baseUrl?: string): Promise<TestResult> {

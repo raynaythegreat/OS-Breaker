@@ -178,6 +178,51 @@ const SettingsPage: React.FC = () => {
         )}
       </div>
 
+      {/* Connection Status Overview */}
+      {Object.keys(testResults).length > 0 && (
+        <div className="p-6 rounded-lg bg-card border-2 border-border shadow-flat">
+          <h2 className="text-lg font-black text-foreground uppercase tracking-tight mb-4">Connection Status</h2>
+          <div className="flex flex-wrap gap-3">
+            {Object.entries(testResults).map(([provider, result]) => {
+              const providerConfig = providers.find(p => p.key === provider);
+              if (!providerConfig || result.status === 'not_configured') return null;
+
+              return (
+                <div
+                  key={provider}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 ${
+                    result.status === 'success'
+                      ? 'bg-emerald-500/10 border-emerald-500/30'
+                      : 'bg-red-500/10 border-red-500/30'
+                  }`}
+                >
+                  <div className={`w-2 h-2 rounded-full ${
+                    result.status === 'success' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'
+                  }`} />
+                  <span className="text-xs font-bold">
+                    {providerConfig.icon} {providerConfig.label}
+                  </span>
+                  {result.latency && (
+                    <span className="text-xs text-muted-foreground font-mono">
+                      {result.latency}ms
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {Object.values(testResults).every(r => r.status === 'success' || r.status === 'not_configured') &&
+           Object.values(testResults).some(r => r.status === 'success') && (
+            <div className="mt-4 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-sm font-bold">All configured providers connected!</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* AI Providers */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">

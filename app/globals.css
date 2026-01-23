@@ -129,6 +129,27 @@ a {
   .input-flat {
     @apply bg-background border-2 border-border rounded-lg px-3 py-2 focus:border-primary focus:outline-none transition-colors;
   }
+
+  .btn-gold-primary {
+    @apply bg-gold-500 text-black font-bold
+      border-2 border-gold-600
+      shadow-flat-gold hover:shadow-flat-lg
+      hover:translate-y-[-1px] active:translate-y-[1px]
+      transition-all duration-150 rounded-lg;
+  }
+
+  .border-gold-primary {
+    @apply border-2 border-gold-500/40 dark:border-gold-500/30
+      hover:border-gold-500 dark:hover:border-gold-400
+      transition-all duration-150;
+  }
+
+  .input-gold-focus {
+    @apply border-2 border-gold-500/20
+      focus-within:border-gold-500/40
+      focus-within:ring-2 focus-within:ring-gold-500/20
+      transition-all duration-150;
+  }
 }
 
 /* Custom scrollbar styles */

@@ -26,7 +26,7 @@ const mobileNavItems = [
     label: "Chat",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9 8.25s9 3.694 9 8.25z" />
       </svg>
     ),
   },
@@ -35,7 +35,7 @@ const mobileNavItems = [
     label: "Repos",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 002.25 2.25h-5.379a1.5 1.5 0 01-1.06-.44f" />
       </svg>
     ),
   },
@@ -44,7 +44,7 @@ const mobileNavItems = [
     label: "Deploy",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 004.306-1.757 4.306 4.493 0 00-1.757 4.306 1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
       </svg>
     ),
   },
@@ -62,7 +62,7 @@ const mobileNavItems = [
     label: "Settings",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01-.26 1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378-.138.75-.43.99l-1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378-.138.75-.43.99l-1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378-.138.75-.43.99l-1.004-.828a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378-.138.75-.43.99l-1.004-.828a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378-.138.75-.43.99l-1.004-.828a1.125 1.125 0 01-.26 1.431l1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378-.138.75-.43.99z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
@@ -90,21 +90,66 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
 
   return (
     <div className="flex h-screen supports-[height:100dvh]:h-dvh bg-surface-50 dark:bg-black">
+      
       <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {activeTab !== "chat" && <Header activeTab={activeTab} />}
+        
+        {/* Window Controls Bar (Desktop Only) - Always visible */}
+        <div className="hidden md:flex items-center justify-end px-4 py-2 bg-background border-b-2 border-border shrink-0">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleMinimize}
+              className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
+              title="Minimize"
+              aria-label="Minimize"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="10" width="16" height="2" />
+              </svg>
+            </button>
+            <button
+              onClick={handleMaximize}
+              className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
+              title="Maximize"
+              aria-label="Maximize"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="1" />
+              </svg>
+            </button>
+            <button
+              onClick={handleClose}
+              className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors text-foreground"
+              title="Close"
+              aria-label="Close"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
-        <main className="flex-1 overflow-hidden pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0 bg-surface-50 dark:bg-black">
+        {/* Header - Only for non-chat pages */}
+        {activeTab !== 'chat' && (
+          <Header activeTab={activeTab} />
+        )}
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-auto pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0 bg-surface-50 dark:bg-black">
           {children}
         </main>
 
+        {/* Mobile Bottom Navigation */}
         <nav
           id="mobile-nav"
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 z-50 pb-[env(safe-area-inset-bottom)]"
+          className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 pb-[env(safe-area-inset-bottom)]"
         >
           <div className="flex items-center justify-between h-16 px-4">
-            <div className="flex items-center gap-4">
+            
+            {/* Navigation Items */}
+            <div className="flex items-center gap-4 flex-1">
               {mobileNavItems.map((item) => (
                 <button
                   key={item.id}
@@ -112,8 +157,8 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
                   className={"flex flex-col items-center justify-center flex-1 h-full py-1 transition-colors " + (
                     activeTab === item.id
                       ? "text-gold-500"
-                      : "text-surface-400 dark:text-surface-600 hover:text-surface-600 dark:hover:text-surface-400"
-                  )}
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      )}
                 >
                   <span className={activeTab === item.id ? "text-gold-500" : ""}>
                     {item.icon}
@@ -123,10 +168,11 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
               ))}
             </div>
 
-            <div className="flex items-center gap-1">
+            {/* Window Controls - Always visible on mobile */}
+            <div className="flex items-center gap-1 ml-2">
               <button
                 onClick={handleMinimize}
-                className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
                 title="Minimize"
                 aria-label="Minimize"
               >
@@ -136,7 +182,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
               </button>
               <button
                 onClick={handleMaximize}
-                className="w-8 h-8 rounded-md hover:bg-surface-200 dark:hover:bg-surface-700 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-md hover:bg-secondary flex items-center justify-center transition-colors text-foreground"
                 title="Maximize"
                 aria-label="Maximize"
               >
@@ -146,7 +192,7 @@ export default function DashboardLayout({ children, activeTab, onTabChange }: Da
               </button>
               <button
                 onClick={handleClose}
-                className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 flex items-center justify-center transition-colors text-foreground"
                 title="Close"
                 aria-label="Close"
               >

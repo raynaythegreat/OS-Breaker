@@ -44,6 +44,7 @@ export interface ChatSession {
   model?: string;
   repoName?: string | null;
   repoFullName?: string | null;
+  chatMode?: "plan" | "build";
 }
 
 interface CreateSessionOptions {
@@ -53,6 +54,7 @@ interface CreateSessionOptions {
   model?: string;
   provider?: ChatSession["provider"];
   deviceToken?: string | null;
+  chatMode?: "plan" | "build";
 }
 
 interface ChatHistoryContextType {
@@ -168,6 +170,7 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
         model,
         provider,
         deviceToken: sessionDeviceToken = deviceToken ?? null,
+        chatMode = "plan",
       } = options;
       const newId = generateId();
       const newSession: ChatSession = {
@@ -181,6 +184,7 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
         model,
         provider,
         deviceToken: sessionDeviceToken,
+        chatMode,
       };
       setSessions((prev) => [newSession, ...prev].slice(0, MAX_SESSIONS));
       setCurrentSessionId(newId);

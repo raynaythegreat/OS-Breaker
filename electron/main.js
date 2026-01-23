@@ -313,3 +313,25 @@ ipcMain.handle('get-app-path', async (event, name) => {
 ipcMain.handle('get-logs-path', async () => {
   return logFile;
 });
+
+ipcMain.handle('window-minimize', async () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.handle('window-maximize', async () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.handle('window-close', async () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});

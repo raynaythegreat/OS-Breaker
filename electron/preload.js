@@ -7,5 +7,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   getAppPath: (name) => ipcRenderer.invoke('get-app-path', name),
   onMessage: (callback) => ipcRenderer.on('message', callback),
-  sendMessage: (channel, data) => ipcRenderer.send(channel, data)
+  sendMessage: (channel, data) => ipcRenderer.send(channel, data),
+  minimize: () => ipcRenderer.invoke('window-minimize'),
+  maximize: () => ipcRenderer.invoke('window-maximize'),
+  close: () => ipcRenderer.invoke('window-close')
+});
+
+contextBridge.exposeInMainWorld('api', {
+  minimize: () => ipcRenderer.invoke('window-minimize'),
+  maximize: () => ipcRenderer.invoke('window-maximize'),
+  close: () => ipcRenderer.invoke('window-close')
 });
