@@ -107,9 +107,11 @@ function createWindow() {
     log(`Failed to load: ${errorCode} - ${errorDescription}`, 'ERROR');
   });
 
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-  }
+  // DevTools can be opened with Ctrl+Shift+I or F12 if needed
+  // Uncomment the line below to auto-open DevTools in development:
+  // if (isDev) {
+  //   mainWindow.webContents.openDevTools();
+  // }
 
   mainWindow.on('closed', () => {
     log('Main window closed');
