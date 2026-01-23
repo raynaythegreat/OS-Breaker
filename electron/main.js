@@ -63,6 +63,7 @@ function createWindow() {
     minHeight: 700,
     x: undefined,
     y: undefined,
+    backgroundColor: '#0a0a0f',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -70,7 +71,6 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     },
     ...(iconPath && { icon: iconPath }),
-    backgroundColor: '#0a0a0f',
     title: 'OS Athena',
     show: false,
     autoHideMenuBar: true,
@@ -78,6 +78,10 @@ function createWindow() {
     titleBarStyle: 'hidden',
     transparent: false
   });
+
+  // Fix GPU crash by disabling GPU acceleration
+  app.commandLine.appendSwitch('disable-gpu', 'disable-software-rasterizer');
+  app.commandLine.appendSwitch('in-process-gpu');
 
   // Remove application menu completely for cleaner UI
   mainWindow.setMenu(null);
