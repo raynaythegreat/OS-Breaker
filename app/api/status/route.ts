@@ -281,6 +281,9 @@ export async function GET() {
     mistral: {
       configured: Boolean(process.env.MISTRAL_API_KEY),
     },
+    cohere: {
+      configured: Boolean(process.env.COHERE_API_KEY),
+    },
     perplexity: {
       configured: Boolean(process.env.PERPLEXITY_API_KEY),
     },

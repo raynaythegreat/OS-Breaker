@@ -11,6 +11,7 @@ export type ModelProvider =
   | "gemini"
   | "fireworks"
   | "mistral"
+  | "cohere"
   | "perplexity"
   | "zai";
 
@@ -60,6 +61,10 @@ export const MODELS: ModelOption[] = [
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'mistral', icon: '🌊', description: 'Top-tier reasoning' },
   { id: 'mistral-medium-latest', name: 'Mistral Medium', provider: 'mistral', icon: '🌊', description: 'Balanced performance' },
 
+  // Cohere
+  { id: 'command-r-plus', name: 'Command R+', provider: 'cohere', icon: '🌲', description: 'Top-tier RAG & tool use' },
+  { id: 'command-r', name: 'Command R', provider: 'cohere', icon: '🌲', description: 'Efficient & capable' },
+
   // Perplexity
   { id: 'llama-3.1-sonar-large-128k-online', name: 'Sonar Large Online', provider: 'perplexity', icon: '🔍', description: 'With web search' },
   { id: 'llama-3.1-sonar-small-128k-online', name: 'Sonar Small Online', provider: 'perplexity', icon: '🔍', description: 'Fast with search' },
@@ -96,6 +101,7 @@ export default function ModelSelector({
       if (keys.fireworks && keys.fireworks.trim()) providers.push('fireworks' as ModelProvider);
       if (keys.gemini && keys.gemini.trim()) providers.push('gemini' as ModelProvider);
       if (keys.mistral && keys.mistral.trim()) providers.push('mistral' as ModelProvider);
+      if (keys.cohere && keys.cohere.trim()) providers.push('cohere' as ModelProvider);
       if (keys.perplexity && keys.perplexity.trim()) providers.push('perplexity' as ModelProvider);
       if (keys.zai && keys.zai.trim()) providers.push('zai' as ModelProvider);
       // Ollama is always available (local)

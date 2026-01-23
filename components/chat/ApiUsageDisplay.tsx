@@ -231,6 +231,7 @@ function ApiUsagePanel({
     "opencodezen",
     "fireworks",
     "mistral",
+    "cohere",
     "perplexity",
     "zai",
   ];

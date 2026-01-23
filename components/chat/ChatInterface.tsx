@@ -113,6 +113,10 @@ interface Status {
   fireworks?: { configured: boolean };
   nanobanana?: { configured: boolean };
   ideogram?: { configured: boolean };
+  mistral?: { configured: boolean };
+  cohere?: { configured: boolean };
+  perplexity?: { configured: boolean };
+  zai?: { configured: boolean };
   ollama: {
     configured: boolean;
     reachable: boolean | null;
@@ -1213,6 +1217,20 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
       name: "Sonar Large Chat",
       description: "Without search",
       provider: "perplexity",
+    },
+  ],
+  "Z.ai (Zhipu)": [
+    {
+      id: "glm-4.7",
+      name: "GLM-4.7",
+      description: "Flagship coding model",
+      provider: "zai",
+    },
+    {
+      id: "glm-4.6v",
+      name: "GLM-4.6V",
+      description: "Multimodal with vision",
+      provider: "zai",
     },
   ],
 };

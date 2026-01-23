@@ -131,6 +131,7 @@ const MODEL_CONFIG: Record<
       | "opencodezen"
       | "fireworks"
       | "mistral"
+      | "cohere"
       | "perplexity"
       | "zai";
     apiModel: string;
@@ -173,6 +174,10 @@ const MODEL_CONFIG: Record<
   // Mistral
   "mistral-large-latest": { provider: "mistral", apiModel: "mistral-large-latest" },
   "mistral-medium-latest": { provider: "mistral", apiModel: "mistral-medium-latest" },
+
+  // Cohere
+  "command-r-plus": { provider: "cohere", apiModel: "command-r-plus" },
+  "command-r": { provider: "cohere", apiModel: "command-r" },
 
   // Fireworks
   "accounts/fireworks/models/llama-v3p3-70b-instruct": {
@@ -223,6 +228,7 @@ const MODEL_PROVIDERS = [
   "opencodezen",
   "fireworks",
   "mistral",
+  "cohere",
   "perplexity",
   "zai",
 ] as const;
@@ -709,6 +715,7 @@ export async function POST(request: NextRequest) {
       opencode: getApiKeyFromRequest(request, 'opencodezen') || getApiKeyFromRequest(request, 'opencode') || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
       mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
+      cohere: getApiKeyFromRequest(request, 'cohere') || process.env.COHERE_API_KEY,
       perplexity: getApiKeyFromRequest(request, 'perplexity') || process.env.PERPLEXITY_API_KEY,
       zai: getApiKeyFromRequest(request, 'zai') || process.env.ZAI_API_KEY,
     }[provider];
@@ -729,6 +736,8 @@ export async function POST(request: NextRequest) {
                   ? "Set FIREWORKS_API_KEY."
                   : provider === "mistral"
                     ? "Set MISTRAL_API_KEY."
+                  : provider === "cohere"
+                    ? "Set COHERE_API_KEY."
                     : provider === "perplexity"
                       ? "Set PERPLEXITY_API_KEY."
                       : provider === "zai"
@@ -842,6 +851,32 @@ export async function POST(request: NextRequest) {
 
             if (lastError) {
               throw new Error(formatOpenRouterError(lastError));
+            }
+          } else if (provider === "cohere") {
+            const cohere = new OpenAI({
+              apiKey: providerKey,
+              baseURL: "https://api.cohere.ai/v1",
+            });
+
+            const response = await cohere.chat.completions.create({
+              model: apiModel,
+              messages: buildOpenAICompatibleMessages(
+                contextPrompt,
+                messages,
+                normalizedAttachments,
+              ),
+              stream: true,
+            });
+
+            for await (const chunk of response) {
+              const content = chunk.choices[0]?.delta?.content;
+              if (content) {
+                controller.enqueue(
+                  encoder.encode(
+                    `data: ${JSON.stringify({ type: "text", content })}\n\n`,
+                  ),
+                );
+              }
             }
           } else if (provider === "openai") {
             const openai = new OpenAI({
