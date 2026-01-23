@@ -2672,9 +2672,13 @@ export default function ChatInterface() {
       repoContext: RepoContextData | null;
       signal: AbortSignal;
     }) => {
+      // Build headers with authenticated API keys
+      const { buildChatApiHeaders } = await import('@/lib/chatHeaders');
+      const headers = await buildChatApiHeaders({ "Content-Type": "application/json" });
+      
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           messages: [{ role: "user", content: params.prompt }],
           model: params.model,
@@ -3522,9 +3526,12 @@ export default function ChatInterface() {
         streamRafRef.current = null;
       }
 
+      const { buildChatApiHeaders } = await import('@/lib/chatHeaders');
+      const headers = await buildChatApiHeaders({ "Content-Type": "application/json" });
+
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           systemPrompt: systemPrompt || undefined,
           messages: requestMessages.map((m) => ({

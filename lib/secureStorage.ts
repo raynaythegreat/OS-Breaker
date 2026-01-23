@@ -1,6 +1,6 @@
 "use client";
 
-interface ApiKeys {
+export interface ApiKeys {
   anthropic: string;
   openai: string;
   groq: string;

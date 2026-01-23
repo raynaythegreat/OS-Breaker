@@ -5,6 +5,42 @@ import { getRuntimeEnv } from "@/lib/runtime";
 
 export const dynamic = 'force-dynamic';
 
+// Helper function to get API keys from headers or environment
+function getApiKeyFromRequest(request: NextRequest, provider: string): string | null {
+  const headerName = `X-API-Key-${provider.charAt(0).toUpperCase() + provider.slice(1)}`;
+  const headerToken = request.headers.get(headerName);
+  if (headerToken && headerToken.trim()) {
+    return headerToken.trim();
+  }
+  
+  // Map provider names to environment variable names
+  const envMap: Record<string, string> = {
+    anthropic: 'CLAUDE_API_KEY',
+    claude: 'CLAUDE_API_KEY',
+    openai: 'OPENAI_API_KEY',
+    gemini: 'GEMINI_API_KEY',
+    groq: 'GROQ_API_KEY',
+    openrouter: 'OPENROUTER_API_KEY',
+    ollama: 'OLLAMA_API_KEY',
+    opencodezen: 'OPENCODE_API_KEY',
+    opencode: 'OPENCODE_API_KEY',
+    fireworks: 'FIREWORKS_API_KEY',
+    mistral: 'MISTRAL_API_KEY',
+    cohere: 'COHERE_API_KEY',
+    perplexity: 'PERPLEXITY_API_KEY',
+  };
+  
+  const envName = envMap[provider];
+  if (envName) {
+    const envValue = process.env[envName] || process.env[`NEXT_PUBLIC_${envName}`];
+    if (envValue && envValue.trim()) {
+      return envValue.trim();
+    }
+  }
+  
+  return null;
+}
+
 const SYSTEM_PROMPT = `You are OS Athena, an expert AI assistant specialized in web development. You help users plan, build, and deploy web applications directly to their GitHub repositories.
 
 **IMPORTANT: When working with a selected GitHub repository, your FILE CHANGES can be applied/committed via the app after the user clicks Apply. Deployments are manual. Write complete, production-ready code.**
@@ -625,12 +661,12 @@ export async function POST(request: NextRequest) {
       finalApiModel: apiModel,
     });
 
-    const openrouterApiKey =
+    const openrouterApiKey = getApiKeyFromRequest(request, 'openrouter') ||
       process.env.OPENROUTER_API_KEY ||
       process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
-    const groqApiKey =
+    const groqApiKey = getApiKeyFromRequest(request, 'groq') ||
       process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY;
-    const fireworksApiKey =
+    const fireworksApiKey = getApiKeyFromRequest(request, 'fireworks') ||
       process.env.FIREWORKS_API_KEY || process.env.FIREWORKS_IMAGE_API_KEY;
     const fireworksBaseUrl =
       process.env.FIREWORKS_CHAT_BASE_URL?.trim() ||
@@ -639,17 +675,18 @@ export async function POST(request: NextRequest) {
     const appUrl = resolveAppUrl(request);
 
     const rawProviderKey = {
-      claude: process.env.CLAUDE_API_KEY,
-      openai: process.env.OPENAI_API_KEY,
-      gemini: process.env.GEMINI_API_KEY,
+      claude: getApiKeyFromRequest(request, 'claude') || getApiKeyFromRequest(request, 'anthropic') || process.env.CLAUDE_API_KEY,
+      openai: getApiKeyFromRequest(request, 'openai') || process.env.OPENAI_API_KEY,
+      gemini: getApiKeyFromRequest(request, 'gemini') || process.env.GEMINI_API_KEY,
       openrouter: openrouterApiKey,
-      ollama: process.env.OLLAMA_API_KEY,
+      ollama: getApiKeyFromRequest(request, 'ollama') || process.env.OLLAMA_API_KEY,
       groq: groqApiKey,
-      opencodezen: process.env.OPENCODE_API_KEY,
+      opencodezen: getApiKeyFromRequest(request, 'opencodezen') || getApiKeyFromRequest(request, 'opencode') || process.env.OPENCODE_API_KEY,
+      opencode: getApiKeyFromRequest(request, 'opencodezen') || getApiKeyFromRequest(request, 'opencode') || process.env.OPENCODE_API_KEY,
       fireworks: fireworksApiKey,
-      mistral: process.env.MISTRAL_API_KEY,
-      cohere: process.env.COHERE_API_KEY,
-      perplexity: process.env.PERPLEXITY_API_KEY,
+      mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
+      cohere: getApiKeyFromRequest(request, 'cohere') || process.env.COHERE_API_KEY,
+      perplexity: getApiKeyFromRequest(request, 'perplexity') || process.env.PERPLEXITY_API_KEY,
     }[provider];
     const providerKey =
       typeof rawProviderKey === "string" ? rawProviderKey.trim() : rawProviderKey;
@@ -784,7 +821,9 @@ export async function POST(request: NextRequest) {
             }
           } else if (provider === "openai") {
             const openai = new OpenAI({
-              apiKey: process.env.OPENAI_API_KEY,
+              apiKey: typeof providerKey === 'string' && providerKey.trim()
+                ? providerKey.trim()
+                : getApiKeyFromRequest(request, 'openai') || process.env.OPENAI_API_KEY,
             });
 
             const response = await openai.chat.completions.create({
@@ -1372,7 +1411,9 @@ export async function POST(request: NextRequest) {
           } else {
             // Claude (Anthropic)
             const anthropic = new Anthropic({
-              apiKey: process.env.CLAUDE_API_KEY,
+              apiKey: typeof providerKey === 'string' && providerKey.trim()
+                ? providerKey.trim()
+                : getApiKeyFromRequest(request, 'claude') || getApiKeyFromRequest(request, 'anthropic') || process.env.CLAUDE_API_KEY,
             });
 
             const response = await anthropic.messages.stream({
