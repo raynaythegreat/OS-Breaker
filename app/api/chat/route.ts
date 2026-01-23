@@ -101,20 +101,19 @@ const MODEL_CONFIG: Record<
   }
 > = {
   // Claude models
-  "claude-opus-4": { provider: "claude", apiModel: "claude-opus-4-20250514" },
-  "claude-sonnet-4": {
+  "claude-opus-4-20250514": { provider: "claude", apiModel: "claude-opus-4-20250514" },
+  "claude-sonnet-4-20250514": {
     provider: "claude",
     apiModel: "claude-sonnet-4-20250514",
   },
   "claude-sonnet-4.5": { provider: "claude", apiModel: "claude-sonnet-4.5" },
-  "claude-sonnet-4.5": { provider: "claude", apiModel: "claude-sonnet-4.5" },
-  "claude-3.5-sonnet": {
+  "claude-3.5-sonnet-20241022": {
     provider: "claude",
     apiModel: "claude-3-5-sonnet-20241022",
   },
-  "claude-3.5-haiku": {
+  "claude-3.5-haiku-20240307": {
     provider: "claude",
-    apiModel: "claude-3-5-haiku-20241022",
+    apiModel: "claude-3-5-haiku-20240307",
   },
 
   // OpenAI models
