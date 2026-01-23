@@ -137,7 +137,7 @@ export default function ModelSelector({
           <div className="max-h-96 overflow-y-auto p-2">
             {Object.entries(groupedModels).map(([provider, models]) => (
               <div key={provider} className="mb-3">
-                <div className="px-3 py-1 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                <div className="px-3 py-1 text-[10px] font-black text-foreground/40 dark:text-muted-foreground uppercase tracking-widest">
                   {provider}
                 </div>
                 <div className="space-y-1">
@@ -151,7 +151,7 @@ export default function ModelSelector({
                       }}
                       className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                         model.id === selectedModel
-                          ? 'bg-gold-500/40 border-2 border-gold-500'
+                          ? 'bg-gold-500 border-2 border-gold-600 shadow-md'
                           : 'hover:bg-secondary border-2 border-transparent'
                       }`}
                     >
@@ -160,14 +160,14 @@ export default function ModelSelector({
                         <div className="flex-1 min-w-0">
                           <div className={`font-bold text-sm truncate ${
                             model.id === selectedModel
-                              ? 'text-white dark:text-white'
+                              ? 'text-white'
                               : 'text-foreground'
                           }`}>
                             {model.name}
                           </div>
                           <div className={`text-[10px] truncate ${
                             model.id === selectedModel
-                              ? 'text-white/80 dark:text-white/80'
+                              ? 'text-white/90'
                               : 'text-muted-foreground'
                           }`}>
                             {model.description}
@@ -175,15 +175,10 @@ export default function ModelSelector({
                         </div>
                       </div>
                       {model.id === selectedModel && (
-                        <svg className={`w-4 h-4 ${
-                          model.id === selectedModel
-                            ? 'text-white'
-                            : 'text-gold-500'
-                        } flex-shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4 19 12 9 5" />
+                        <svg className="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
-                    </div>
                     </button>
                   ))}
                 </div>

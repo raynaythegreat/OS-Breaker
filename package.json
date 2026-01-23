@@ -10,7 +10,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "electron": "electron .",
-    "dev:electron": "NODE_ENV=development PORT=3456 electron .",
+    "dev:electron": "fuser -k 3456/tcp || true; NODE_ENV=development PORT=3456 electron .",
     "build:electron": "npm run build && electron-builder --linux",
     "build:linux": "npm run build && electron-builder --linux --x64"
   },

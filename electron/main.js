@@ -69,7 +69,9 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.js'),
-      contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+      sandbox: true,
+      // Updated CSP to be more permissive for development/Next.js
+      contentSecurityPolicy: "default-src 'self' http://localhost:* https://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*; style-src 'self' 'unsafe-inline' http://localhost:* https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: http://localhost:* https://*; connect-src 'self' http://localhost:* https://*;"
     },
     ...(iconPath && { icon: iconPath }),
     title: 'OS Athena',
