@@ -5,7 +5,7 @@ export async function buildChatApiHeaders(baseHeaders: Record<string, string> = 
   const headers = { ...baseHeaders };
   
   try {
-    const keyNames: (keyof import('./secureStorage').ApiKeys)[] = ['anthropic', 'openai', 'gemini', 'groq', 'openrouter', 'fireworks', 'mistral', 'cohere', 'perplexity', 'github', 'vercel', 'render', 'ollamaBaseUrl'];
+    const keyNames: (keyof import('./secureStorage').ApiKeys)[] = ['anthropic', 'openai', 'gemini', 'groq', 'openrouter', 'fireworks', 'mistral', 'cohere', 'perplexity', 'huggingface', 'github', 'vercel', 'render', 'ollamaBaseUrl'];
     const headerMap: Record<(keyof import('./secureStorage').ApiKeys), string> = {
       anthropic: 'X-API-Key-Anthropic',
       openai: 'X-API-Key-Openai',
@@ -16,6 +16,7 @@ export async function buildChatApiHeaders(baseHeaders: Record<string, string> = 
       mistral: 'X-API-Key-Mistral',
       cohere: 'X-API-Key-Cohere',
       perplexity: 'X-API-Key-Perplexity',
+      huggingface: 'X-API-Key-Huggingface',
       github: 'X-API-Key-GitHub',
       vercel: 'X-API-Key-Vercel',
       render: 'X-API-Key-Render',

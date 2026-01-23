@@ -9,6 +9,27 @@ interface EnvironmentVariable {
   value: string;
 }
 
+// Helper function to get Render API key from headers or environment
+function getRenderApiKey(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-Render");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.RENDER_API_KEY || null;
+}
+
+// Helper function to get GitHub token from headers or environment
+function getGitHubToken(request: NextRequest): string | null {
+  const headerToken = request.headers.get("X-API-Key-GitHub");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+  return process.env.GITHUB_TOKEN || null;
+}
+
 function normalizeRootDirectory(value: unknown): string {
   if (typeof value !== "string") return "";
   const trimmed = value.trim();
@@ -18,10 +39,10 @@ function normalizeRootDirectory(value: unknown): string {
   return normalized;
 }
 
-async function detectFramework(repository: string, rootDirectory?: string): Promise<string | undefined> {
+async function detectFramework(repository: string, rootDirectory?: string, githubToken?: string): Promise<string | undefined> {
   try {
     const [owner, repo] = repository.split("/");
-    const github = new GitHubService();
+    const github = githubToken ? new GitHubService(githubToken) : new GitHubService();
     const normalizedRoot = normalizeRootDirectory(rootDirectory);
     const packageJsonPath = normalizedRoot ? `${normalizedRoot}/package.json` : "package.json";
 
@@ -82,6 +103,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Repository is required" }, { status: 400 });
     }
 
+    const renderApiKey = getRenderApiKey(request);
+    if (!renderApiKey) {
+      return NextResponse.json(
+        { error: "Render API key not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const githubToken = getGitHubToken(request);
+
     const repoFullName = repository.trim();
     const inferredServiceName = typeof serviceName === "string" && serviceName.trim()
       ? serviceName.trim()
@@ -91,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     let detectedFramework = typeof framework === "string" && framework.trim() ? framework.trim() : undefined;
     if (!detectedFramework && autoDetectFramework) {
-      detectedFramework = await detectFramework(repoFullName, normalizedRoot || undefined);
+      detectedFramework = await detectFramework(repoFullName, normalizedRoot || undefined, githubToken || undefined);
     }
 
     const defaults = defaultCommandsForFramework(detectedFramework);
@@ -110,7 +141,7 @@ export async function POST(request: NextRequest) {
           .filter(Boolean) as EnvironmentVariable[]
       : [];
 
-    const render = new RenderService();
+    const render = new RenderService(renderApiKey);
     const result = await render.deployFromGitHub({
       serviceName: inferredServiceName,
       repository: repoFullName,

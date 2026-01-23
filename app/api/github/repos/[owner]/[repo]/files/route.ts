@@ -7,11 +7,31 @@ interface Params {
   params: Promise<{ owner: string; repo: string }>;
 }
 
+// Helper function to get GitHub token from headers or environment
+function getGitHubToken(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-GitHub");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.GITHUB_TOKEN || null;
+}
+
 // GET - Get relevant files for context
-export async function GET(_request: NextRequest, { params }: Params) {
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { owner, repo } = await params;
-    const github = new GitHubService();
+    const token = getGitHubToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: "GitHub token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const github = new GitHubService(token);
     const files = await github.getRelevantFiles(owner, repo);
     return NextResponse.json({ files });
   } catch (error) {
@@ -37,7 +57,15 @@ export async function POST(request: NextRequest, { params }: Params) {
       );
     }
 
-    const github = new GitHubService();
+    const token = getGitHubToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: "GitHub token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const github = new GitHubService(token);
     await github.createOrUpdateFile(owner, repo, {
       path,
       content,

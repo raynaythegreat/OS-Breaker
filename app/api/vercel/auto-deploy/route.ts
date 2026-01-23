@@ -3,6 +3,18 @@ import { VercelService } from "@/services/vercel";
 
 export const dynamic = 'force-dynamic';
 
+// Helper function to get Vercel token from headers or environment
+function getVercelToken(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-Vercel");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.VERCEL_TOKEN || null;
+}
+
 // POST - Auto-deploy if project exists on Vercel
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +28,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const vercelToken = getVercelToken(request);
+    if (!vercelToken) {
+      return NextResponse.json(
+        { error: "Vercel token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
     const projectName = repository.split("/")[1];
-    const vercel = new VercelService();
+    const vercel = new VercelService(vercelToken);
 
     // Check if project exists
     const existingProject = await vercel.getProject(projectName);

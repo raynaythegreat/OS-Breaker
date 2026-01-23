@@ -1,3 +1,4 @@
+/// <reference types="../types/electron" />
 "use client";
 
 export interface ApiKeys {
@@ -10,6 +11,7 @@ export interface ApiKeys {
   mistral: string;
   cohere: string;
   perplexity: string;
+  huggingface: string;
   github: string;
   vercel: string;
   render: string;
@@ -26,6 +28,7 @@ const API_KEY_MAP = {
   mistral: 'MISTRAL_API_KEY',
   cohere: 'COHERE_API_KEY',
   perplexity: 'PERPLEXITY_API_KEY',
+  huggingface: 'HUGGINGFACE_API_KEY',
   github: 'GITHUB_TOKEN',
   vercel: 'VERCEL_TOKEN',
   render: 'RENDER_API_KEY',
@@ -33,18 +36,19 @@ const API_KEY_MAP = {
 } as const;
 
 // Check if running in Electron
-const isElectron = typeof window !== 'undefined' && !!(window as any).apiKeys;
+const isElectron = typeof window !== 'undefined' && !!window.api?.apiKeys;
 
 // Electron storage functions
 async function electronGetKeys(): Promise<Partial<ApiKeys>> {
   try {
-    const result = await (window as any).apiKeys.get();
+    const result = await window.api!.apiKeys.get();
     if (!result.success || !result.keys) return {};
-    
+
+    const keys = result.keys;
     const mappedKeys: Partial<ApiKeys> = {};
     Object.entries(API_KEY_MAP).forEach(([key, envKey]) => {
-      if (result.keys[envKey]) {
-        mappedKeys[key as keyof ApiKeys] = result.keys[envKey];
+      if (keys[envKey]) {
+        mappedKeys[key as keyof ApiKeys] = keys[envKey];
       }
     });
     
@@ -64,8 +68,8 @@ async function electronSaveKeys(keys: Partial<ApiKeys>): Promise<boolean> {
         envKeys[envKey] = value;
       }
     });
-    
-    await (window as any).apiKeys.set(envKeys);
+
+    await window.api!.apiKeys.set(envKeys);
     console.log('Successfully saved API keys to secure Electron storage');
     return true;
   } catch (error) {
@@ -77,7 +81,7 @@ async function electronSaveKeys(keys: Partial<ApiKeys>): Promise<boolean> {
 async function electronDeleteKey(keyName: keyof ApiKeys): Promise<boolean> {
   try {
     const envKey = API_KEY_MAP[keyName];
-    await (window as any).apiKeys.delete([envKey]);
+    await window.api!.apiKeys.delete([envKey]);
     console.log(`Successfully deleted ${keyName} from secure Electron storage`);
     return true;
   } catch (error) {

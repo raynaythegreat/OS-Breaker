@@ -28,6 +28,7 @@ function getApiKeyFromRequest(request: NextRequest, provider: string): string | 
     mistral: 'MISTRAL_API_KEY',
     cohere: 'COHERE_API_KEY',
     perplexity: 'PERPLEXITY_API_KEY',
+    huggingface: 'HUGGINGFACE_API_KEY',
   };
   
   const envName = envMap[provider];
@@ -132,7 +133,8 @@ const MODEL_CONFIG: Record<
       | "fireworks"
       | "mistral"
       | "cohere"
-      | "perplexity";
+      | "perplexity"
+      | "huggingface";
     apiModel: string;
   }
 > = {
@@ -687,6 +689,7 @@ export async function POST(request: NextRequest) {
       mistral: getApiKeyFromRequest(request, 'mistral') || process.env.MISTRAL_API_KEY,
       cohere: getApiKeyFromRequest(request, 'cohere') || process.env.COHERE_API_KEY,
       perplexity: getApiKeyFromRequest(request, 'perplexity') || process.env.PERPLEXITY_API_KEY,
+      huggingface: getApiKeyFromRequest(request, 'huggingface') || process.env.HUGGINGFACE_API_KEY,
     }[provider];
     const providerKey =
       typeof rawProviderKey === "string" ? rawProviderKey.trim() : rawProviderKey;
@@ -1407,6 +1410,72 @@ export async function POST(request: NextRequest) {
                   }
                 }
               }
+            }
+          } else if (provider === "huggingface") {
+            const huggingfaceApiKey = providerKey;
+            if (!huggingfaceApiKey) {
+              throw new Error("HUGGINGFACE_API_KEY is not configured");
+            }
+
+            // Hugging Face Inference API endpoint
+            const huggingfaceUrl = `https://api-inference.huggingface.co/models/${apiModel}`;
+
+            // Build messages in chat format
+            const huggingfaceMessages = [
+              { role: "system", content: contextPrompt },
+              ...messages.map((msg: any) => ({
+                role: msg.role,
+                content: typeof msg.content === 'string' ? msg.content :
+                  (Array.isArray(msg.content) ? msg.content.map((c: any) =>
+                    typeof c === 'string' ? c : c.text || ''
+                  ).join('') : ''),
+              })),
+            ];
+
+            const response = await fetch(huggingfaceUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${huggingfaceApiKey}`,
+              },
+              body: JSON.stringify({
+                inputs: huggingfaceMessages.map(m => `${m.role}: ${m.content}`).join('\n'),
+                parameters: {
+                  max_new_tokens: 2048,
+                  temperature: 0.7,
+                  top_p: 0.95,
+                  return_full_text: false,
+                },
+                options: {
+                  use_cache: false,
+                  wait_for_model: true,
+                },
+              }),
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(errorText || `Hugging Face request failed (${response.status})`);
+            }
+
+            // Hugging Face returns JSON response, not streaming
+            const result = await response.json();
+
+            let content = '';
+            if (Array.isArray(result) && result[0]?.generated_text) {
+              content = result[0].generated_text;
+            } else if (result.generated_text) {
+              content = result.generated_text;
+            } else if (typeof result === 'string') {
+              content = result;
+            }
+
+            if (content) {
+              controller.enqueue(
+                encoder.encode(
+                  `data: ${JSON.stringify({ type: "text", content })}\n\n`,
+                ),
+              );
             }
           } else {
             // Claude (Anthropic)

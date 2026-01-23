@@ -89,15 +89,17 @@ export async function POST(request: NextRequest) {
     | { repository?: unknown; projectName?: unknown; branch?: unknown; targets?: unknown; apiKey?: unknown }
     | null;
 
+  // Try header first, then body, then env
+  const apiKeyFromHeader = request.headers.get("X-API-Key-Render");
   const apiKeyFromBody = typeof body?.apiKey === "string" ? body.apiKey.trim() : "";
   const apiKeyFromEnv = (process.env.RENDER_API_KEY || "").trim();
-  const apiKey = apiKeyFromBody || apiKeyFromEnv;
+  const apiKey = (apiKeyFromHeader && apiKeyFromHeader.trim()) || apiKeyFromBody || apiKeyFromEnv;
 
   if (!apiKey) {
     return NextResponse.json(
       {
         ok: false,
-        error: "RENDER_API_KEY is missing. Add it to .env.local (recommended) or pass { apiKey } in the request body.",
+        error: "RENDER_API_KEY is missing. Add it in Settings, .env.local, or pass { apiKey } in the request body.",
       },
       { status: 200 }
     );
@@ -134,7 +136,19 @@ export async function POST(request: NextRequest) {
   const branch = branchFromBody || branchFromGit || "main";
 
   try {
-    const vercel = new VercelService();
+    // Get Vercel token from headers or env
+    const vercelToken = request.headers.get("X-API-Key-Vercel") || process.env.VERCEL_TOKEN;
+    if (!vercelToken) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "VERCEL_TOKEN is missing. Add it in Settings or .env.local.",
+        },
+        { status: 200 }
+      );
+    }
+
+    const vercel = new VercelService(vercelToken);
     const result = await vercel.deployFromGitHub({
       projectName,
       repository,

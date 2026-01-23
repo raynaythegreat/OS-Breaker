@@ -7,6 +7,18 @@ interface Params {
   params: Promise<{ id: string }>;
 }
 
+// Helper function to get Vercel token from headers or environment
+function getVercelToken(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-Vercel");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.VERCEL_TOKEN || null;
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -58,11 +70,19 @@ export async function GET(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Deployment ID is required" }, { status: 400 });
     }
 
+    const vercelToken = getVercelToken(request);
+    if (!vercelToken) {
+      return NextResponse.json(
+        { error: "Vercel token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const limitRaw = searchParams.get("limit");
     const limit = limitRaw && /^\d+$/.test(limitRaw) ? Math.min(5000, Math.max(1, Number(limitRaw))) : 2000;
 
-    const vercel = new VercelService();
+    const vercel = new VercelService(vercelToken);
     const raw = await vercel.getDeploymentEvents(id, limit);
     const events = coerceEvents(raw);
     const text = buildLogText(events);

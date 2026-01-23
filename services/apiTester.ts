@@ -331,6 +331,25 @@ export class ApiTester {
     }
   }
 
+  static async testHuggingFace(apiKey: string): Promise<TestResult> {
+    if (!validateApiKey(apiKey)) {
+      return { status: 'not_configured', message: 'API key not configured' };
+    }
+    try {
+      const start = Date.now();
+      const response = await fetchWithTimeout('https://huggingface.co/api/whoami', {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      }, 5000);
+      if (response.status === 401) throw new Error('Invalid token');
+      if (response.status === 403) throw new Error('Token lacks required permissions');
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      const latency = Date.now() - start;
+      return { status: 'success', message: 'Connected successfully', latency };
+    } catch (error) {
+      return { status: 'error', message: formatError(error) };
+    }
+  }
+
   static async testCustom(baseUrl: string, endpoint?: string, apiKey?: string): Promise<TestResult> {
     if (!baseUrl) return { status: 'not_configured', message: 'Base URL not configured' };
 

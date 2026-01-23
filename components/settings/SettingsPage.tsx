@@ -25,6 +25,7 @@ interface ApiKeys {
   mistral: string;
   cohere: string;
   perplexity: string;
+  huggingface: string;
   github: string;
   vercel: string;
   render: string;
@@ -55,6 +56,7 @@ const providers: ProviderConfig[] = [
   { key: 'mistral', label: 'Mistral AI', placeholder: 'Enter API key', icon: '🌊', category: 'ai', description: 'Mistral Large & Medium', docsUrl: 'https://console.mistral.ai/api-keys', envKey: 'MISTRAL_API_KEY' },
   { key: 'cohere', label: 'Cohere', placeholder: 'Enter API key', icon: '🧠', category: 'ai', description: 'Command & Embed models', docsUrl: 'https://dashboard.cohere.com/api-keys', envKey: 'COHERE_API_KEY' },
   { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-...', icon: '🔍', category: 'ai', description: 'Sonar models with online search', docsUrl: 'https://www.perplexity.ai/settings/api', envKey: 'PERPLEXITY_API_KEY' },
+  { key: 'huggingface', label: 'Hugging Face', placeholder: 'hf_...', icon: '🤗', category: 'ai', description: 'Access thousands of open-source models', docsUrl: 'https://huggingface.co/settings/tokens', envKey: 'HUGGINGFACE_API_KEY' },
 
   // Development Tools
   { key: 'github', label: 'GitHub', placeholder: 'ghp_...', icon: '📦', category: 'deployment', description: 'Repository management', docsUrl: 'https://github.com/settings/tokens', envKey: 'GITHUB_TOKEN' },
@@ -77,6 +79,7 @@ const SettingsPage: React.FC = () => {
     mistral: '',
     cohere: '',
     perplexity: '',
+    huggingface: '',
     github: '',
     vercel: '',
     render: '',
@@ -256,6 +259,9 @@ const SettingsPage: React.FC = () => {
           break;
         case 'perplexity':
           result = await ApiTester.testPerplexity(apiKeys.perplexity || '');
+          break;
+        case 'huggingface':
+          result = await ApiTester.testHuggingFace(apiKeys.huggingface || '');
           break;
         case 'github':
           result = await ApiTester.testGitHub(apiKeys.github || '');

@@ -7,14 +7,34 @@ interface Params {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(_request: NextRequest, { params }: Params) {
+// Helper function to get Render API key from headers or environment
+function getRenderApiKey(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-Render");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.RENDER_API_KEY || null;
+}
+
+export async function GET(request: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "Deployment ID is required" }, { status: 400 });
     }
 
-    const render = new RenderService();
+    const renderApiKey = getRenderApiKey(request);
+    if (!renderApiKey) {
+      return NextResponse.json(
+        { error: "Render API key not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const render = new RenderService(renderApiKey);
     const deployment = await render.getDeploy(id);
 
     if (!deployment) {

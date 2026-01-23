@@ -12,7 +12,8 @@ export type ModelProvider =
   | "fireworks"
   | "mistral"
   | "cohere"
-  | "perplexity";
+  | "perplexity"
+  | "huggingface";
 
 export interface ModelOption {
   id: string;
@@ -45,6 +46,11 @@ export const MODELS: ModelOption[] = [
   { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Exp', provider: 'gemini', icon: '💎', description: 'Ultra-fast experimental' },
   { id: 'gemini-pro', name: 'Gemini Pro', provider: 'gemini', icon: '💎', description: 'Google\'s best' },
   { id: 'gemini-pro-vision', name: 'Gemini Pro Vision', provider: 'gemini', icon: '💎', description: 'Multimodal analysis' },
+
+  // Hugging Face
+  { id: 'meta-llama/Meta-Llama-3-70B-Instruct', name: 'Llama 3 70B Instruct', provider: 'huggingface', icon: '🤗', description: 'Open-source reasoning' },
+  { id: 'mistralai/Mistral-Nemo-Base-2407', name: 'Mistral Nemo 12B', provider: 'huggingface', icon: '🤗', description: 'Fast efficient model' },
+  { id: 'Qwen/Qwen2.5-Coder-32B-Instruct', name: 'Qwen 2.5 Coder 32B', provider: 'huggingface', icon: '🤗', description: 'Code generation' },
 
   // Mistral
   { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'mistral', icon: '🌊', description: 'Top-tier reasoning' },

@@ -2,23 +2,6 @@
 
 import { useEffect, useState, CSSProperties } from "react";
 
- declare global {
-   interface Window {
-     api?: {
-       minimize: () => void;
-       maximize: () => void;
-       close: () => void;
-       getFileAccessStatus: () => Promise<{ enabled: boolean; directories: string[] }>;
-       toggleFileAccess: (enabled: boolean) => Promise<{ success: boolean; enabled: boolean }>;
-       readFile: (path: string) => Promise<{ success: boolean; content?: string; error?: string }>;
-       writeFile: (path: string, content: string) => Promise<{ success: boolean; error?: string }>;
-       listDirectory: (path: string) => Promise<{ success: boolean; files?: any[]; error?: string }>;
-       getFileStats: (path: string) => Promise<{ success: boolean; stats?: any; error?: string }>;
-       selectDirectory: () => Promise<{ success: boolean; path?: string; error?: string }>;
-     };
-   }
- }
-
 interface DragStyles extends CSSProperties {
   WebkitAppRegion?: 'drag' | 'no-drag';
 }

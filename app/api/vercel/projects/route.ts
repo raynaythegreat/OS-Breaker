@@ -3,10 +3,30 @@ import { VercelService } from "@/services/vercel";
 
 export const dynamic = 'force-dynamic';
 
+// Helper function to get Vercel token from headers or environment
+function getVercelToken(request: NextRequest): string | null {
+  // Try custom header first (from client-side SecureStorage)
+  const headerToken = request.headers.get("X-API-Key-Vercel");
+  if (headerToken && headerToken.trim()) {
+    return headerToken;
+  }
+
+  // Fall back to environment variable (for CLI/production builds)
+  return process.env.VERCEL_TOKEN || null;
+}
+
 // GET - List Vercel projects
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const vercel = new VercelService();
+    const vercelToken = getVercelToken(request);
+    if (!vercelToken) {
+      return NextResponse.json(
+        { error: "Vercel token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const vercel = new VercelService(vercelToken);
     const projects = await vercel.listProjects();
     return NextResponse.json({ projects });
   } catch (error) {
@@ -31,7 +51,15 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const vercel = new VercelService();
+    const vercelToken = getVercelToken(request);
+    if (!vercelToken) {
+      return NextResponse.json(
+        { error: "Vercel token not provided. Please configure it in Settings." },
+        { status: 401 }
+      );
+    }
+
+    const vercel = new VercelService(vercelToken);
     await vercel.deleteProject(projectName);
     return NextResponse.json({ success: true });
   } catch (error) {
