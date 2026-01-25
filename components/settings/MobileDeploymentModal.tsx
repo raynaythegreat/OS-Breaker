@@ -56,7 +56,7 @@ export default function MobileDeploymentModal({
   onDeploy,
   preForkedRepo,
 }: MobileDeploymentModalProps) {
-  const [repository, setRepository] = useState(preForkedRepo || 'Raynaythegreat/OS-Athena-Mobile');
+  const [repository, setRepository] = useState(preForkedRepo || 'raynaythegreat/OS-Athena-Mobile');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [branch, setBranch] = useState('main');
@@ -383,7 +383,7 @@ export default function MobileDeploymentModal({
                   onFocus={() => userRepositories.length > 0 && setShowRepoDropdown(true)}
                   onBlur={() => setTimeout(() => setShowRepoDropdown(false), 200)}
                   placeholder="owner/repo (e.g., yourusername/os-athena-mobile)"
-                  className="w-full px-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-white"
+                  className="w-full px-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-white"
                   disabled={deploying}
                   autoComplete="off"
                 />
@@ -436,7 +436,7 @@ export default function MobileDeploymentModal({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter password for mobile access"
-                  className="w-full px-4 py-2 pr-10 border border-surface-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-white"
+                  className="w-full px-4 py-2 pr-10 border border-surface-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-white"
                   disabled={deploying}
                 />
                 <button
@@ -469,7 +469,7 @@ export default function MobileDeploymentModal({
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
                 placeholder="main"
-                className="w-full px-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-white"
+                className="w-full px-4 py-2 border border-surface-300 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-surface-900 text-surface-900 dark:text-white"
                 disabled={deploying}
               />
             </div>
@@ -478,7 +478,7 @@ export default function MobileDeploymentModal({
               <button
                 type="submit"
                 disabled={deploying || !password.trim()}
-                className="w-full bg-gold-500 hover:bg-gold-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {deploying ? (
                   <>
