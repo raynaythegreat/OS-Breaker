@@ -74,7 +74,7 @@ Z.ai provides access to the GLM (General Language Model) series, which are flags
 
 ### API Configuration
 
-- **Base URL:** `https://api.z.ai/api/paas/v4`
+- **Base URL:** `https://open.bigmodel.cn/api/paas/v4`
 - **Endpoint:** `/chat/completions` (OpenAI-compatible)
 - **Authentication:** Bearer token
 - **Streaming:** ✅ Supported

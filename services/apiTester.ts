@@ -350,7 +350,7 @@ export class ApiTester {
     try {
       const start = Date.now();
       // Test using Z.ai chat completions endpoint
-      const response = await fetchWithTimeout('https://api.z.ai/api/paas/v4/chat/completions', {
+      const response = await fetchWithTimeout('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,

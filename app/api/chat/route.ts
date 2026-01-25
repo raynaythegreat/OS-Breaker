@@ -1318,7 +1318,7 @@ export async function POST(request: NextRequest) {
             // Use Z.ai Chat Completions API (OpenAI-compatible)
             const zai = new OpenAI({
               apiKey: zaiApiKey,
-              baseURL: "https://api.z.ai/api/paas/v4",
+              baseURL: "https://open.bigmodel.cn/api/paas/v4",
             });
 
             const response = await zai.chat.completions.create({
