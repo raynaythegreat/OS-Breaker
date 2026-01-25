@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SecureStorage } from '@/lib/secureStorage';
 
 interface DeploymentStep {
@@ -77,6 +77,25 @@ export default function MobileDeploymentModal({
     vercel: boolean;
     github: boolean;
   }>({ ngrok: false, vercel: false, github: false });
+  const [deploymentState, setDeploymentState] = useState<DeploymentState>('idle');
+  const [deploymentId, setDeploymentId] = useState<string | null>(null);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [vercelUrl, setVercelUrl] = useState<string | null>(null);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  const logsEndRef = React.useRef<HTMLDivElement>(null);
+  const pollIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const addLog = useCallback((message: string, type: LogEntry['type'] = 'info') => {
+    setLogs(prev => [...prev.slice(-199), { // Keep last 200 logs
+      timestamp: Date.now(),
+      message,
+      type
+    }]);
+  }, []);
+
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
 
   useEffect(() => {
     if (open) {
