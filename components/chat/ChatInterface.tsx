@@ -1216,13 +1216,13 @@ interface PlanBuildToggleProps {
 
 function PlanBuildToggle({ chatMode, onModeChange, autoApprove, onToggleAutoApprove }: PlanBuildToggleProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
       {/* Plan/Build Toggle */}
-      <div className="inline-flex rounded-full border-2 border-blue-500/30 bg-surface-100 dark:bg-surface-900 p-1.5 shadow-flat">
+      <div className="inline-flex rounded-full border-2 border-blue-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
         <button
           type="button"
           onClick={() => onModeChange("plan")}
-          className={`relative px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 active:scale-95 ${
+          className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
             chatMode === "plan"
               ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
@@ -1234,7 +1234,7 @@ function PlanBuildToggle({ chatMode, onModeChange, autoApprove, onToggleAutoAppr
         <button
           type="button"
           onClick={() => onModeChange("build")}
-          className={`relative px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 active:scale-95 ${
+          className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
             chatMode === "build"
               ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
@@ -1250,14 +1250,14 @@ function PlanBuildToggle({ chatMode, onModeChange, autoApprove, onToggleAutoAppr
         <button
           type="button"
           onClick={onToggleAutoApprove}
-          className={`px-3 py-2 text-sm font-semibold rounded-lg border-2 transition-all flex items-center gap-2 ${
+          className={`px-2 py-1.5 text-xs font-semibold rounded-lg border-2 transition-all flex items-center gap-1.5 ${
             autoApprove
               ? "bg-blue-500 text-white border-blue-500 shadow-flat"
               : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-border hover:border-blue-500/40"
           }`}
           title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           <span className="hidden sm:inline">Auto-approve</span>
@@ -1277,20 +1277,20 @@ interface ModelSelectorProps {
 
 function ModelSelector({ modelName, onToggleDropdown, dropdownOpen, children }: ModelSelectorProps) {
   return (
-    <div className="relative w-full sm:w-auto sm:min-w-[180px] flex-shrink-0">
+    <div className="relative flex-1 min-w-[120px] sm:min-w-[140px] flex-shrink-0">
       <button
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           onToggleDropdown();
         }}
-        className="flex items-center justify-between gap-2 w-full px-4 py-2.5 text-sm font-semibold rounded-lg border-2 bg-surface-100 dark:bg-surface-900 border-blue-500/40 text-blue-700 dark:text-blue-200 hover:border-blue-500/60 hover:shadow-flat transition-all duration-150"
+        className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs sm:text-sm font-semibold rounded-lg border-2 bg-surface-100 dark:bg-surface-900 border-blue-500/40 text-blue-700 dark:text-blue-200 hover:border-blue-500/60 hover:shadow-flat transition-all duration-150"
         title={modelName}
       >
         <span className="min-w-0 font-medium truncate">
           {modelName}
         </span>
-        <svg className="w-4 h-4 flex-shrink-0 transition-transform duration-200" style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200" style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>

@@ -51,7 +51,7 @@ export function parseGitHubCommands(content: string): GitHubCommand[] {
     if (baseMatch) command.base = baseMatch[1];
 
     // Validate type and ensure it's not a prototype pollution attempt
-    if (command.type && command.type !== "__proto__" && command.type !== "constructor") {
+    if (command.type && (command.type as string) !== "__proto__" && (command.type as string) !== "constructor") {
       commands.push(command as GitHubCommand);
     }
   }

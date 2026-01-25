@@ -10,6 +10,7 @@ import MobilePage from '@/app/mobile/page';
 import SettingsPage from "@/components/settings/SettingsPage";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import { useChatHistory } from "@/contexts/ChatHistoryContext";
+import AthenaLogo from "@/components/ui/AthenaLogo";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("chat");
@@ -32,8 +33,10 @@ export default function HomePage() {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto border-4 border-gold-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-foreground/60 text-sm">Initializing OS Athena...</p>
+          <div className="w-20 h-20 mx-auto animate-pulse">
+            <AthenaLogo className="w-full h-full" />
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Initializing OS Athena...</p>
         </div>
       </div>
     );
