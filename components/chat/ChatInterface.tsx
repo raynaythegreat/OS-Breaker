@@ -4843,7 +4843,7 @@ export default function ChatInterface() {
       )}
 
       {/* Input */}
-      <div className="border-t border-gold-500/10 bg-surface-50 dark:bg-surface-900 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+      <div className="relative border-t border-gold-500/10 bg-surface-50 dark:bg-surface-900 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
         {/* Logo in input area */}
         <div className="absolute top-4 left-4 z-10 hidden sm:flex">
           <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gold-500/10 border-2 border-gold-500/20 shadow-flat">
