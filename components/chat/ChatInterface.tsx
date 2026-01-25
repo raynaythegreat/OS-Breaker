@@ -1205,6 +1205,73 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
   ],
 };
 
+// Plan/Build toggle component
+interface PlanBuildToggleProps {
+  chatMode: "plan" | "build";
+  onModeChange: (mode: "plan" | "build") => void;
+  autoApprove: boolean;
+  onToggleAutoApprove: () => void;
+}
+
+function PlanBuildToggle({ chatMode, onModeChange, autoApprove, onToggleAutoApprove }: PlanBuildToggleProps) {
+  return (
+    <div className="flex items-center gap-2">
+      {/* Plan/Build Toggle */}
+      <div className="inline-flex rounded-full border-2 border-blue-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
+        <button
+          type="button"
+          onClick={() => onModeChange("plan")}
+          className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
+            chatMode === "plan"
+              ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
+              : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
+          }`}
+          title="Plan mode: Review and approve changes before committing"
+        >
+          Plan
+          {chatMode === "plan" && (
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-[9px] font-bold text-white shadow-sm">P</span>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => onModeChange("build")}
+          className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
+            chatMode === "build"
+              ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
+              : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
+          }`}
+          title="Build mode: Apply and commit planned changes"
+        >
+          Build
+          {chatMode === "build" && (
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-green-500 text-[9px] font-bold text-white shadow-sm">B</span>
+          )}
+        </button>
+      </div>
+
+      {/* Auto Approve Toggle - only show in build mode */}
+      {chatMode === "build" && (
+        <button
+          type="button"
+          onClick={onToggleAutoApprove}
+          className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
+            autoApprove
+              ? "bg-blue-500 text-white border-blue-500"
+              : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-blue-500/20 hover:border-blue-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
+          }`}
+          title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="hidden sm:inline">Auto</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function ChatInterface() {
   const {
     currentSession,
@@ -4156,10 +4223,10 @@ export default function ChatInterface() {
     <div
       ref={dropdownMenuRef}
       style={dropdownStyle}
-      className="fixed z-[999] max-h-[70vh] overflow-hidden rounded-2xl border border-gold-500/20 bg-white dark:bg-surface-900 backdrop-blur-xl shadow-2xl ring-1 ring-gold-500/10"
+      className="fixed z-[999] max-h-[70vh] overflow-hidden rounded-2xl border border-blue-500/20 bg-white dark:bg-surface-900 backdrop-blur-xl shadow-2xl ring-1 ring-blue-500/10"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="p-2 border-b border-gold-500/10 bg-white dark:bg-surface-900">
+      <div className="p-2 border-b border-blue-500/10 bg-white dark:bg-surface-900">
         <button
             onClick={() => {
               const inputValue = window.prompt(
@@ -4179,7 +4246,7 @@ export default function ChatInterface() {
           }}
           className="w-full px-4 py-3 text-left hover:bg-surface-200 dark:hover:bg-surface-800 transition-all duration-200 rounded-xl text-sm text-foreground flex items-center gap-3 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-surface-200 dark:bg-surface-800 border border-gold-500/10 flex items-center justify-center group-hover:bg-surface-100 dark:group-hover:bg-surface-700 transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-surface-200 dark:bg-surface-800 border border-blue-500/10 flex items-center justify-center group-hover:bg-surface-100 dark:group-hover:bg-surface-700 transition-colors">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -4202,7 +4269,7 @@ export default function ChatInterface() {
         {sortedModelGroups.map(({ groupName, models }) => (
           <div
             key={groupName}
-            className="border-b border-gold-500/5 last:border-b-0"
+            className="border-b border-blue-500/5 last:border-b-0"
           >
              <div className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wide bg-white dark:bg-surface-900 sticky top-0 backdrop-blur-sm">
               {groupName}
@@ -4226,7 +4293,7 @@ export default function ChatInterface() {
                     }}
                      className={`w-full px-4 py-3 text-left hover:bg-surface-200 dark:hover:bg-surface-800 transition-all duration-200 flex items-center justify-between group ${
                        isSelected
-                         ? "bg-surface-200 dark:bg-surface-800 border-l-4 border-gold-500"
+                         ? "bg-surface-200 dark:bg-surface-800 border-l-4 border-blue-500"
                          : "border-l-4 border-transparent"
                      }`}
                   >
@@ -4252,7 +4319,7 @@ export default function ChatInterface() {
                     </div>
                     {isSelected && (
                       <div className="ml-3 flex-shrink-0">
-                        <div className="w-6 h-6 rounded-full bg-gold-500 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
                           <svg
                             className="w-3 h-3 text-black"
                             fill="none"
@@ -4282,17 +4349,17 @@ export default function ChatInterface() {
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-full">
       {/* Compact Top Bar: Mode + Repo + Model + Actions */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3 border-b-2 border-gold-500/10 bg-gradient-to-r from-surface-50 to-white dark:from-surface-900 dark:to-surface-950 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3 border-b-2 border-blue-500/10 bg-gradient-to-r from-surface-50 to-white dark:from-surface-900 dark:to-surface-950 shadow-sm">
         {/* Left: Mode Toggle + Auto Approve */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Plan/Build Toggle */}
-          <div className="inline-flex rounded-full border-2 border-gold-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
+          <div className="inline-flex rounded-full border-2 border-blue-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
             <button
               type="button"
               onClick={() => handleModeChange("plan")}
               className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
                 chatMode === "plan"
-                  ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
+                  ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
                   : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
               }`}
               title="Plan mode: Review and approve changes before committing"
@@ -4307,7 +4374,7 @@ export default function ChatInterface() {
               onClick={() => handleModeChange("build")}
               className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
                 chatMode === "build"
-                  ? "bg-gold-500 text-black border-2 border-gold-600 shadow-flat"
+                  ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
                   : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
               }`}
               title="Build mode: Apply and commit planned changes"
@@ -4329,8 +4396,8 @@ export default function ChatInterface() {
               }}
               className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
                 autoApprove
-                  ? "bg-gold-500 text-white border-gold-500"
-                  : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-gold-500/20 hover:border-gold-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-blue-500/20 hover:border-blue-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
               }`}
               title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
             >
@@ -4360,7 +4427,7 @@ export default function ChatInterface() {
                 e.stopPropagation();
                 setShowModelDropdown(!showModelDropdown);
               }}
-              className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-gold-500/40 dark:border-gold-500/30 bg-surface-50 dark:bg-surface-900 text-gold-700 dark:text-gold-200 hover:border-gold-500 dark:hover:border-gold-400 hover:border-gold-500/60 hover:shadow-flat transition-all duration-150"
+              className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-blue-500/40 dark:border-blue-500/30 bg-surface-50 dark:bg-surface-900 text-blue-700 dark:text-blue-200 hover:border-blue-500 dark:hover:border-blue-400 hover:border-blue-500/60 hover:shadow-flat transition-all duration-150"
               title={modelInfo.name}
             >
               <span className="min-w-0 font-medium truncate">
@@ -4393,7 +4460,7 @@ export default function ChatInterface() {
               type="button"
               onClick={() => loadRepoContext(selectedRepo)}
               disabled={loadingContext}
-              className="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-900 text-muted-foreground hover:bg-surface-200 dark:hover:bg-surface-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center border border-gold-500/10"
+              className="w-8 h-8 rounded-lg bg-surface-100 dark:bg-surface-900 text-muted-foreground hover:bg-surface-200 dark:hover:bg-surface-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center border border-blue-500/10"
               title="Refresh repo context"
               aria-label="Refresh repo context"
             >
@@ -4443,7 +4510,7 @@ export default function ChatInterface() {
                 deployAutoFixing ||
                 !status?.vercel?.configured
               }
-              className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
+              className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-blue-600"
               title={
                 status?.vercel?.configured
                   ? "Deploy to Vercel"
@@ -4507,7 +4574,7 @@ export default function ChatInterface() {
                 deployAutoFixing ||
                 !status?.render?.configured
               }
-              className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-gold-500 text-white hover:bg-gold-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-gold-600"
+              className="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 sm:gap-1.5 border border-blue-600"
               title={
                 status?.render?.configured
                   ? "Deploy to Render"
@@ -4548,7 +4615,7 @@ export default function ChatInterface() {
 
         <button
           onClick={handleNewChat}
-          className="px-3 py-2 text-xs font-bold rounded-lg bg-gold-500 dark:bg-gold-600 text-black dark:text-black hover:bg-gold-600 dark:hover:bg-gold-700 border-2 border-gold-600 dark:border-gold-700 shadow-flat-gold hover:shadow-flat-lg transition-all duration-150 active:translate-y-[1px] flex items-center justify-center gap-1.5"
+          className="px-3 py-2 text-xs font-bold rounded-lg bg-blue-500 dark:bg-blue-600 text-black dark:text-black hover:bg-blue-600 dark:hover:bg-blue-700 border-2 border-blue-600 dark:border-blue-700 shadow-flat-blue hover:shadow-flat-lg transition-all duration-150 active:translate-y-[1px] flex items-center justify-center gap-1.5"
           title="New chat"
           aria-label="New chat"
         >
@@ -4845,11 +4912,11 @@ export default function ChatInterface() {
 
       {/* Proceed Button */}
       {showProceedButton && (
-        <div className="px-3 py-2 sm:px-4 sm:py-2.5 border-t border-slate-200 dark:border-slate-700 bg-gradient-to-r from-gold-100 to-amber-100 dark:from-slate-800 dark:to-slate-800/50">
+        <div className="px-3 py-2 sm:px-4 sm:py-2.5 border-t border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-100 to-blue-100 dark:from-slate-800 dark:to-slate-800/50">
           <button
             type="button"
             onClick={handleProceedClick}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-gold-500 to-amber-500 text-white text-sm font-medium hover:from-gold-600 hover:to-amber-600 transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 text-white text-sm font-medium hover:from-blue-600 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />
@@ -4860,7 +4927,7 @@ export default function ChatInterface() {
       )}
 
       {/* Input */}
-      <div className="relative border-t border-gold-500/10 bg-surface-50 dark:bg-surface-900 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+      <div className="relative border-t border-blue-500/10 bg-surface-50 dark:bg-surface-900 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
         <ChatInput
           value={input}
           onChange={setInput}
