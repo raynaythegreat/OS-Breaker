@@ -4391,112 +4391,15 @@ export default function ChatInterface() {
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-full">
-      {/* Compact Top Bar: Mode + Repo + Model + Actions */}
+      {/* Simplified Top Bar: Repo + Actions */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-3 border-b-2 border-blue-500/10 bg-gradient-to-r from-surface-50 to-white dark:from-surface-900 dark:to-surface-950 shadow-sm">
-        {/* Left: Mode Toggle + Auto Approve */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Plan/Build Toggle */}
-          <div className="inline-flex rounded-full border-2 border-blue-500/30 bg-surface-100 dark:bg-surface-900 p-1 shadow-flat">
-            <button
-              type="button"
-              onClick={() => handleModeChange("plan")}
-              className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
-                chatMode === "plan"
-                  ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
-                  : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
-              }`}
-              title="Plan mode: Review and approve changes before committing"
-            >
-              Plan
-              {chatMode === "plan" && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-[9px] font-bold text-white shadow-sm">P</span>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleModeChange("build")}
-              className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-95 ${
-                chatMode === "build"
-                  ? "bg-blue-500 text-black border-2 border-blue-600 shadow-flat"
-                  : "text-muted-foreground hover:text-foreground hover:bg-surface-200/50 dark:hover:bg-surface-800/50"
-              }`}
-              title="Build mode: Apply and commit planned changes"
-            >
-              Build
-              {chatMode === "build" && (
-                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-green-500 text-[9px] font-bold text-white shadow-sm">B</span>
-              )}
-            </button>
-          </div>
-
-          {/* Auto Approve Toggle - only show in build mode */}
-          {chatMode === "build" && (
-            <button
-              type="button"
-              onClick={() => {
-                const nextAutoApprove = !autoApprove;
-                setAutoApprove(nextAutoApprove);
-              }}
-              className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
-                autoApprove
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-surface-100 dark:bg-surface-900 text-muted-foreground border-blue-500/20 hover:border-blue-500/40 hover:bg-surface-200 dark:hover:bg-surface-800"
-              }`}
-              title={autoApprove ? "Auto-commit enabled" : "Auto-commit disabled"}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="hidden sm:inline">Auto</span>
-            </button>
-          )}
-        </div>
-
         {/* Center: Repo Selector */}
         <div className="flex-1 min-w-0">
           <RepoSelector selectedRepo={selectedRepo} onSelect={setSelectedRepo} />
         </div>
 
-        {/* Right: Model + Actions */}
+        {/* Right: Actions */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Model Selector */}
-          <div
-            className="relative w-full sm:w-auto sm:min-w-[160px] flex-shrink-0"
-            ref={dropdownRef}
-          >
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowModelDropdown(!showModelDropdown);
-              }}
-              className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs font-semibold rounded-lg border-2 border-blue-500/40 dark:border-blue-500/30 bg-surface-50 dark:bg-surface-900 text-blue-700 dark:text-blue-200 hover:border-blue-500 dark:hover:border-blue-400 hover:border-blue-500/60 hover:shadow-flat transition-all duration-150"
-              title={modelInfo.name}
-            >
-              <span className="min-w-0 font-medium truncate">
-                {modelInfo.name}
-              </span>
-              <svg
-                className="w-4 h-4 flex-shrink-0 text-slate-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-
-            {modelDropdown &&
-              (isClient
-                ? createPortal(modelDropdown, document.body)
-                : modelDropdown)}
-          </div>
-
           {/* Refresh Button - only show when repo selected */}
           {selectedRepo && (
             <button
