@@ -1,7 +1,7 @@
 "use client";
 
 const tabTitles: Record<string, { title: string; subtitle: string }> = {
-  chat: { title: "OS Athena", subtitle: "Build and improve your web projects with AI" },
+  chat: { title: "AI Athena", subtitle: "Build and improve your web projects with AI" },
   repos: { title: "GitHub Repos", subtitle: "Create, edit, and manage your repositories" },
   deploy: { title: "Deployments", subtitle: "Deploy your projects to Vercel or Render" },
   mobile: { title: "Mobile", subtitle: "Deploy and manage mobile access with persistent tunnels" },
