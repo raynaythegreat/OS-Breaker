@@ -652,6 +652,7 @@ export async function POST(request: NextRequest) {
       attachments,
       mode,
       systemPrompt: customSystemPrompt,
+      deploymentConfig,
     } = body;
 
     if (!messages || messages.length === 0) {
@@ -748,6 +749,23 @@ export async function POST(request: NextRequest) {
 
     const resolvedMode =
       mode === "plan" || mode === "build" ? (mode as keyof typeof MODE_PROMPTS) : null;
+
+    // Add deployment configuration context
+    if (deploymentConfig) {
+      const configuredPlatforms: string[] = [];
+      if (deploymentConfig.vercel?.configured) configuredPlatforms.push("Vercel");
+      if (deploymentConfig.render?.configured) configuredPlatforms.push("Render");
+
+      if (configuredPlatforms.length > 0) {
+        contextPrompt += `\n\n## Available Deployment Platforms\n`;
+        contextPrompt += `The following deployment platforms are configured: ${configuredPlatforms.join(", ")}.\n`;
+        if (configuredPlatforms.length === 1) {
+          contextPrompt += `When deployment is requested, use ${configuredPlatforms[0]} by default.\n`;
+        } else {
+          contextPrompt += `When deployment is requested, recommend the most suitable platform based on the project type, or ask the user if they have a preference.\n`;
+        }
+      }
+    }
 
     if (repoContext) {
       contextPrompt += `\n\n## Current Repository Context\n`;

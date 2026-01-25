@@ -4025,6 +4025,12 @@ export default function ChatInterface() {
                 files: repoContext?.files,
               }
             : undefined,
+          deploymentConfig: status
+            ? {
+                vercel: status.vercel?.configured ? { configured: true } : undefined,
+                render: status.render?.configured ? { configured: true } : undefined,
+              }
+            : undefined,
         }),
         signal: abortControllerRef.current.signal,
       });
