@@ -89,6 +89,11 @@ export default function ChatInput({
   return (
     <div className="bg-background px-3 sm:px-6 py-4 sm:py-8">
       <div className="max-w-5xl mx-auto">
+        {toolbar && (
+          <div className="mb-3 flex items-center justify-between gap-3">
+            {toolbar}
+          </div>
+        )}
         {attachments.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
             {attachments.map((attachment) => (
