@@ -41,6 +41,24 @@ const STEPS: DeploymentStep[] = [
   { number: 5, label: 'Configuring environment variables...', status: 'pending' },
 ];
 
+type DeploymentState = 'idle' | 'creating_tunnel' | 'deploying' | 'building' | 'ready' | 'error' | 'active';
+
+interface LogEntry {
+  timestamp: number;
+  message: string;
+  type: 'info' | 'error' | 'success';
+}
+
+interface DeploymentProgress {
+  state: DeploymentState;
+  deploymentId: string | null;
+  logs: LogEntry[];
+  vercelUrl: string | null;
+  tunnelUrl: string | null;
+  startedAt: number;
+  readyAt?: number;
+}
+
 export default function MobileDeploymentModal({
   open,
   onClose,
