@@ -490,118 +490,73 @@ export default function MobileDeploymentModal({
             </div>
           )}
 
-          {error && (
-            <div className="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <div className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 2.502-3.71V7.291c0-2.042-1.962-3.71-3.502-3.71H5.291c-1.54 0-2.502 1.667-2.502-3.71V14.5c0 2.042 1.962 3.71 3.502 3.71h6.938c1.54 0 2.502 1.667 2.502 3.71v-4.25" />
-                </svg>
-                <div>
-                  <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">Deployment Failed</h3>
-                  <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          {error && !deploying && (
+            <div className="space-y-3">
+              <div className="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 2.502-3.71V7.291c0-2.042-1.962-3.71-3.502-3.71H5.291c-1.54 0-2.502 1.667-2.502-3.71V14.5c0 2.042 1.962 3.71 3.502 3.71h6.938c1.54 0 2.502 1.667 2.502 3.71v-4.25" />
+                  </svg>
+                  <div>
+                    <h3 className="font-semibold text-red-800 dark:text-red-200 mb-1">Deployment Failed</h3>
+                    <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                  </div>
                 </div>
               </div>
+
+              {/* Show logs on error too */}
+              {logs.length > 0 && (
+                <details className="bg-surface-50 dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-800">
+                  <summary className="px-4 py-2 cursor-pointer font-medium text-sm text-surface-700 dark:text-surface-300">
+                    View Deployment Logs
+                  </summary>
+                  <div className="p-3 font-mono text-xs max-h-64 overflow-y-auto space-y-1 bg-black dark:bg-surface-950">
+                    {logs.map((log, idx) => (
+                      <div
+                        key={idx}
+                        className={`${
+                          log.type === 'error'
+                            ? 'text-red-400'
+                            : log.type === 'success'
+                            ? 'text-green-400'
+                            : 'text-surface-300'
+                        }`}
+                      >
+                        {log.message}
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           )}
 
-          {result && result.success && (
-            <div className="mt-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500 mb-4">
-                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L5 5l7 7m0 0l7 7" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">
-                  Deployment Complete!
-                </h3>
-                <p className="text-sm text-green-700 dark:text-green-400 mb-6">
-                  Your mobile webapp has been deployed and is ready to use.
-                </p>
-
-                <div className="bg-white dark:bg-surface-800 rounded-lg p-4 text-left space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-surface-600 dark:text-surface-400">
-                      Mobile URL
-                    </span>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(result.mobileUrl!);
-                      }}
-                      className="text-gold-600 hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300 text-sm font-medium flex items-center gap-1"
-                      title="Copy to clipboard"
+          {!deploying && result?.success && (
+            <div className="mt-6 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">
+                    Deployment Complete!
+                  </h3>
+                  <p className="text-sm text-green-800 dark:text-green-200 mb-3">
+                    Your mobile site has been deployed and opened in a new tab.
+                  </p>
+                  {vercelUrl && (
+                    <a
+                      href={vercelUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-300 hover:underline"
                     >
-                      {result.mobileUrl}
+                      {vercelUrl}
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 00-2 2v-6h12a2 2 0 00-2 2 12 0 0 012 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-surface-600 dark:text-surface-400">
-                      Tunnel URL
-                    </span>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(result.tunnel?.public_url || '');
-                      }}
-                      className="text-gold-600 hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300 text-sm font-medium flex items-center gap-1"
-                      title="Copy to clipboard"
-                    >
-                      {result.tunnel?.public_url || ''}
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 00-2 2v-6h12a2 2 0 00-2 2 12 0 0 012 0z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-surface-600 dark:text-surface-400">
-                      Tunnel ID
-                    </span>
-                    <span className="text-surface-900 dark:text-white font-mono text-sm">
-                      {result.tunnel?.id || ''}
-                    </span>
-                  </div>
-
-                  <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                    <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4H6v8a2 2 0 00-2 2h12v8a2 2 0 00-2 2-12 0z" />
-                    </svg>
-                    <div>
-                      <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
-                        Tunnel will persist
-                      </h4>
-                      <p className="text-xs text-blue-700 dark:text-blue-300">
-                        This tunnel will stay active across app restarts and will not be auto-closed.
-                        Open OS Athena Settings to stop mobile access when needed.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={() => window.open(result.mobileUrl!, '_blank')}
-                    className="flex-1 bg-gold-500 hover:bg-gold-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H9a6 6 0 00-6 6v12a6 6 0 00-6 12 0zm0 0a10 10 0 0110-12 0zm0 8a8 8 0 00-16 0zm0 0a10 10 0 0011.5 12a8 8 0 0016 0z" />
-                    </svg>
-                    <span>Open Mobile App</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(result.mobileUrl!);
-                    }}
-                    className="px-4 py-3 border-2 border-surface-300 dark:border-surface-600 rounded-lg hover:bg-surface-50 dark:hover:bg-surface-800 text-surface-700 dark:text-surface-300 font-medium transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 00-2 2v-6h12a2 2 0 00-2 2 12 0z" />
-                    </svg>
-                    <span>Copy URL</span>
-                  </button>
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
