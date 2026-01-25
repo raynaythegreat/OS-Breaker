@@ -44,11 +44,11 @@ const CodeBlock = memo(function CodeBlock({
   };
 
   return (
-    <div className="relative group my-4 rounded-xl overflow-hidden border border-gold-500/20 hover:shadow-lg transition-shadow duration-200">
+    <div className="relative group my-4 rounded-xl overflow-hidden border-2 border-blue-500/20 hover:border-blue-500/40 hover:shadow-flat-lg transition-all duration-200">
       <div className="absolute top-2 right-2 z-10">
         <button
           onClick={copyToClipboard}
-          className="px-3 py-1.5 bg-secondary/80 hover:bg-secondary text-foreground border border-gold-500/20 hover:border-gold-500/40 rounded-lg text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1.5"
+          className="px-3 py-1.5 bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-foreground border-2 border-blue-500/30 hover:border-blue-500/50 rounded-lg text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1.5 shadow-flat hover:shadow-flat-lg active:translate-y-[2px] active:shadow-flat"
           title="Copy code"
         >
           {copied ? (
@@ -100,9 +100,9 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
       className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
     >
       <div
-        className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-5 py-4 ${isUser
-            ? "bg-foreground text-background rounded-tr-sm shadow-sm"
-            : "bg-background border border-border text-foreground rounded-tl-sm shadow-sm"}`}
+        className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-5 py-4 transition-all duration-200 ${isUser
+            ? "bg-blue-500 text-white rounded-tr-sm shadow-flat hover:shadow-flat-lg"
+            : "bg-card border-2 border-border text-foreground rounded-tl-sm shadow-flat hover:shadow-flat-lg hover:border-blue-500/30"}`}
       >
         {isUser ? (
           <div className="space-y-2">
@@ -203,14 +203,14 @@ const MessageBubble = memo(function MessageBubble({ message }: { message: ChatMe
 const TypingIndicator = memo(function TypingIndicator() {
   return (
     <div className="flex gap-4 justify-start animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-card border-2 border-gold-500/20 text-foreground shadow-lg hover:shadow-xl shadow-gold-500/10 transition-shadow">
+      <div className="max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-card border-2 border-blue-500/30 text-foreground shadow-flat hover:shadow-flat-lg hover:border-blue-500/50 transition-all">
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-            <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce shadow-flat" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce shadow-flat" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce shadow-flat" style={{ animationDelay: '300ms' }}></div>
           </div>
-          <span className="text-xs text-muted-foreground font-medium">AI is thinking...</span>
+          <span className="text-xs text-muted-foreground font-bold">AI is thinking...</span>
         </div>
       </div>
     </div>
@@ -236,30 +236,30 @@ export default function MessageList({
     return (
       <div className="flex flex-col items-center justify-center h-full px-6 py-12 text-center">
         <div className="max-w-2xl mb-12">
-          <blockquote className="text-2xl md:text-3xl font-display font-medium text-foreground leading-relaxed mb-4">
+          <blockquote className="text-2xl md:text-3xl font-serif font-medium text-foreground leading-relaxed mb-4">
             &ldquo;Strategy is the art of making use of time and space.&rdquo;
           </blockquote>
-          <p className="text-sm text-muted-foreground uppercase tracking-widest">
+          <p className="text-sm text-blue-500 dark:text-blue-400 font-bold uppercase tracking-widest">
             — Athena, Goddess of Wisdom
           </p>
         </div>
 
         <div className="max-w-xl space-y-4">
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
-              <span className="text-foreground font-medium">1</span>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground font-medium">
+            <div className="w-7 h-7 rounded-lg bg-surface-100 dark:bg-surface-800 border-2 border-border flex items-center justify-center flex-shrink-0 shadow-flat">
+              <span className="text-foreground font-bold">1</span>
             </div>
             <span>Select a model from the dropdown above</span>
           </div>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
-              <span className="text-foreground font-medium">2</span>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground font-medium">
+            <div className="w-7 h-7 rounded-lg bg-surface-100 dark:bg-surface-800 border-2 border-border flex items-center justify-center flex-shrink-0 shadow-flat">
+              <span className="text-foreground font-bold">2</span>
             </div>
             <span>Optionally select a repository for context</span>
           </div>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="w-7 h-7 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
-              <span className="text-foreground font-medium">3</span>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground font-medium">
+            <div className="w-7 h-7 rounded-lg bg-surface-100 dark:bg-surface-800 border-2 border-border flex items-center justify-center flex-shrink-0 shadow-flat">
+              <span className="text-foreground font-bold">3</span>
             </div>
             <span>Type your message or add files to begin</span>
           </div>
