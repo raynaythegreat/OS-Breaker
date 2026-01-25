@@ -3770,11 +3770,13 @@ export default function ChatInterface() {
     const providerConfigured =
       providerToUse === "ollama"
         ? Boolean(status?.ollama?.configured)
-        : status
-          ? (status as unknown as Record<string, { configured?: boolean }>)[
-              providerToUse
-            ]?.configured
-          : true;
+        : providerToUse === "zai"
+          ? true // Z.ai works with fallback models even without API key
+          : status
+            ? (status as unknown as Record<string, { configured?: boolean }>)[
+                providerToUse
+              ]?.configured
+            : true;
     const canChat =
       providerToUse === "ollama"
         ? Boolean(
@@ -4102,9 +4104,11 @@ export default function ChatInterface() {
   const providerConfigured =
     modelInfo.provider === "ollama"
       ? true
-      : status
-        ? (status as any)[modelInfo.provider]?.configured
-        : true;
+      : modelInfo.provider === "zai"
+        ? true // Z.ai works with fallback models even without API key
+        : status
+          ? (status as any)[modelInfo.provider]?.configured
+          : true;
   const vercelConfigured = status ? status.vercel?.configured : true;
   const renderConfigured = status ? status.render?.configured : true;
   const deployProviderConfigured =

@@ -706,7 +706,7 @@ export async function POST(request: NextRequest) {
     const providerKey =
       typeof rawProviderKey === "string" ? rawProviderKey.trim() : rawProviderKey;
 
-    if (!providerKey && provider !== "ollama") {
+    if (!providerKey && provider !== "ollama" && provider !== "zai") {
       const envHint =
         provider === "openrouter"
           ? "Set OPENROUTER_API_KEY (or NEXT_PUBLIC_OPENROUTER_API_KEY)."
@@ -1302,7 +1302,17 @@ export async function POST(request: NextRequest) {
           } else if (provider === "zai") {
             const zaiApiKey = providerKey;
             if (!zaiApiKey) {
-              throw new Error("ZAI_API_KEY is not configured");
+              // Return a helpful error message
+              controller.enqueue(
+                encoder.encode(
+                  `data: ${JSON.stringify({
+                    type: "error",
+                    content: "Z.ai API key is required to use GLM models. Please add your ZAI_API_KEY in Settings to continue.",
+                  })}\n\n`
+                )
+              );
+              controller.close();
+              return;
             }
 
             // Use Z.ai Chat Completions API (OpenAI-compatible)
