@@ -53,6 +53,7 @@ interface NotificationPanelProps {
   deployError?: string | null;
   deploying?: boolean;
   onCancelDeploy?: () => void;
+  onDismissDeployError?: () => void;
 
   // Commit notifications
   applyRepoResult?: ApplyRepoResult | null;
@@ -63,11 +64,35 @@ interface NotificationPanelProps {
   deployAutoFixing?: boolean;
   onStartAutoFix?: () => void;
   onCancelAutoFix?: () => void;
+  onDismissAutoFixError?: () => void;
 
   // General notifications
   chatError?: string | null;
+  onDismissChatError?: () => void;
   fallbackNotice?: string | null;
   onDismissFallback?: () => void;
+
+  // Provider-specific errors
+  groqError?: string | null;
+  onDismissGroqError?: () => void;
+  openrouterError?: string | null;
+  onDismissOpenrouterError?: () => void;
+  fireworksError?: string | null;
+  onDismissFireworksError?: () => void;
+  ollamaError?: string | null;
+  onDismissOllamaError?: () => void;
+  claudeError?: string | null;
+  onDismissClaudeError?: () => void;
+  openaiError?: string | null;
+  onDismissOpenaiError?: () => void;
+  geminiError?: string | null;
+  onDismissGeminiError?: () => void;
+  mistralError?: string | null;
+  onDismissMistralError?: () => void;
+  perplexityError?: string | null;
+  onDismissPerplexityError?: () => void;
+  zaiError?: string | null;
+  onDismissZaiError?: () => void;
 }
 
 export default function NotificationPanel({
@@ -76,15 +101,38 @@ export default function NotificationPanel({
   deployError,
   deploying,
   onCancelDeploy,
+  onDismissDeployError,
   applyRepoResult,
   deployAutoFixProgress,
   deployAutoFixError,
   deployAutoFixing,
   onStartAutoFix,
   onCancelAutoFix,
+  onDismissAutoFixError,
   chatError,
+  onDismissChatError,
   fallbackNotice,
   onDismissFallback,
+  groqError,
+  onDismissGroqError,
+  openrouterError,
+  onDismissOpenrouterError,
+  fireworksError,
+  onDismissFireworksError,
+  ollamaError,
+  onDismissOllamaError,
+  claudeError,
+  onDismissClaudeError,
+  openaiError,
+  onDismissOpenaiError,
+  geminiError,
+  onDismissGeminiError,
+  mistralError,
+  onDismissMistralError,
+  perplexityError,
+  onDismissPerplexityError,
+  zaiError,
+  onDismissZaiError,
 }: NotificationPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -98,6 +146,16 @@ export default function NotificationPanel({
     deployAutoFixError,
     chatError,
     fallbackNotice,
+    groqError,
+    openrouterError,
+    fireworksError,
+    ollamaError,
+    claudeError,
+    openaiError,
+    geminiError,
+    mistralError,
+    perplexityError,
+    zaiError,
   ].filter(Boolean).length;
 
   if (notificationCount === 0) return null;
@@ -339,7 +397,7 @@ export default function NotificationPanel({
             )}
 
             {/* Errors */}
-            {(deployError || deployAutoFixError || chatError) && (
+            {chatError && (
               <div className="p-4 bg-red-50 dark:bg-red-900/10">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
@@ -348,13 +406,57 @@ export default function NotificationPanel({
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-red-900 dark:text-red-100 mb-1">
-                      Error
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Chat Error
+                      </div>
+                      {onDismissChatError && (
+                        <button
+                          onClick={onDismissChatError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12 12 12M6 6v6h12v-6H6z" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {chatError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {deployError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Deployment Error
+                      </div>
+                      {onDismissDeployError && (
+                        <button
+                          onClick={onDismissDeployError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12 12 12M6 6v6h12v-6H6z" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                     <div className="text-sm text-red-800 dark:text-red-200 mb-3">
-                      {deployError || deployAutoFixError || chatError}
+                      {deployError}
                     </div>
-                    {deployError && onStartAutoFix && !deployAutoFixing && (
+                    {onStartAutoFix && !deployAutoFixing && (
                       <button
                         type="button"
                         onClick={onStartAutoFix}
@@ -363,6 +465,38 @@ export default function NotificationPanel({
                         Auto-fix Deploy
                       </button>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {deployAutoFixError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Auto-fix Error
+                      </div>
+                      {onDismissAutoFixError && (
+                        <button
+                          onClick={onDismissAutoFixError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12 12 12M6 6v6h12v-6H6z" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {deployAutoFixError}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -389,6 +523,327 @@ export default function NotificationPanel({
                         Dismiss
                       </button>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Provider-specific errors */}
+            {groqError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Groq Error
+                      </div>
+                      {onDismissGroqError && (
+                        <button
+                          onClick={onDismissGroqError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {groqError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {openrouterError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        OpenRouter Error
+                      </div>
+                      {onDismissOpenrouterError && (
+                        <button
+                          onClick={onDismissOpenrouterError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {openrouterError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {fireworksError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Fireworks Error
+                      </div>
+                      {onDismissFireworksError && (
+                        <button
+                          onClick={onDismissFireworksError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {fireworksError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {ollamaError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Ollama Error
+                      </div>
+                      {onDismissOllamaError && (
+                        <button
+                          onClick={onDismissOllamaError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {ollamaError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {claudeError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Claude Error
+                      </div>
+                      {onDismissClaudeError && (
+                        <button
+                          onClick={onDismissClaudeError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {claudeError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {openaiError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        OpenAI Error
+                      </div>
+                      {onDismissOpenaiError && (
+                        <button
+                          onClick={onDismissOpenaiError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {openaiError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {geminiError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Gemini Error
+                      </div>
+                      {onDismissGeminiError && (
+                        <button
+                          onClick={onDismissGeminiError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {geminiError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {mistralError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Mistral Error
+                      </div>
+                      {onDismissMistralError && (
+                        <button
+                          onClick={onDismissMistralError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {mistralError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {perplexityError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Perplexity Error
+                      </div>
+                      {onDismissPerplexityError && (
+                        <button
+                          onClick={onDismissPerplexityError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {perplexityError}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {zaiError && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/10">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="font-semibold text-sm text-red-900 dark:text-red-100">
+                        Z.ai Error
+                      </div>
+                      {onDismissZaiError && (
+                        <button
+                          onClick={onDismissZaiError}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors ml-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-sm text-red-800 dark:text-red-200">
+                      {zaiError}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -64,7 +64,18 @@ export default function MobilePage() {
 
   const handleStopTunnel = async () => {
     try {
-      const response = await fetch('/api/mobile/stop', { method: 'POST' });
+      const deployment = JSON.parse(localStorage.getItem('mobile-deployment') || '{}');
+
+      const response = await fetch('/api/mobile/stop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tunnelId: deployment.tunnelId  // Send tunnel ID
+        })
+      });
+
       if (response.ok) {
         // Clear deployment info from localStorage
         localStorage.removeItem('mobile-deployment');
@@ -80,38 +91,55 @@ export default function MobilePage() {
     password: string;
     branch?: string;
   }) => {
-    const response = await fetch('/api/mobile/deploy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Deployment failed');
-    }
-
-    const result = await response.json();
-
-    if (result.success && result.tunnel) {
-      // Save deployment info to localStorage
-      const deploymentInfo = {
-        tunnelId: result.tunnel.id,
-        publicUrl: result.tunnel.public_url,
-        mobileUrl: result.mobileUrl,
-        deploymentId: result.deployment?.deploymentId,
-        activeAt: new Date().toISOString()
-      };
-      localStorage.setItem('mobile-deployment', JSON.stringify(deploymentInfo));
-
-      setTunnelStatus({
-        active: true,
-        url: result.tunnel.public_url,
-        id: result.tunnel.id,
+    try {
+      const response = await fetch('/api/mobile/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
       });
-    }
 
-    return result;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Deployment failed');
+      }
+
+      if (result.success && result.tunnel) {
+        const deploymentInfo = {
+          tunnelId: result.tunnel.id,
+          publicUrl: result.tunnel.public_url,
+          mobileUrl: result.mobileUrl,
+          deploymentId: result.deployment?.deploymentId,
+          activeAt: new Date().toISOString()
+        };
+        localStorage.setItem('mobile-deployment', JSON.stringify(deploymentInfo));
+
+        setTunnelStatus({
+          active: true,
+          url: result.tunnel.public_url,
+          id: result.tunnel.id,
+        });
+      } else if (result.error) {
+        throw new Error(result.error);
+      } else {
+        throw new Error('Deployment failed - no response data');
+      }
+
+      return result;
+    } catch (err) {
+      console.error('Deploy error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Deployment failed';
+
+      if (errorMessage.includes('Authentication')) {
+        throw new Error('Authentication failed. Please verify your API keys in Settings.');
+      } else if (errorMessage.includes('Repository not found')) {
+        throw new Error('Repository not found. Please check the owner/repo format.');
+      } else if (errorMessage.includes('resolve GitHub repository')) {
+        throw new Error('Could not resolve GitHub repository. Ensure it exists and has been connected to Vercel at least once.');
+      }
+
+      throw err;
+    }
   };
 
   return (

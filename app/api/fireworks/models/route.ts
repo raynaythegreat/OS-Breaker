@@ -70,8 +70,14 @@ export async function GET(request: NextRequest) {
 
   if (!apiKey || !apiKey.trim()) {
     return NextResponse.json({
+      success: true,
       error: "Fireworks API key is not configured",
-      models: []
+      models: FALLBACK_MODELS.map(model => ({
+        id: model.id,
+        name: model.name || model.id,
+        description: model.description || "Fireworks",
+        provider: 'fireworks' as const
+      }))
     }, { status: 400 });
   }
 
@@ -129,7 +135,13 @@ export async function GET(request: NextRequest) {
     console.error('Fireworks models fetch error:', error);
     return NextResponse.json(
       {
-        models: [],
+        success: true,
+        models: FALLBACK_MODELS.map(model => ({
+          id: model.id,
+          name: model.name || model.id,
+          description: model.description || "Fireworks",
+          provider: 'fireworks' as const
+        })),
         error: error instanceof Error
           ? error.message
           : "Failed to load Fireworks models",

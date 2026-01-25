@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildChatApiHeaders } from "@/lib/chatHeaders";
 import { VercelService } from "@/services/vercel";
-import { SecureStorage } from "@/lib/secureStorage";
+import { getServerApiKeyFromRequest } from "@/lib/serverKeys";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => null);
-  const { newPassword } = body;
+  const { newPassword, projectName } = body;
 
   if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 4) {
     return NextResponse.json(
@@ -29,35 +28,31 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await SecureStorage.saveKeys({ mobilePassword: newPassword });
-    console.log('Mobile password updated locally');
+    // Client must provide projectName if they want to sync to Vercel
+    if (projectName) {
+      const vercelKey = getServerApiKeyFromRequest(request, 'vercel');
 
-    const deployment = JSON.parse(localStorage.getItem('mobile-deployment') || '{}');
-
-    if (deployment.projectName) {
-      const vercelKey = await SecureStorage.getKey('vercel');
-      
       if (vercelKey) {
         const vercel = new VercelService(vercelKey);
-        
+
         await vercel.updateProjectEnvironmentVariables(
-          deployment.projectName,
+          projectName,
           [{
             key: 'MOBILE_PASSWORD',
             value: newPassword,
             target: ['production', 'preview']
           }]
         );
-        
-        console.log('Mobile password synced to Vercel:', deployment.projectName);
+
+        console.log('Mobile password synced to Vercel:', projectName);
       } else {
-        console.warn('Cannot sync to Vercel - no Vercel key or project name');
+        console.warn('Cannot sync to Vercel - no Vercel API key');
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Mobile password updated successfully'
+      message: 'Password updated on server. Client should update local storage.'
     });
   } catch (error) {
     console.error('Password change error:', error);

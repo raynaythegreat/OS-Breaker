@@ -152,8 +152,15 @@ export async function ensureMobileTunnelActive(): Promise<{
     console.log('Mobile tunnel inactive, reactivating...');
 
     try {
-      const { NgrokService } = await import('@/services/ngrok');
       const apiKey = await SecureStorage.getKey('ngrok');
+      if (!apiKey || apiKey.trim().length < 10) {
+        return {
+          success: false,
+          error: 'Ngrok API key not configured'
+        };
+      }
+
+      const { NgrokService } = await import('@/services/ngrok');
       const ngrok = new NgrokService(apiKey);
 
       const options: NgrokCreateOptions = {
@@ -180,9 +187,19 @@ export async function ensureMobileTunnelActive(): Promise<{
         tunnelId: tunnel.id
       };
     } catch (error) {
+      console.error('Failed to reactivate mobile tunnel:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reactivate tunnel';
+
+      if (errorMessage.includes('Invalid') || errorMessage.includes('401')) {
+        return {
+          success: false,
+          error: 'Invalid ngrok API key. Please check your ngrok API key in Settings.'
+        };
+      }
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to reactivate tunnel'
+        error: errorMessage
       };
     }
   }

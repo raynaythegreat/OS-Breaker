@@ -3,7 +3,7 @@ import { buildChatApiHeaders } from "@/lib/chatHeaders";
 import { VercelService } from "@/services/vercel";
 import { GitHubService } from "@/services/github";
 import { NgrokService } from "@/services/ngrok";
-import { SecureStorage } from "@/lib/secureStorage";
+import { getServerApiKey } from "@/lib/serverKeys";
 
 export const dynamic = 'force-dynamic';
 
@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
 
     const headers = await buildChatApiHeaders();
 
-    const ngrokKey = headers['X-API-Key-Ngrok'] || await SecureStorage.getKey('ngrok');
-    const vercelKey = headers['X-API-Key-Vercel'] || await SecureStorage.getKey('vercel');
-    const githubToken = headers['X-API-Key-GitHub'] || await SecureStorage.getKey('github');
+    const ngrokKey = getServerApiKey('ngrok', headers);
+    const vercelKey = getServerApiKey('vercel', headers);
+    const githubToken = getServerApiKey('github', headers);
 
     if (!ngrokKey || !vercelKey || !githubToken) {
       return NextResponse.json(
@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     const deploymentKey = `mobile:${Date.now()}`;
+    let createdTunnelId: string | null = null;
 
     try {
       const ngrok = new NgrokService(ngrokKey);
@@ -77,6 +78,8 @@ export async function POST(request: NextRequest) {
         port: 3456,
         proto: 'http'
       });
+
+      createdTunnelId = tunnel.id;
 
       const github = new GitHubService(githubToken);
       const repoData = await github.getRepository(owner, repo);
@@ -119,18 +122,8 @@ export async function POST(request: NextRequest) {
         ]
       });
 
-      const mobileDeploymentInfo = {
-        tunnelId: tunnel.id,
-        publicUrl: tunnel.public_url,
-        mobileUrl: deployment.url,
-        deploymentId: deployment.deploymentId,
-        createdAt: new Date().toISOString(),
-        activatedAt: new Date().toISOString()
-      };
-
-      // Store deployment info for localStorage access on client
-      // This is a placeholder - actual storage happens client-side
-      await SecureStorage.saveKeys({ mobilePassword: password });
+      // Note: Password storage is handled by client
+      // Server cannot save to SecureStorage (browser-only)
 
       return NextResponse.json({
         success: true,
@@ -145,7 +138,6 @@ export async function POST(request: NextRequest) {
         mobileUrl: deployment.url
       }, {
         headers: {
-          // Send deployment info in response headers for client-side storage
           'x-mobile-deployment-id': tunnel.id,
           'x-mobile-public-url': tunnel.public_url,
           'x-mobile-url': deployment.url,
@@ -155,22 +147,31 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.error('Mobile deployment error:', error);
 
-      try {
-        const deployment = JSON.parse(localStorage.getItem('mobile-deployment') || '{}');
-        if (deployment.tunnelId) {
-          const ngrokKey = await SecureStorage.getKey('ngrok');
-          if (ngrokKey) {
-            const ngrok = new NgrokService(ngrokKey);
-            await ngrok.deleteTunnel(deployment.tunnelId);
-          }
+      if (createdTunnelId) {
+        try {
+          const ngrok = new NgrokService(ngrokKey);
+          await ngrok.deleteTunnel(createdTunnelId);
+          console.log(`Cleaned up tunnel ${createdTunnelId} after deployment failure`);
+        } catch (tunnelError) {
+          console.error('Failed to cleanup tunnel after deployment error:', tunnelError);
         }
-        localStorage.removeItem('mobile-deployment');
-      } catch {}
+      }
+
+      let errorMessage = 'Deployment failed';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+
+        if (errorMessage.includes('401') || errorMessage.includes('403')) {
+          errorMessage = 'Authentication failed. Check your Vercel, GitHub, and ngrok API keys.';
+        } else if (errorMessage.includes('404')) {
+          errorMessage = 'Repository not found or Vercel project not accessible.';
+        } else if (errorMessage.includes('repoId') || errorMessage.includes('repo')) {
+          errorMessage = 'Could not resolve GitHub repository. Ensure it exists and is connected to Vercel.';
+        }
+      }
 
       return NextResponse.json(
-        {
-          error: error instanceof Error ? error.message : 'Deployment failed'
-        },
+        { error: errorMessage },
         { status: 500 }
       );
     }

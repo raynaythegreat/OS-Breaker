@@ -72,7 +72,6 @@ type ModelProvider =
   | "opencodezen"
   | "fireworks"
   | "mistral"
-  | "cohere"
   | "perplexity"
   | "zai";
 const MODEL_PROVIDERS: ModelProvider[] = [
@@ -85,7 +84,6 @@ const MODEL_PROVIDERS: ModelProvider[] = [
   "opencodezen",
   "fireworks",
   "mistral",
-  "cohere",
   "perplexity",
   "zai",
 ];
@@ -1179,26 +1177,6 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
       provider: "mistral",
     },
   ],
-  Cohere: [
-    {
-      id: "command-r-plus",
-      name: "Command R+",
-      description: "Advanced RAG",
-      provider: "cohere",
-    },
-    {
-      id: "command-r",
-      name: "Command R",
-      description: "Efficient commands",
-      provider: "cohere",
-    },
-    {
-      id: "command",
-      name: "Command",
-      description: "General purpose",
-      provider: "cohere",
-    },
-  ],
   Perplexity: [
     {
       id: "llama-3.1-sonar-large-128k-online",
@@ -1320,7 +1298,37 @@ export default function ChatInterface() {
   const [ollamaError, setOllamaError] = useState<string | null>(null);
   const [ollamaLoading, setOllamaLoading] = useState(false);
   const [ollamaRetrying, setOllamaRetrying] = useState(false);
+  const [claudeModels, setClaudeModels] = useState<ModelOption[]>([]);
+  const [claudeError, setClaudeError] = useState<string | null>(null);
+  const [claudeLoading, setClaudeLoading] = useState(false);
+  const [openaiModels, setOpenaiModels] = useState<ModelOption[]>([]);
+  const [openaiError, setOpenaiError] = useState<string | null>(null);
+  const [openaiLoading, setOpenaiLoading] = useState(false);
+  const [geminiModels, setGeminiModels] = useState<ModelOption[]>([]);
+  const [geminiError, setGeminiError] = useState<string | null>(null);
+  const [geminiLoading, setGeminiLoading] = useState(false);
+  const [mistralModels, setMistralModels] = useState<ModelOption[]>([]);
+  const [mistralError, setMistralError] = useState<string | null>(null);
+  const [mistralLoading, setMistralLoading] = useState(false);
+  const [perplexityModels, setPerplexityModels] = useState<ModelOption[]>([]);
+  const [perplexityError, setPerplexityError] = useState<string | null>(null);
+  const [perplexityLoading, setPerplexityLoading] = useState(false);
+  const [zaiModels, setZaiModels] = useState<ModelOption[]>([]);
+  const [zaiError, setZaiError] = useState<string | null>(null);
+  const [zaiLoading, setZaiLoading] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
+
+  // Dismiss handlers for provider errors
+  const dismissGroqError = useCallback(() => setGroqError(null), []);
+  const dismissOpenrouterError = useCallback(() => setOpenrouterError(null), []);
+  const dismissFireworksError = useCallback(() => setFireworksError(null), []);
+  const dismissOllamaError = useCallback(() => setOllamaError(null), []);
+  const dismissClaudeError = useCallback(() => setClaudeError(null), []);
+  const dismissOpenaiError = useCallback(() => setOpenaiError(null), []);
+  const dismissGeminiError = useCallback(() => setGeminiError(null), []);
+  const dismissMistralError = useCallback(() => setMistralError(null), []);
+  const dismissPerplexityError = useCallback(() => setPerplexityError(null), []);
+  const dismissZaiError = useCallback(() => setZaiError(null), []);
   const [isClient, setIsClient] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -1809,11 +1817,321 @@ export default function ChatInterface() {
     }
   }, [status?.fireworks?.configured]);
 
+  const fetchClaudeModels = useCallback(async () => {
+    if (!status?.claude?.configured) {
+      setClaudeModels([]);
+      setClaudeError(null);
+      setClaudeLoading(false);
+      return;
+    }
+
+    setClaudeLoading(true);
+    setClaudeError(null);
+    try {
+      const response = await fetch("/api/claude/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load Claude models");
+      }
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (models.length === 0) {
+        throw new Error("No Claude models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          provider: "claude" as const,
+          recommendedForCode: model.recommendedForCode || false,
+        }),
+      );
+      setClaudeModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      let errorMessage = "Failed to load Claude models";
+      if (error instanceof Error) {
+        const errorText = error.message;
+        if (errorText.includes("401") || errorText.includes("403")) {
+          errorMessage = "Invalid Claude API key - check your key";
+        } else if (errorText.includes("402") || errorText.includes("quota")) {
+          errorMessage = "Claude API quota exceeded - check billing";
+        } else if (errorText.includes("429")) {
+          errorMessage = "Claude rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+      setClaudeError(errorMessage);
+      setClaudeModels([]);
+    } finally {
+      setClaudeLoading(false);
+    }
+  }, [status?.claude?.configured]);
+
+  const fetchOpenaiModels = useCallback(async () => {
+    if (!status?.openai?.configured) {
+      setOpenaiModels([]);
+      setOpenaiError(null);
+      setOpenaiLoading(false);
+      return;
+    }
+
+    setOpenaiLoading(true);
+    setOpenaiError(null);
+    try {
+      const response = await fetch("/api/openai/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load OpenAI models");
+      }
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (models.length === 0) {
+        throw new Error("No OpenAI models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          provider: "openai" as const,
+          recommendedForCode: model.recommendedForCode || false,
+        }),
+      );
+      setOpenaiModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      let errorMessage = "Failed to load OpenAI models";
+      if (error instanceof Error) {
+        const errorText = error.message;
+        if (errorText.includes("401") || errorText.includes("403")) {
+          errorMessage = "Invalid OpenAI API key - check your key";
+        } else if (errorText.includes("402") || errorText.includes("insufficient")) {
+          errorMessage = "OpenAI insufficient credits - check billing";
+        } else if (errorText.includes("429")) {
+          errorMessage = "OpenAI rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+      setOpenaiError(errorMessage);
+      setOpenaiModels([]);
+    } finally {
+      setOpenaiLoading(false);
+    }
+  }, [status?.openai?.configured]);
+
+  const fetchGeminiModels = useCallback(async () => {
+    if (!status?.gemini?.configured) {
+      setGeminiModels([]);
+      setGeminiError(null);
+      setGeminiLoading(false);
+      return;
+    }
+
+    setGeminiLoading(true);
+    setGeminiError(null);
+    try {
+      const response = await fetch("/api/gemini/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load Gemini models");
+      }
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (models.length === 0) {
+        throw new Error("No Gemini models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          provider: "gemini" as const,
+          recommendedForCode: model.recommendedForCode || false,
+        }),
+      );
+      setGeminiModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      let errorMessage = "Failed to load Gemini models";
+      if (error instanceof Error) {
+        const errorText = error.message;
+        if (errorText.includes("401") || errorText.includes("403")) {
+          errorMessage = "Invalid Gemini API key - check your key";
+        } else if (errorText.includes("403") || errorText.includes("permission")) {
+          errorMessage = "Gemini API permission denied - check API key permissions";
+        } else if (errorText.includes("429")) {
+          errorMessage = "Gemini rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+      setGeminiError(errorMessage);
+      setGeminiModels([]);
+    } finally {
+      setGeminiLoading(false);
+    }
+  }, [status?.gemini?.configured]);
+
+  const fetchMistralModels = useCallback(async () => {
+    if (!status?.mistral?.configured) {
+      setMistralModels([]);
+      setMistralError(null);
+      setMistralLoading(false);
+      return;
+    }
+
+    setMistralLoading(true);
+    setMistralError(null);
+    try {
+      const response = await fetch("/api/mistral/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load Mistral models");
+      }
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (models.length === 0) {
+        throw new Error("No Mistral models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          provider: "mistral" as const,
+          recommendedForCode: model.recommendedForCode || false,
+        }),
+      );
+      setMistralModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      let errorMessage = "Failed to load Mistral models";
+      if (error instanceof Error) {
+        const errorText = error.message;
+        if (errorText.includes("401") || errorText.includes("403")) {
+          errorMessage = "Invalid Mistral API key - check your key";
+        } else if (errorText.includes("429")) {
+          errorMessage = "Mistral rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+      setMistralError(errorMessage);
+      setMistralModels([]);
+    } finally {
+      setMistralLoading(false);
+    }
+  }, [status?.mistral?.configured]);
+
+  const fetchPerplexityModels = useCallback(async () => {
+    if (!status?.perplexity?.configured) {
+      setPerplexityModels([]);
+      setPerplexityError(null);
+      setPerplexityLoading(false);
+      return;
+    }
+
+    setPerplexityLoading(true);
+    setPerplexityError(null);
+    try {
+      const response = await fetch("/api/perplexity/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load Perplexity models");
+      }
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (models.length === 0) {
+        throw new Error("No Perplexity models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          provider: "perplexity" as const,
+          recommendedForCode: model.recommendedForCode || false,
+        }),
+      );
+      setPerplexityModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      let errorMessage = "Failed to load Perplexity models";
+      if (error instanceof Error) {
+        const errorText = error.message;
+        if (errorText.includes("401") || errorText.includes("403")) {
+          errorMessage = "Invalid Perplexity API key - check your key";
+        } else if (errorText.includes("402") || errorText.includes("credits")) {
+          errorMessage = "Perplexity insufficient credits - add credits to your account";
+        } else if (errorText.includes("429")) {
+          errorMessage = "Perplexity rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+      setPerplexityError(errorMessage);
+      setPerplexityModels([]);
+    } finally {
+      setPerplexityLoading(false);
+    }
+  }, [status?.perplexity?.configured]);
+
+  const fetchZaiModels = useCallback(async () => {
+    if (!status?.zai?.configured) {
+      setZaiModels([]);
+      setZaiError(null);
+      setZaiLoading(false);
+      return;
+    }
+
+    setZaiLoading(true);
+    setZaiError(null);
+    try {
+      const response = await fetch("/api/zai/models");
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Failed to load Z.ai models");
+      }
+      const models = Array.isArray(data.models) ? data.models : [];
+      if (models.length === 0) {
+        throw new Error("No Z.ai models returned");
+      }
+      const options = models.map(
+        (model: { id: string; name?: string; description?: string; recommendedForCode?: boolean }) => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          provider: "zai" as const,
+          recommendedForCode: model.recommendedForCode || false,
+        }),
+      );
+      setZaiModels(sortModelOptionsAlphabetically(options));
+    } catch (error) {
+      let errorMessage = "Failed to load Z.ai models";
+      if (error instanceof Error) {
+        const errorText = error.message;
+        if (errorText.includes("401") || errorText.includes("403")) {
+          errorMessage = "Invalid Z.ai API key - check your key";
+        } else if (errorText.includes("402") || errorText.includes("insufficient")) {
+          errorMessage = "Z.ai insufficient credits - add credits to your account";
+        } else if (errorText.includes("429")) {
+          errorMessage = "Z.ai rate limit - try again later";
+        } else {
+          errorMessage = errorText;
+        }
+      }
+      setZaiError(errorMessage);
+      setZaiModels([]);
+    } finally {
+      setZaiLoading(false);
+    }
+  }, [status?.zai?.configured]);
+
   useEffect(() => {
     fetchGroqModels();
     fetchOpenrouterModels();
     fetchFireworksModels();
-  }, [fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels]);
+    fetchClaudeModels();
+    fetchOpenaiModels();
+    fetchGeminiModels();
+    fetchMistralModels();
+    fetchPerplexityModels();
+    fetchZaiModels();
+  }, [fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels, fetchClaudeModels, fetchOpenaiModels, fetchGeminiModels, fetchMistralModels, fetchPerplexityModels, fetchZaiModels]);
 
   useEffect(() => {
     const handleApiKeysUpdated = () => {
@@ -1821,6 +2139,12 @@ export default function ChatInterface() {
       fetchGroqModels();
       fetchOpenrouterModels();
       fetchFireworksModels();
+      fetchClaudeModels();
+      fetchOpenaiModels();
+      fetchGeminiModels();
+      fetchMistralModels();
+      fetchPerplexityModels();
+      fetchZaiModels();
     };
 
     window.addEventListener('api-keys-updated', handleApiKeysUpdated);
@@ -1828,7 +2152,7 @@ export default function ChatInterface() {
     return () => {
       window.removeEventListener('api-keys-updated', handleApiKeysUpdated);
     };
-  }, [fetchOllamaModels, fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels]);
+  }, [fetchOllamaModels, fetchGroqModels, fetchOpenrouterModels, fetchFireworksModels, fetchClaudeModels, fetchOpenaiModels, fetchGeminiModels, fetchMistralModels, fetchPerplexityModels, fetchZaiModels]);
 
 
   useEffect(() => {
@@ -2343,25 +2667,22 @@ export default function ChatInterface() {
 
   const modelGroups: Record<string, ModelOption[]> = useMemo(
     () => ({
-      "Claude (Anthropic)": MODEL_GROUPS["Claude (Anthropic)"],
-      "Free Models (OpenRouter)":
-        openrouterModels.length > 0
-          ? openrouterModels
-          : MODEL_GROUPS["Free Models (OpenRouter)"],
-      Fireworks:
-        fireworksModels.length > 0
-          ? fireworksModels
-          : MODEL_GROUPS.Fireworks,
-      Gemini: MODEL_GROUPS["Gemini"],
-      Groq: groqModels.length > 0 ? groqModels : MODEL_GROUPS["Groq"],
+      "Claude (Anthropic)": claudeModels.length > 0 ? claudeModels : [],
+      "Free Models (OpenRouter)": openrouterModels.length > 0 ? openrouterModels : [],
+      Fireworks: fireworksModels.length > 0 ? fireworksModels : [],
+      Gemini: geminiModels.length > 0 ? geminiModels : [],
+      "Groq": groqModels.length > 0 ? groqModels : [],
       ...(ollamaModels.length > 0
         ? { "Ollama (Installed)": ollamaModels }
         : {}),
-      OpenAI: MODEL_GROUPS["OpenAI"],
+      "OpenAI": openaiModels.length > 0 ? openaiModels : [],
       "OpenCode Zen": MODEL_GROUPS["OpenCode Zen"],
       "OpenRouter Pro": MODEL_GROUPS["OpenRouter Pro"],
+      "Mistral": mistralModels.length > 0 ? mistralModels : [],
+      "Perplexity": perplexityModels.length > 0 ? perplexityModels : [],
+      "Z.ai (Zhipu)": zaiModels.length > 0 ? zaiModels : [],
     }),
-    [fireworksModels, groqModels, openrouterModels, ollamaModels],
+    [claudeModels, openaiModels, groqModels, openrouterModels, fireworksModels, geminiModels, mistralModels, perplexityModels, zaiModels, ollamaModels],
   );
 
   const selectedModelInfo: ModelOption = useMemo(() => {
@@ -4674,6 +4995,7 @@ export default function ChatInterface() {
           setDeployProgress(null);
           setDeploying(false);
         }}
+        onDismissDeployError={() => setDeployError(null)}
         applyRepoResult={applyRepoResult}
         deployAutoFixProgress={deployAutoFixProgress}
         deployAutoFixError={deployAutoFixError}
@@ -4683,9 +5005,31 @@ export default function ChatInterface() {
           deployAutoFixAbortControllerRef.current?.abort();
           deployAbortControllerRef.current?.abort();
         }}
+        onDismissAutoFixError={() => setDeployAutoFixError(null)}
         chatError={chatError}
+        onDismissChatError={() => setChatError(null)}
         fallbackNotice={fallbackNotice}
         onDismissFallback={() => setFallbackNotice(null)}
+        groqError={groqError}
+        onDismissGroqError={dismissGroqError}
+        openrouterError={openrouterError}
+        onDismissOpenrouterError={dismissOpenrouterError}
+        fireworksError={fireworksError}
+        onDismissFireworksError={dismissFireworksError}
+        ollamaError={ollamaError}
+        onDismissOllamaError={dismissOllamaError}
+        claudeError={claudeError}
+        onDismissClaudeError={dismissClaudeError}
+        openaiError={openaiError}
+        onDismissOpenaiError={dismissOpenaiError}
+        geminiError={geminiError}
+        onDismissGeminiError={dismissGeminiError}
+        mistralError={mistralError}
+        onDismissMistralError={dismissMistralError}
+        perplexityError={perplexityError}
+        onDismissPerplexityError={dismissPerplexityError}
+        zaiError={zaiError}
+        onDismissZaiError={dismissZaiError}
       />
     </div>
   );

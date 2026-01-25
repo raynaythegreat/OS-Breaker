@@ -107,31 +107,64 @@ export default function MobileDeploymentModal({
 
     setDeploying(true);
     setError('');
-    setCurrentStep(1);
-    setSteps(prev => prev.map((step, idx) =>
-      idx === 0 ? { ...step, status: 'in-progress' } : step
-    ));
-
     try {
+      // Step 1: Preparing
+      setCurrentStep(1);
+      setSteps(prev => prev.map((s, i) => i === 0 ? {...s, status: 'in-progress'} : s));
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Step 2: Calling API
+      setSteps(prev => prev.map((s, i) =>
+        i === 0 ? {...s, status: 'complete'} :
+        i === 1 ? {...s, status: 'in-progress'} : s
+      ));
+      setCurrentStep(2);
+
       const deployResult = await onDeploy({ repository, password, branch });
 
-      setResult(deployResult);
-
-      for (let i = 1; i < STEPS.length; i++) {
-        setCurrentStep(i + 1);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setSteps(prev => prev.map((step, idx) =>
-          idx === i ? { ...step, status: 'complete' } : step
+      // Step 3: Creating tunnel (only if deploy succeeded)
+      if (deployResult.success && deployResult.tunnel) {
+        setSteps(prev => prev.map((s, i) =>
+          i === 1 ? {...s, status: 'complete'} :
+          i === 2 ? {...s, status: 'in-progress'} : s
         ));
-      }
+        setCurrentStep(3);
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-      setCurrentStep(5);
+        // Step 4: Deploying to Vercel
+        setSteps(prev => prev.map((s, i) =>
+          i === 2 ? {...s, status: 'complete'} :
+          i === 3 ? {...s, status: 'in-progress'} : s
+        ));
+        setCurrentStep(4);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Step 5: Complete
+        setSteps(prev => prev.map((s, i) =>
+          i === 3 ? {...s, status: 'complete'} :
+          i === 4 ? {...s, status: 'in-progress'} : s
+        ));
+        setCurrentStep(5);
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        setSteps(prev => prev.map(s => ({...s, status: 'complete'})));
+        setResult(deployResult);
+      } else {
+        throw new Error(deployResult.error || 'Deployment failed - no tunnel or deployment URL returned');
+      }
     } catch (err) {
       console.error('Deployment error:', err);
       const errorMsg = err instanceof Error ? err.message : 'Deployment failed';
       setError(errorMsg);
       setResult({ success: false, error: errorMsg });
-      setSteps(prev => prev.map(step => ({ ...step, status: 'error' })));
+
+      // Fix error state - mark the CURRENT step as failed
+      setSteps(prev => prev.map((step, idx) => {
+        if (idx < currentStep - 1) return { ...step, status: 'complete' };
+        if (idx === currentStep - 1) return { ...step, status: 'error' };  // Current step
+        return step;
+      }));
     } finally {
       setDeploying(false);
     }

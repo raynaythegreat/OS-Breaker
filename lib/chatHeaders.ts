@@ -1,42 +1,35 @@
-import { SecureStorage } from './secureStorage';
-
 // Helper function to build headers with API keys for chat API
+// SERVER-SIDE: Only uses environment variables
+// Client will send keys via headers when making requests
 export async function buildChatApiHeaders(baseHeaders: Record<string, string> = {}): Promise<Record<string, string>> {
   const headers = { ...baseHeaders };
-  
-  try {
-    const keyNames: (keyof import('./secureStorage').ApiKeys)[] = ['anthropic', 'openai', 'gemini', 'groq', 'openrouter', 'fireworks', 'mistral', 'perplexity', 'zai', 'nanobanana', 'ideogram', 'github', 'vercel', 'render', 'ngrok', 'ollamaBaseUrl', 'opencodezen', 'mobilePassword'];
-    const headerMap: Record<(keyof import('./secureStorage').ApiKeys), string> = {
-      anthropic: 'X-API-Key-Anthropic',
-      openai: 'X-API-Key-Openai',
-      gemini: 'X-API-Key-Gemini',
-      groq: 'X-API-Key-Groq',
-      openrouter: 'X-API-Key-Openrouter',
-      fireworks: 'X-API-Key-Fireworks',
-      mistral: 'X-API-Key-Mistral',
-      perplexity: 'X-API-Key-Perplexity',
-      zai: 'X-API-Key-Zai',
-      nanobanana: 'X-API-Key-Nanobanana',
-      ideogram: 'X-API-Key-Ideogram',
-      github: 'X-API-Key-GitHub',
-      vercel: 'X-API-Key-Vercel',
-      render: 'X-API-Key-Render',
-      ngrok: 'X-API-Key-Ngrok',
-      ollamaBaseUrl: '', // Ollama uses URL, not a token
-      opencodezen: 'X-API-Key-Opencodezen',
-      mobilePassword: '' // Mobile password is not sent as API header
-    };
-    
-    for (const keyName of keyNames) {
-      if (keyName === 'ollamaBaseUrl' || keyName === 'mobilePassword') continue;
-      const key = await SecureStorage.getKey(keyName);
-      if (key) {
-        headers[headerMap[keyName]] = key;
-      }
+
+  // On server, we only use environment variables
+  // Client will send keys via headers when making API requests
+  const envMap: Record<string, string> = {
+    'X-API-Key-Anthropic': process.env.CLAUDE_API_KEY || '',
+    'X-API-Key-Openai': process.env.OPENAI_API_KEY || '',
+    'X-API-Key-Gemini': process.env.GEMINI_API_KEY || '',
+    'X-API-Key-Groq': process.env.GROQ_API_KEY || '',
+    'X-API-Key-Openrouter': process.env.OPENROUTER_API_KEY || '',
+    'X-API-Key-Fireworks': process.env.FIREWORKS_API_KEY || '',
+    'X-API-Key-Mistral': process.env.MISTRAL_API_KEY || '',
+    'X-API-Key-Perplexity': process.env.PERPLEXITY_API_KEY || '',
+    'X-API-Key-Zai': process.env.ZAI_API_KEY || '',
+    'X-API-Key-Nanobanana': process.env.NANOBANANA_API_KEY || '',
+    'X-API-Key-Ideogram': process.env.IDEOGRAM_API_KEY || '',
+    'X-API-Key-GitHub': process.env.GITHUB_TOKEN || '',
+    'X-API-Key-Vercel': process.env.VERCEL_TOKEN || '',
+    'X-API-Key-Render': process.env.RENDER_API_KEY || '',
+    'X-API-Key-Ngrok': process.env.NGROK_API_KEY || '',
+    'X-API-Key-Opencodezen': process.env.OPENCODE_API_KEY || '',
+  };
+
+  for (const [headerName, value] of Object.entries(envMap)) {
+    if (value && value.trim()) {
+      headers[headerName] = value.trim();
     }
-  } catch (error) {
-    console.error('Failed to load API keys:', error);
   }
-  
+
   return headers;
 }

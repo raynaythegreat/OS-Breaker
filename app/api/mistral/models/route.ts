@@ -3,23 +3,28 @@ import { buildChatApiHeaders } from "@/lib/chatHeaders";
 
 export const dynamic = 'force-dynamic';
 
-interface ZaiModel {
+interface MistralModel {
   id: string;
+  object: string;
+  created: number;
+  owned_by: string;
 }
 
-interface ZaiModelsResponse {
-  data: ZaiModel[];
+interface MistralModelsResponse {
+  data: MistralModel[];
 }
 
-const FALLBACK_ZAI_MODELS = [
-  { id: "glm-4.7", name: "GLM-4.7", description: "Flagship coding model" },
-  { id: "glm-4.6v", name: "GLM-4.6V", description: "Multimodal with vision" },
+const FALLBACK_MISTRAL_MODELS = [
+  { id: "mistral-large-latest", name: "Mistral Large", description: "Top-tier reasoning" },
+  { id: "mistral-medium-latest", name: "Mistral Medium", description: "Balanced performance" },
+  { id: "mistral-small-latest", name: "Mistral Small", description: "Fast & efficient" },
+  { id: "codestral-latest", name: "Codestral", description: "Code specialist" },
 ] as const;
 
-const RECOMMENDED_CODE_MODELS = ["glm-4.7"];
+const RECOMMENDED_CODE_MODELS = ["codestral-latest", "mistral-large-latest"];
 
 function buildFallbackModels() {
-  return FALLBACK_ZAI_MODELS.map((m) => ({
+  return FALLBACK_MISTRAL_MODELS.map((m) => ({
     id: m.id,
     name: m.name,
     description: m.description,
@@ -29,22 +34,22 @@ function buildFallbackModels() {
 
 export async function GET(request: NextRequest) {
   const headers = await buildChatApiHeaders();
-  const apiKey = headers['X-API-Key-Zai'] ||
-    process.env.ZAI_API_KEY || process.env.NEXT_PUBLIC_ZAI_API_KEY;
+  const apiKey = headers['X-API-Key-Mistral'] ||
+    process.env.MISTRAL_API_KEY || process.env.NEXT_PUBLIC_MISTRAL_API_KEY;
   const warning =
-    !process.env.ZAI_API_KEY && process.env.NEXT_PUBLIC_ZAI_API_KEY
-      ? "NEXT_PUBLIC_ZAI_API_KEY is set; move it to ZAI_API_KEY to avoid exposing your key to the browser."
+    !process.env.MISTRAL_API_KEY && process.env.NEXT_PUBLIC_MISTRAL_API_KEY
+      ? "NEXT_PUBLIC_MISTRAL_API_KEY is set; move it to MISTRAL_API_KEY to avoid exposing your key to the browser."
       : null;
 
   if (!apiKey || !apiKey.trim()) {
     return NextResponse.json(
-      { success: true, models: buildFallbackModels(), error: "ZAI_API_KEY is not configured.", warning },
+      { success: true, models: buildFallbackModels(), error: "MISTRAL_API_KEY is not configured.", warning },
       { status: 400 }
     );
   }
 
   try {
-    const response = await fetch("https://open.bigmodel.cn/api/paas/v4/models", {
+    const response = await fetch("https://api.mistral.ai/v1/models", {
       headers: {
         Authorization: `Bearer ${apiKey.trim()}`,
         "Content-Type": "application/json",
@@ -57,14 +62,14 @@ export async function GET(request: NextRequest) {
       throw new Error(text || `HTTP ${response.status}`);
     }
 
-    const data = (await response.json()) as ZaiModelsResponse;
+    const data = (await response.json()) as MistralModelsResponse;
     const models = (data.data || [])
       .filter((model) => typeof model.id === "string")
       .map((model) => ({
         id: model.id,
         name: model.id,
-        description: "Z.ai",
-        provider: 'zai' as const,
+        description: "Mistral",
+        provider: 'mistral' as const,
         recommendedForCode: RECOMMENDED_CODE_MODELS.includes(model.id),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -75,12 +80,12 @@ export async function GET(request: NextRequest) {
       warning
     });
   } catch (error) {
-    console.error('Z.ai models fetch error:', error);
+    console.error('Mistral models fetch error:', error);
     return NextResponse.json(
       {
         success: true,
         models: buildFallbackModels(),
-        error: error instanceof Error ? error.message : "Failed to load Z.ai models",
+        error: error instanceof Error ? error.message : "Failed to load Mistral models",
         warning,
       },
       { status: 500 }

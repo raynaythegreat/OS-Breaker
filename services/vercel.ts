@@ -430,11 +430,17 @@ export class VercelService {
 
     let project = await this.getProject(normalizedName);
     if (!project) {
-      project = await this.createProject({
-        name: normalizedName,
-        repository: params.repository,
-        framework: params.framework,
-      });
+      try {
+        project = await this.createProject({
+          name: normalizedName,
+          repository: params.repository,
+          framework: params.framework,
+        });
+      } catch (error) {
+        throw new Error(
+          `Failed to create Vercel project "${normalizedName}": ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
     }
 
     // Update project environment variables if provided and not skipped
@@ -447,17 +453,24 @@ export class VercelService {
       }
     }
 
-    const deployment = await this.createDeployment({
-      projectName: project.name,
-      repository: params.repository,
-      branch,
-      environmentVariables: params.environmentVariables,
-      framework: params.framework,
-      buildCommand: params.buildCommand,
-      installCommand: params.installCommand,
-      outputDirectory: params.outputDirectory,
-      rootDirectory: params.rootDirectory,
-    });
+    let deployment;
+    try {
+      deployment = await this.createDeployment({
+        projectName: project.name,
+        repository: params.repository,
+        branch,
+        environmentVariables: params.environmentVariables,
+        framework: params.framework,
+        buildCommand: params.buildCommand,
+        installCommand: params.installCommand,
+        outputDirectory: params.outputDirectory,
+        rootDirectory: params.rootDirectory,
+      });
+    } catch (error) {
+      throw new Error(
+        `Failed to create Vercel deployment: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
 
     const url = deployment.url.startsWith("http")
       ? deployment.url
