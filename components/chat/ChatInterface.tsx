@@ -1179,9 +1179,27 @@ const MODEL_GROUPS: Record<string, ModelOption[]> = {
       provider: "zai",
     },
     {
+      id: "glm-4.7-flash",
+      name: "GLM-4.7-Flash",
+      description: "Fast free coding model (30B MoE)",
+      provider: "zai",
+    },
+    {
+      id: "glm-4.5-flash",
+      name: "GLM-4.5-Flash",
+      description: "Fast free reasoning model",
+      provider: "zai",
+    },
+    {
       id: "glm-4.6v",
       name: "GLM-4.6V",
       description: "Multimodal with vision",
+      provider: "zai",
+    },
+    {
+      id: "glm-4.6v-flash",
+      name: "GLM-4.6V-Flash",
+      description: "Fast multimodal with vision",
       provider: "zai",
     },
   ],

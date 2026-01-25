@@ -13,10 +13,13 @@ interface ZaiModelsResponse {
 
 const FALLBACK_ZAI_MODELS = [
   { id: "glm-4.7", name: "GLM-4.7", description: "Flagship coding model" },
+  { id: "glm-4.7-flash", name: "GLM-4.7-Flash", description: "Fast free coding model (30B MoE)" },
+  { id: "glm-4.5-flash", name: "GLM-4.5-Flash", description: "Fast free reasoning model" },
   { id: "glm-4.6v", name: "GLM-4.6V", description: "Multimodal with vision" },
+  { id: "glm-4.6v-flash", name: "GLM-4.6V-Flash", description: "Fast multimodal with vision" },
 ] as const;
 
-const RECOMMENDED_CODE_MODELS = ["glm-4.7"];
+const RECOMMENDED_CODE_MODELS = ["glm-4.7", "glm-4.7-flash", "glm-4.5-flash"];
 
 function buildFallbackModels() {
   return FALLBACK_ZAI_MODELS.map((m) => ({
