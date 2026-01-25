@@ -1,10 +1,18 @@
-const { app, BrowserWindow, ipcMain, safeStorage, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, safeStorage, dialog, shell } = require('electron');
 const path = require('path');
 const fsSync = require('fs');
 const fs = require('fs').promises;
 const os = require('os');
 const { exec, spawn } = require('child_process');
 const http = require('http');
+
+// Platform detection
+const Platform = {
+  isLinux: process.platform === 'linux',
+  isMacOS: process.platform === 'darwin',
+  isWindows: process.platform === 'win32',
+  current: process.platform
+};
 
 let mainWindow;
 let nextServer;
@@ -19,15 +27,25 @@ const SERVER_POLL_INTERVAL = 1000;
 let fileAccessEnabled = false;
 let allowedDirectories = []; // Fixed port for the bundled app
 
-// Port cleanup - kill any orphaned processes on port 3456
+// Port cleanup - kill any orphaned processes on port 3456 (platform-aware)
 function cleanupPort() {
   return new Promise((resolve) => {
-    const commands = [
-      `fuser -k ${PORT}/tcp 2>/dev/null || true`,
-      `lsof -ti:${PORT} | xargs -r kill -9 2>/dev/null || true`,
-      `pkill -f "next-server" || true`,
-      `pkill -f "node.*server.js" || true`
-    ];
+    let commands = [];
+
+    if (Platform.isWindows) {
+      // Windows: use netstat and taskkill
+      commands = [
+        `for /f "tokens=5" %a in ('netstat -ano ^| findstr :${PORT}') do taskkill /F /PID %a 2>nul || exit 0`
+      ];
+    } else {
+      // Unix-like (Linux, macOS): use fuser, lsof, or pkill
+      commands = [
+        `fuser -k ${PORT}/tcp 2>/dev/null || true`,
+        `lsof -ti:${PORT} | xargs -r kill -9 2>/dev/null || true`,
+        `pkill -f "next-server" || true`,
+        `pkill -f "node.*server.js" || true`
+      ];
+    }
 
     let completed = 0;
     commands.forEach(cmd => {
@@ -43,6 +61,11 @@ function cleanupPort() {
         }
       });
     });
+
+    // If no commands, resolve immediately
+    if (commands.length === 0) {
+      setTimeout(() => resolve(), 100);
+    }
   });
 }
 
@@ -280,10 +303,21 @@ function killServerProcess() {
 
   try {
     if (nextServer.pid) {
-      exec(`pkill -P ${nextServer.pid} 2>/dev/null || true`);
+      if (Platform.isWindows) {
+        // Windows: use taskkill to kill child processes
+        exec(`taskkill /F /PID ${nextServer.pid} 2>nul || true`);
+        // Also try to kill any child node processes
+        exec('taskkill /F /IM node.exe 2>nul || true', () => {});
+      } else {
+        // Unix-like: use pkill to kill child processes
+        exec(`pkill -P ${nextServer.pid} 2>/dev/null || true`);
+      }
       nextServer.kill('SIGTERM');
       setTimeout(() => {
         if (nextServer && !nextServer.killed) {
+          if (Platform.isWindows) {
+            exec(`taskkill /F /PID ${nextServer.pid} 2>nul || true`);
+          }
           nextServer.kill('SIGKILL');
         }
       }, 2000);
@@ -743,4 +777,28 @@ ipcMain.handle('window-maximize', async () => {
     }
 
     return { success: true, status };
+  });
+
+  // Open external URL in default browser
+  ipcMain.handle('open-external-url', async (event, url) => {
+    try {
+      log(`Opening external URL: ${url}`);
+
+      // Validate URL
+      if (!url || typeof url !== 'string') {
+        throw new Error('Invalid URL');
+      }
+
+      // Only allow http/https URLs
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        throw new Error('URL must start with http:// or https://');
+      }
+
+      await shell.openExternal(url);
+      log(`Successfully opened URL: ${url}`);
+      return { success: true };
+    } catch (error) {
+      log(`Failed to open external URL: ${error.message}`, 'ERROR');
+      return { success: false, error: error.message };
+    }
   });

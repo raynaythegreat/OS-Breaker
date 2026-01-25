@@ -10,7 +10,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendMessage: (channel, data) => ipcRenderer.send(channel, data),
   minimize: () => ipcRenderer.invoke('window-minimize'),
   maximize: () => ipcRenderer.invoke('window-maximize'),
-  close: () => ipcRenderer.invoke('window-close')
+  close: () => ipcRenderer.invoke('window-close'),
+  openExternalUrl: (url) => ipcRenderer.invoke('open-external-url', url)
 });
 
 contextBridge.exposeInMainWorld('api', {

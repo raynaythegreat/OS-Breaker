@@ -11,6 +11,7 @@ declare global {
       minimize: () => Promise<void>;
       maximize: () => Promise<void>;
       close: () => Promise<void>;
+      openExternalUrl: (url: string) => Promise<{ success: boolean; error?: string }>;
     };
     api?: {
       minimize: () => void;

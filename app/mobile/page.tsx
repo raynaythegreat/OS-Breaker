@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import MobileDeploymentModal from '@/components/settings/MobileDeploymentModal';
 import { SecureStorage } from '@/lib/secureStorage';
+import NgrokQuickStatus from '@/components/mobile/NgrokQuickStatus';
 
 interface TunnelStatus {
   active: boolean;
@@ -25,11 +26,6 @@ export default function MobilePage() {
   const [forkSuccess, setForkSuccess] = useState('');
   const [forkedRepo, setForkedRepo] = useState<string>('');
   const [apiKeys, setApiKeys] = useState<ApiKeys>({ ngrok: null, vercel: null, github: null });
-
-  useEffect(() => {
-    checkTunnelStatus();
-    loadApiKeys();
-  }, []);
 
   const loadApiKeys = async () => {
     try {
@@ -89,63 +85,7 @@ export default function MobilePage() {
     }
   };
 
-  const checkTunnelStatus = async () => {
-    try {
-      // Get deployment info from localStorage
-      const storedDeployment = localStorage.getItem('mobile-deployment');
-      if (storedDeployment) {
-        const deployment = JSON.parse(storedDeployment);
-
-        const response = await fetch('/api/mobile/status', {
-          headers: {
-            'x-mobile-active': 'true',
-            'x-mobile-deployment-id': deployment.tunnelId || '',
-            'x-mobile-public-url': deployment.publicUrl || '',
-            'x-mobile-url': deployment.mobileUrl || ''
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          // Check if tunnel was verified and found
-          if (data.verified && !data.active) {
-            // Tunnel was verified but not found - trigger auto-recovery
-            console.log('Tunnel not found, attempting auto-recovery...');
-            setTunnelStatus({
-              active: false,
-              recovering: true,
-              errorMessage: 'Tunnel not found. Attempting to recover...'
-            });
-
-            await recoverTunnel(deployment);
-          } else {
-            setTunnelStatus({
-              active: data.active || true,
-              url: data.url || data.publicUrl,
-              id: data.id || data.tunnelId,
-            });
-          }
-        } else {
-          setTunnelStatus({
-            active: false,
-            url: undefined,
-            id: undefined
-          });
-        }
-      } else {
-        setTunnelStatus({
-          active: false,
-          url: undefined,
-          id: undefined
-        });
-      }
-    } catch (error) {
-      console.error('Failed to check mobile status:', error);
-    }
-  };
-
-  const recoverTunnel = async (deployment: any) => {
+  const recoverTunnel = useCallback(async (deployment: any) => {
     try {
       // Parse the repository name to get project info
       const repository = deployment.repository || 'raynaythegreat/os-athena-mobile';
@@ -201,7 +141,68 @@ export default function MobilePage() {
         errorMessage: error instanceof Error ? error.message : 'Failed to recover tunnel'
       });
     }
-  };
+  }, []);
+
+  const checkTunnelStatus = useCallback(async () => {
+    try {
+      // Get deployment info from localStorage
+      const storedDeployment = localStorage.getItem('mobile-deployment');
+      if (storedDeployment) {
+        const deployment = JSON.parse(storedDeployment);
+
+        const response = await fetch('/api/mobile/status', {
+          headers: {
+            'x-mobile-active': 'true',
+            'x-mobile-deployment-id': deployment.tunnelId || '',
+            'x-mobile-public-url': deployment.publicUrl || '',
+            'x-mobile-url': deployment.mobileUrl || ''
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Check if tunnel was verified and found
+          if (data.verified && !data.active) {
+            // Tunnel was verified but not found - trigger auto-recovery
+            console.log('Tunnel not found, attempting auto-recovery...');
+            setTunnelStatus({
+              active: false,
+              recovering: true,
+              errorMessage: 'Tunnel not found. Attempting to recover...'
+            });
+
+            await recoverTunnel(deployment);
+          } else {
+            setTunnelStatus({
+              active: data.active || true,
+              url: data.url || data.publicUrl,
+              id: data.id || data.tunnelId,
+            });
+          }
+        } else {
+          setTunnelStatus({
+            active: false,
+            url: undefined,
+            id: undefined
+          });
+        }
+      } else {
+        setTunnelStatus({
+          active: false,
+          url: undefined,
+          id: undefined
+        });
+      }
+    } catch (error) {
+      console.error('Failed to check mobile status:', error);
+    }
+  }, [recoverTunnel]);
+
+  useEffect(() => {
+    checkTunnelStatus();
+    loadApiKeys();
+  }, [checkTunnelStatus]);
 
   const handleCopyUrl = async () => {
     if (tunnelStatus.url) {
@@ -397,6 +398,9 @@ export default function MobilePage() {
           </div>
         </div>
 
+        {/* Ngrok Status & Quick Start Card */}
+        <NgrokQuickStatus />
+
         {/* How It Works Section - Moved to Top */}
         <div className="bg-white dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6">
           <h2 className="text-lg font-semibold text-surface-900 dark:text-white mb-4">
@@ -583,7 +587,15 @@ export default function MobilePage() {
             </h2>
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => window.open(tunnelStatus.url, '_blank')}
+                onClick={() => {
+                  if (!tunnelStatus.url) return;
+                  // Use Electron API if available, otherwise window.open
+                  if (window.electronAPI?.openExternalUrl) {
+                    window.electronAPI.openExternalUrl(tunnelStatus.url);
+                  } else {
+                    window.open(tunnelStatus.url, '_blank');
+                  }
+                }}
                 className="flex items-center gap-3 p-4 bg-surface-50 dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-gold-500 dark:hover:border-gold-500 transition-colors text-left"
               >
                 <div className="w-10 h-10 bg-gold-100 dark:bg-gold-900/30 rounded-lg flex items-center justify-center">
