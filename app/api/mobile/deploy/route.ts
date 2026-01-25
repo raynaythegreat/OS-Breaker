@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildChatApiHeaders } from "@/lib/chatHeaders";
 import { VercelService } from "@/services/vercel";
 import { GitHubService } from "@/services/github";
-import { NgrokService } from "@/services/ngrok";
+import { ensureNgrokTunnel } from "@/lib/ngrok";
 import { getServerApiKey } from "@/lib/serverKeys";
 
 export const dynamic = 'force-dynamic';
@@ -62,30 +62,49 @@ export async function POST(request: NextRequest) {
     const githubToken = getServerApiKey('github', headers);
 
     if (!ngrokKey || !vercelKey || !githubToken) {
+      console.error('Missing API keys:', {
+        ngrok: !!ngrokKey,
+        vercel: !!vercelKey,
+        github: !!githubToken
+      });
       return NextResponse.json(
-        { error: "Missing required API keys (ngrok, vercel, github)" },
+        {
+          error: "Missing required API keys. Please configure Ngrok, Vercel, and GitHub tokens in Settings.",
+          missing: {
+            ngrok: !ngrokKey,
+            vercel: !vercelKey,
+            github: !githubToken
+          }
+        },
         { status: 400 }
       );
     }
 
     const deploymentKey = `mobile:${Date.now()}`;
-    let createdTunnelId: string | null = null;
 
     try {
-      const ngrok = new NgrokService(ngrokKey);
+      // Ensure ngrok tunnel is running (will start ngrok if not running)
+      // Pass ngrok API key as parameter since this runs server-side
+      const tunnelResult = await ensureNgrokTunnel(3456, ngrokKey);
 
-      const tunnel = await ngrok.createTunnel({
-        port: 3456,
-        proto: 'http'
-      });
+      if (!tunnelResult.publicUrl) {
+        const errorMsg = tunnelResult.error || 'Failed to establish ngrok tunnel';
+        return NextResponse.json(
+          { error: errorMsg },
+          { status: 500 }
+        );
+      }
 
-      createdTunnelId = tunnel.id;
+      const tunnel = {
+        id: `mobile-${Date.now()}`,
+        public_url: tunnelResult.publicUrl,
+        port: 3456
+      };
 
       const github = new GitHubService(githubToken);
       const repoData = await github.getRepository(owner, repo);
 
       if (!repoData) {
-        await ngrok.deleteTunnel(tunnel.id);
         return NextResponse.json(
           { error: "Repository not found. Check the owner/repo format." },
           { status: 404 }
@@ -147,16 +166,6 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.error('Mobile deployment error:', error);
 
-      if (createdTunnelId) {
-        try {
-          const ngrok = new NgrokService(ngrokKey);
-          await ngrok.deleteTunnel(createdTunnelId);
-          console.log(`Cleaned up tunnel ${createdTunnelId} after deployment failure`);
-        } catch (tunnelError) {
-          console.error('Failed to cleanup tunnel after deployment error:', tunnelError);
-        }
-      }
-
       let errorMessage = 'Deployment failed';
       if (error instanceof Error) {
         errorMessage = error.message;
@@ -175,13 +184,13 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    } catch (error) {
-      console.error('Request processing error:', error);
-      return NextResponse.json(
-        {
-          error: error instanceof Error ? error.message : 'Request processing failed'
-        },
-        { status: 500 }
-      );
-    }
+  } catch (error) {
+    console.error('Request processing error:', error);
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : 'Request processing failed'
+      },
+      { status: 500 }
+    );
+  }
 }

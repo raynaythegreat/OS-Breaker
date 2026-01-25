@@ -34,7 +34,8 @@ export function getServerApiKey(
 ): string {
   // Try header first (format: X-API-Key-Ngrok, X-API-Key-Vercel, etc.)
   if (headers) {
-    const headerName = `X-API-Key-${keyName.charAt(0).toUpperCase() + keyName.slice(1)}`;
+    // Capitalize first letter, but handle special cases like "GitHub"
+    const headerName = `X-API-Key-${keyName === 'github' ? 'GitHub' : keyName.charAt(0).toUpperCase() + keyName.slice(1)}`;
     const headerValue = headers[headerName];
     if (headerValue && headerValue.trim()) {
       return headerValue.trim();

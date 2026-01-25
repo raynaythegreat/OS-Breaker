@@ -124,7 +124,7 @@ export async function getMobileTunnelStatus(): Promise<{
   }
 }
 
-export async function ensureMobileTunnelActive(): Promise<{
+export async function ensureMobileTunnelActive(apiKey?: string): Promise<{
   success: boolean;
   publicUrl?: string;
   tunnelId?: string;
@@ -152,8 +152,9 @@ export async function ensureMobileTunnelActive(): Promise<{
     console.log('Mobile tunnel inactive, reactivating...');
 
     try {
-      const apiKey = await SecureStorage.getKey('ngrok');
-      if (!apiKey || apiKey.trim().length < 10) {
+      // Use provided key or try to get from SecureStorage (client-side only)
+      const key = apiKey || await SecureStorage.getKey('ngrok');
+      if (!key || key.trim().length < 10) {
         return {
           success: false,
           error: 'Ngrok API key not configured'
@@ -161,7 +162,7 @@ export async function ensureMobileTunnelActive(): Promise<{
       }
 
       const { NgrokService } = await import('@/services/ngrok');
-      const ngrok = new NgrokService(apiKey);
+      const ngrok = new NgrokService(key);
 
       const options: NgrokCreateOptions = {
         port: 3456,
@@ -210,16 +211,21 @@ export async function ensureMobileTunnelActive(): Promise<{
   };
 }
 
-export async function ensureNgrokTunnel(port: number): Promise<{
+export async function ensureNgrokTunnel(
+  port: number,
+  apiKey?: string,
+  options?: { autoInstall?: boolean; onInstallProgress?: (msg: string) => void }
+): Promise<{
   publicUrl: string | null;
   started: boolean;
   error?: string;
 }> {
-  const apiKey = await SecureStorage.getKey('ngrok');
-  if (apiKey) {
+  // Use provided key or try to get from SecureStorage (client-side only)
+  const key = apiKey || await SecureStorage.getKey('ngrok');
+  if (key) {
     try {
       const { NgrokService } = await import('@/services/ngrok');
-      const ngrok = new NgrokService(apiKey);
+      const ngrok = new NgrokService(key);
 
       const tunnel = await ngrok.createTunnel({ port });
       return {
@@ -234,7 +240,28 @@ export async function ensureNgrokTunnel(port: number): Promise<{
   const existing = await getNgrokPublicUrl(port);
   if (existing) return { publicUrl: existing, started: false };
 
-  const ngrokPath = resolveCommand("ngrok");
+  let ngrokPath = resolveCommand("ngrok");
+
+  // Try automated installation if requested and ngrok not found
+  if (!ngrokPath && options?.autoInstall) {
+    try {
+      options.onInstallProgress?.("ngrok not found, attempting automatic installation...");
+      const { installNgrok } = await import('@/lib/ngrok-installer');
+      const installResult = await installNgrok({
+        onProgress: (msg) => options.onInstallProgress?.(msg),
+      });
+
+      if (installResult.success && installResult.installedPath) {
+        // Update PATH and retry finding ngrok
+        const { getDefaultBinDirs, joinPathEntries } = await import('@/lib/platform');
+        const extraDirs = [installResult.installedPath.replace(/\/ngrok(\.exe)?$/, '')];
+        ngrokPath = resolveCommand("ngrok", extraDirs);
+      }
+    } catch (installError) {
+      console.warn('Auto-install failed:', installError);
+    }
+  }
+
   if (!ngrokPath) {
     return {
       publicUrl: null,
@@ -244,21 +271,52 @@ export async function ensureNgrokTunnel(port: number): Promise<{
     };
   }
 
-  try {
-    const child = spawn(
-      ngrokPath,
-      ["http", String(port), "--log=stdout", "--log-format=json"],
-      {
-        detached: true,
-        stdio: "ignore",
-        env: createSubprocessEnv(),
-      },
-    );
-    child.unref();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to start ngrok";
-    return { publicUrl: null, started: false, error: message };
+  // Start ngrok CLI with API key for authentication
+  const ngrokEnv = createSubprocessEnv();
+  if (apiKey) {
+    ngrokEnv.NGROK_API_KEY = apiKey;
   }
+
+  const ngrokProcess = spawn(ngrokPath, ['http', String(port), '--log=stdout', '--log-format=json'], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: ngrokEnv,
+    detached: true,
+  });
+
+  // Wait for ngrok to start and establish tunnel
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      ngrokProcess.kill();
+      reject(new Error('Ngrok failed to start within 15 seconds'));
+    }, 15000);
+
+    let output = '';
+    ngrokProcess.stdout?.on('data', (data) => {
+      output += data.toString();
+      // Check for tunnel URL in output
+      const match = output.match(/https?:\/\/[a-z0-9\-]+\.ngrok(?:-free)?\.app/);
+      if (match) {
+        clearTimeout(timeout);
+        ngrokProcess.unref();
+        resolve();
+      }
+    });
+
+    ngrokProcess.stderr?.on('data', (data) => {
+      const error = data.toString();
+      if (error.includes('error') || error.includes('failed')) {
+        clearTimeout(timeout);
+        reject(new Error(`Ngrok error: ${error}`));
+      }
+    });
+
+    ngrokProcess.on('exit', (code) => {
+      if (code && code !== 0) {
+        clearTimeout(timeout);
+        reject(new Error(`Ngrok exited with code ${code}`));
+      }
+    });
+  });
 
   for (let attempt = 0; attempt < 24; attempt += 1) {
     const url = await getNgrokPublicUrl(port);
