@@ -193,11 +193,30 @@ async function startNextServer() {
 
     if (isDev) {
       log('Starting development server...');
+
+      // Load API keys from secure storage
+      const apiKeys = await loadDecryptedApiKeys();
+
+      // Merge API keys into environment for Next.js server
+      const serverEnv = {
+        ...process.env,
+        PORT: PORT.toString(),
+        ...apiKeys
+      };
+
+      // Log loaded keys (without exposing values)
+      const keyNames = Object.keys(apiKeys).filter(k => apiKeys[k]);
+      if (keyNames.length > 0) {
+        log(`Loaded ${keyNames.length} API keys: ${keyNames.join(', ')}`);
+      } else {
+        log('No API keys found in secure storage', 'WARN');
+      }
+
       nextServer = spawn('npm', ['run', 'dev'], {
         cwd: rootDir,
         shell: false,
         stdio: ['ignore', 'pipe', 'pipe'],
-        env: { ...process.env, PORT: PORT.toString() }
+        env: serverEnv
       });
 
       setupServerProcessHandlers(nextServer, resolve, reject);
@@ -224,9 +243,26 @@ async function startNextServer() {
       log('Starting standalone server...');
 
       try {
+        // Load API keys from secure storage
+        const apiKeys = await loadDecryptedApiKeys();
+
+        // Merge API keys into environment for Next.js server
+        const serverEnv = {
+          ...process.env,
+          ...apiKeys
+        };
+
+        // Log loaded keys (without exposing values)
+        const keyNames = Object.keys(apiKeys).filter(k => apiKeys[k]);
+        if (keyNames.length > 0) {
+          log(`Loaded ${keyNames.length} API keys: ${keyNames.join(', ')}`);
+        } else {
+          log('No API keys found in secure storage', 'WARN');
+        }
+
         nextServer = spawn('node', [serverPath], {
           cwd: standaloneDir,
-          env: process.env,
+          env: serverEnv,
           stdio: ['ignore', 'pipe', 'pipe']
         });
 
@@ -752,6 +788,30 @@ ipcMain.handle('window-maximize', async () => {
       return {};
     } catch (error) {
       log(`Failed to load encrypted keys: ${error.message}`, 'ERROR');
+      return {};
+    }
+  }
+
+  // Load and decrypt API keys for passing to Next.js server
+  async function loadDecryptedApiKeys() {
+    try {
+      const encryptedKeys = await loadEncryptedKeys();
+      const decryptedKeys = {};
+
+      for (const [key, value] of Object.entries(encryptedKeys)) {
+        if (safeStorage.isEncryptionAvailable()) {
+          try {
+            const buffer = Buffer.from(value, 'base64');
+            decryptedKeys[key] = safeStorage.decryptString(buffer);
+          } catch (decryptError) {
+            log(`Failed to decrypt key ${key}: ${decryptError.message}`, 'WARN');
+          }
+        }
+      }
+
+      return decryptedKeys;
+    } catch (error) {
+      log(`Failed to load API keys: ${error.message}`, 'ERROR');
       return {};
     }
   }
