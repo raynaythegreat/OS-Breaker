@@ -5,6 +5,7 @@ const fs = require('fs').promises;
 const os = require('os');
 const { exec, spawn } = require('child_process');
 const http = require('http');
+const ngrokWrapper = require('./ngrok-wrapper');
 
 // Platform detection
 const Platform = {
@@ -469,14 +470,10 @@ app.whenReady().then(async () => {
   }
 
   // ==================================================
-  // Phase 1: Auto-Start Ngrok CLI Agent (dev mode only)
+  // Phase 1: Auto-Start Ngrok CLI Agent
   // ==================================================
-  if (isDev) {
-    try {
-      log('Initializing ngrok tunnel auto-start...');
-
-      // Import the ngrok helper function
-      const { autoStartNgrokForElectron } = await import('@/lib/ngrok');
+  try {
+    log('Initializing ngrok tunnel auto-start...');
 
     // Try to get API key from encrypted storage
     let ngrokApiKey;
@@ -494,70 +491,39 @@ app.whenReady().then(async () => {
       log(`Could not retrieve ngrok API key: ${keyError.message}`, 'WARN');
     }
 
-    // Auto-start ngrok with timeout and auto-install enabled
-    const ngrokResult = await autoStartNgrokForElectron(3456, ngrokApiKey, {
-      timeout: 20000,        // 20 seconds for ngrok to start
-      autoInstall: true,     // Install ngrok if missing
-      logFunction: (msg) => log(`ngrok: ${msg}`)
-    });
+    // Check if ngrok is installed
+    const isInstalled = await ngrokWrapper.isNgrokInstalled();
+    if (!isInstalled) {
+      log('Ngrok CLI not found. Auto-start skipped - install ngrok to enable mobile deployment', 'WARN');
+    } else {
+      // Auto-start ngrok tunnel
+      const ngrokResult = await ngrokWrapper.startNgrokTunnel(3456, ngrokApiKey, {
+        timeout: 20000,
+        logFunction: (msg) => log(`ngrok: ${msg}`)
+      });
 
-    if (ngrokResult.success && ngrokResult.publicUrl) {
-      log(`✓ ngrok tunnel active: ${ngrokResult.publicUrl}`);
-      if (ngrokResult.installed) {
-        log('✓ ngrok CLI was installed automatically');
-      }
-    } else if (ngrokResult.error) {
-      log(`ngrok auto-start failed: ${ngrokResult.error}`, 'WARN');
-      log('App will continue without ngrok - you can start it manually from Settings', 'WARN');
-    }
-    } catch (ngrokError) {
-      log(`ngrok initialization error: ${ngrokError.message}`, 'WARN');
-      log('App will continue without ngrok tunnel', 'WARN');
-    }
-  } else {
-    log('Ngrok auto-start skipped in packaged build - use Settings to start manually', 'INFO');
-  }
-
-  // ==================================================
-  // Phase 2: Mobile Tunnel Activation (dev mode only)
-  // ==================================================
-  if (isDev) {
-    try {
-      const { ensureMobileTunnelActive } = await import('@/lib/ngrok');
-      let ngrokApiKey;
-
-      // Try to get API key from encrypted storage
-      try {
-        const encryptedKeys = await loadEncryptedKeys();
-        if (encryptedKeys['NGROK_API_KEY']) {
-          if (safeStorage.isEncryptionAvailable()) {
-            const buffer = Buffer.from(encryptedKeys['NGROK_API_KEY'], 'base64');
-            ngrokApiKey = safeStorage.decryptString(buffer);
-          }
+      if (ngrokResult.success && ngrokResult.publicUrl) {
+        log(`✓ ngrok tunnel active: ${ngrokResult.publicUrl}`);
+        if (ngrokResult.pid) {
+          // Store PID for cleanup
+          global.ngrokPid = ngrokResult.pid;
         }
-      } catch (keyError) {
-        // Ignore key errors
+      } else if (ngrokResult.error) {
+        log(`ngrok auto-start failed: ${ngrokResult.error}`, 'WARN');
+        log('App will continue without ngrok - you can start it manually from Settings', 'WARN');
       }
-
-      const result = await ensureMobileTunnelActive(ngrokApiKey);
-
-    if (result.success && result.publicUrl) {
-      log(`Mobile tunnel activated: ${result.publicUrl}`);
-      if (result.tunnelId) {
-        log(`Mobile tunnel ID: ${result.tunnelId}`);
-      }
-      log('Mobile tunnel will persist across app restarts (no auto-cleanup on quit)');
-    } else if (result.error) {
-      log(`Mobile tunnel activation failed: ${result.error}`, 'WARN');
-    } else if (result.tunnelId) {
-      log('Mobile deployment exists but tunnel is inactive, will reactivate on connection');
     }
-    } catch (error) {
-      log('Failed to check mobile tunnel status:', error, 'WARN');
-    }
-  } else {
-    log('Mobile tunnel activation skipped in packaged build', 'INFO');
+  } catch (ngrokError) {
+    log(`ngrok initialization error: ${ngrokError.message}`, 'WARN');
+    log('App will continue without ngrok tunnel', 'WARN');
   }
+
+  // ==================================================
+  // Phase 2: Mobile Tunnel Activation (handled by API)
+  // ==================================================
+  // Mobile tunnel activation is now handled by the API routes
+  // when user deploys from the Mobile page
+  log('Mobile tunnel activation ready - deploy from Mobile page when needed', 'INFO');
 
   try {
     await startNextServer();
@@ -604,13 +570,24 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('before-quit', () => {
+app.on('before-quit', async () => {
   log('App quitting...');
   serverReady = false;
   if (serverStartupTimeout) {
     clearTimeout(serverStartupTimeout);
     serverStartupTimeout = null;
   }
+
+  // Kill ngrok tunnel if running
+  if (global.ngrokPid) {
+    try {
+      await ngrokWrapper.stopNgrokTunnel(global.ngrokPid);
+      log('Ngrok tunnel stopped', 'INFO');
+    } catch (err) {
+      log(`Failed to stop ngrok: ${err.message}`, 'WARN');
+    }
+  }
+
   killServerProcess();
 });
 
