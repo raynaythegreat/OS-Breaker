@@ -156,7 +156,7 @@ export default function MobileDeploymentModal({
   onDeploy,
   preForkedRepo,
 }: MobileDeploymentModalProps) {
-  const [repository, setRepository] = useState(preForkedRepo || 'raynaythegreat/OS-Athena-Mobile');
+  const [repository, setRepository] = useState(preForkedRepo || 'Raynaythegreat/OS-Athena');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [branch, setBranch] = useState('main');
@@ -201,7 +201,7 @@ export default function MobileDeploymentModal({
       setResult(null);
       setError('');
       setPassword('');
-      setRepository(preForkedRepo || 'raynaythegreat/OS-Athena-Mobile');
+      setRepository(preForkedRepo || 'Raynaythegreat/OS-Athena');
       setBranch('main');
     }
   }, [open, preForkedRepo]);
@@ -216,8 +216,8 @@ export default function MobileDeploymentModal({
             const { GitHubService } = await import('@/services/github');
             const github = new GitHubService(githubToken);
 
-            // Check for existing fork of OS-Athena-Mobile
-            const fork = await github.findForkOfRepository('raynaythegreat/OS-Athena-Mobile');
+            // Check for existing fork of OS-Athena
+            const fork = await github.findForkOfRepository('Raynaythegreat/OS-Athena');
             if (fork) {
               setDetectedFork(fork);
               if (!preForkedRepo) {
@@ -434,25 +434,25 @@ export default function MobileDeploymentModal({
             Tunnels persist across app restarts and all processing happens locally.
           </p>
 
-          <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex items-start gap-2">
-              <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 2.502-3.71V7.291c0-2.042-1.962-3.71-3.502-3.71H5.291c-1.54 0-2.502 1.667-2.502-3.71V14.5c0 2.042 1.962 3.71 3.502 3.71h6.938c1.54 0 2.502 1.667 2.502 3.71v-4.25" />
+              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-1">
-                  🔒 For Privacy: Use Your Own Repository
+                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                  Single Repository Deployment
                 </h4>
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                  Deploy from your own private copy instead of the original repository.
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Mobile is now deployed from your OS-Athena fork. The same repository powers both desktop and mobile!
                   <br />
                   <a
-                    href="https://github.com/raynaythegreat/OS-Athena-Mobile"
+                    href="https://github.com/Raynaythegreat/OS-Athena"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-amber-800 dark:text-amber-200 hover:underline font-medium"
+                    className="text-blue-800 dark:text-blue-200 hover:underline font-medium"
                   >
-                    Fork or copy repository →
+                    Fork OS-Athena →
                   </a>
                 </p>
               </div>
