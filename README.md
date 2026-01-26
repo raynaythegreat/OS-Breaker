@@ -103,6 +103,34 @@ Once set up, you can:
 
 ---
 
+## 📱 Deployment Modes
+
+OS-Athena supports two deployment modes from a single repository:
+
+### Desktop Mode (Default)
+- Full-featured Electron desktop application
+- Run locally: `npm run dev:electron`
+- Access at http://localhost:3456
+- All features: chat, history, repos, deployments, settings, mobile management
+
+### Mobile Mode
+- Lightweight webapp deployed to Vercel
+- Password-protected access
+- Proxies ALL requests to desktop via ngrok tunnel
+- Simplified mobile UI (chat + history only)
+
+**To deploy mobile:**
+1. Fork this repository
+2. Configure Ngrok, Vercel, and GitHub API keys in desktop app Settings
+3. Go to Mobile tab in desktop
+4. Click "Launch Mobile Version"
+5. Enter your fork (e.g., `yourname/OS-Athena`) and password
+6. Mobile deploys automatically from your fork!
+
+See [MOBILE_DEPLOYMENT.md](./MOBILE_DEPLOYMENT.md) for detailed mobile deployment instructions.
+
+---
+
 ## 📚 Documentation
 
 - **[Installation Guide](./docs/INSTALLATION.md)** - Detailed platform-specific instructions

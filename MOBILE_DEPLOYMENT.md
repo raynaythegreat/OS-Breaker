@@ -244,55 +244,64 @@ A: **Not from OS Athena**. Only one deployment at a time. To create a new deploy
 
 ## Mobile Webapp Requirements
 
-### GitHub Repository Structure
+### Unified Repository Structure
 
-Your `os-athena-mobile` repository should contain:
+Your fork of `Raynaythegreat/OS-Athena` contains both desktop and mobile code in a single repository:
 
 ```
-os-athena-mobile/
+os-athena/
 ├── app/
+│   ├── page.tsx                      # Desktop entry (hidden in remote mode)
 │   ├── login/
-│   │   └── page.tsx          # Login page
-│   ├── chat/
-│   │   └── page.tsx          # Main chat interface
-│   ├── history/
-│   │   └── page.tsx          # Chat history
+│   │   └── page.tsx                  # Mobile login page
+│   ├── mobile/
+│   │   └── page.tsx                  # Mobile management (desktop tab)
 │   ├── api/
-│   │   ├── auth/
-│   │   │   └── login/route.ts     # Login handler
-│   │   ├── chat/
-│   │   │   ├── completions/route.ts  # Chat API proxy
-│   │   │   ├── history/route.ts    # History API proxy
-│   │   ├── images/
-│   │   │   ├── generate/route.ts # Image generation proxy
-│   │   │   └── models/route.ts     # Models API proxy
-│   ├── middleware.ts                  # Password protection
-│   └── lib/
-│       ├── mobileProxy.ts           # Core proxy function
-│       └── env.ts                    # Environment variable handling
+│   │   ├── auth/login/route.ts       # Mobile authentication
+│   │   ├── chat/[...path]/route.ts   # Chat API proxy (new)
+│   │   ├── images/[...path]/route.ts # Images API proxy (new)
+│   │   ├── models/[...path]/route.ts # Models API proxy (new)
+│   │   ├── mobile/deploy/route.ts    # Deployment API
+│   │   ├── env/mode/route.ts         # Mode detection API (new)
+│   ├── middleware.ts                 # Mode-based routing (new)
+│   └── layout.tsx                    # Root layout (updated)
+├── lib/
+│   ├── mode-detection.ts             # Mode utility (new)
+│   ├── proxy.ts                      # Proxy utility (new)
+│   └── contexts/
+│       └── MobileAuthContext.tsx     # Mobile auth state (new)
 ├── components/
-│   ├── ConnectionStatusIndicator.tsx  # Connection status component
-│   ├── MobileLayout.tsx                # Mobile layout
-│   └── ToastProvider.tsx               # Toast notifications
+│   ├── chat/                         # Desktop chat components
+│   ├── dashboard/                    # Desktop layout
+│   └── settings/                     # Desktop settings
+│       └── MobileDeploymentModal.tsx # Updated for unified repo
 └── package.json
-└── .env.example                    # Environment variables template
 ```
+
+The same codebase behaves differently based on the `OS_REMOTE_MODE` environment variable.
 
 ### Environment Variables Required
 
-The mobile webapp requires these environment variables in Vercel:
+The unified OS-Athena repository uses different environment variables for each mode:
 
+#### Desktop Mode (Local Electron App)
 ```bash
-# Remote Mode Configuration
-OS_PUBLIC_URL=https://xxx.ngrok.io     # Ngrok tunnel URL (auto-set by deployment)
-OS_REMOTE_MODE=true                     # Enable remote proxy mode
-NGROK_TUNNEL_ID=                        # Tunnel ID (auto-set by deployment)
-MOBILE_PASSWORD=                        # Access password (set by deployment)
+# No special environment variables needed
+# Runs with all features enabled at localhost:3456
+```
 
-# Development Mode (optional)
-# Set these if running locally without deployment:
-# OS_REMOTE_MODE=false
-# OS_PUBLIC_URL=http://localhost:3456
+#### Mobile Mode (Vercel Deployment)
+```bash
+# Required - Set automatically by deployment flow:
+OS_PUBLIC_URL=https://xxx.ngrok.io     # Ngrok tunnel URL to desktop
+OS_REMOTE_MODE=true                     # Enable mobile/remote proxy mode
+MOBILE_PASSWORD=your-secure-password    # Access password for mobile
+NGROK_TUNNEL_ID=tunnel-id              # For tracking the tunnel
+
+# Optional - Copied from desktop .env.local during deployment:
+# Note: API keys are NOT copied - they stay on desktop for security
+MODEL_PREFERENCE=claude-sonnet-4-5     # Example: model preferences
+THEME=dark                              # Example: UI preferences
 ```
 
 ### Implementation Details
