@@ -57,6 +57,11 @@ export class ModelManager {
       'claude-3-5-sonnet',
       'claude-sonnet-4',
       'claude-3-5-sonnet-latest',
+      'claude-sonnet-4-5',
+      'claude-haiku-4-5',
+      'claude-3-5-haiku',
+      'claude-opus-4-5',
+      'claude-opus-4-1',
     ],
     openai: [
       'gpt-4o',
@@ -110,6 +115,8 @@ export class ModelManager {
       'gemini-1.5-pro',
       'gemini-1.5-flash',
       'gemini-1.5-flash-8b',
+      'gemini-3-pro',
+      'gemini-3-flash',
     ],
     fireworks: [
       'accounts/fireworks/models/deepseek-v3',
@@ -137,6 +144,21 @@ export class ModelManager {
     opencodezen: [
       'open-coder',
       'opencoder',
+      'gpt-5.2',
+      'gpt-5.2-codex',
+      'gpt-5.1',
+      'gpt-5.1-codex',
+      'gpt-5.1-codex-max',
+      'gpt-5.1-codex-mini',
+      'gpt-5',
+      'gpt-5-codex',
+      'gpt-5-nano',
+      'glm-4.7',
+      'glm-4.6',
+      'kimi-k2',
+      'kimi-k2-thinking',
+      'qwen3-coder',
+      'big-pickle',
     ],
     zai: [
       'zai',
@@ -161,7 +183,11 @@ export class ModelManager {
     gemini: ['gemini-1.5-flash', 'gemini-2.0-flash'],
     fireworks: ['*'], // Most Fireworks models have free tiers
     mistral: ['mistral-small-latest'],
-    opencodezen: ['*'],
+    opencodezen: [
+      '*',
+      'gpt-5-nano',
+      'big-pickle',
+    ],
     zai: ['*'],
   };
 
@@ -259,6 +285,30 @@ export class ModelManager {
     'mistral-large-latest': 'Mistral Large',
     'codestral-latest': 'CodeS',
     'mistral-small-latest': 'Mistral Small',
+    
+    // OpenCode Zen - all GPT and other models
+    'gpt-5.2': 'GPT 5.2',
+    'gpt-5.2-codex': 'GPT 5.2 Codex',
+    'gpt-5.1': 'GPT 5.1',
+    'gpt-5.1-codex': 'GPT 5.1 Codex',
+    'gpt-5.1-codex-max': 'GPT 5.1 Codex Max',
+    'gpt-5.1-codex-mini': 'GPT 5.1 Codex Mini',
+    'gpt-5': 'GPT 5',
+    'gpt-5-codex': 'GPT 5 Codex',
+    'gpt-5-nano': 'GPT 5 Nano',
+    'glm-4.7': 'GLM 4.7',
+    'glm-4.6': 'GLM 4.6',
+    'kimi-k2': 'Kimi K2',
+    'kimi-k2-thinking': 'Kimi K2 Thinking',
+    'qwen3-coder': 'Qwen3 Coder 480B',
+    'big-pickle': 'Big Pickle',
+    'claude-sonnet-4-5': 'Claude Sonnet 4.5',
+    'claude-haiku-4-5': 'Claude Haiku 4.5',
+    'claude-3-5-haiku': 'Claude Haiku 3.5',
+    'claude-opus-4-5': 'Claude Opus 4.5',
+    'claude-opus-4-1': 'Claude Opus 4.1',
+    'gemini-3-pro': 'Gemini 3 Pro',
+    'gemini-3-flash': 'Gemini 3 Flash',
     
     // Fireworks - add all models with proper names
     'accounts/fireworks/models/deepseek-v3': 'DeepSeek V3 (Fireworks)',

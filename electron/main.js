@@ -19,7 +19,7 @@ let mainWindow;
 let nextServer;
 let serverReady = false;
 let serverStartupTimeout = null;
-const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
+const isDev = process.env.NODE_ENV !== 'production';
 const PORT = 3456;
 const SERVER_STARTUP_TIMEOUT = 60000;
 const SERVER_POLL_INTERVAL = 1000;
@@ -180,16 +180,7 @@ async function startNextServer() {
   await cleanupPort();
 
   return new Promise(async (resolve, reject) => {
-    // When packaged in .asar, __dirname points inside the archive
-    // We need to get the path outside the asar for unpacked files
-    let rootDir = __dirname;
-    if (__dirname.includes('.asar')) {
-      // Running from packaged asar - get the parent directory
-      // The unpacked .next directory should be at the same level as the asar
-      rootDir = path.join(path.dirname(process.execPath), 'resources');
-    } else {
-      rootDir = path.join(__dirname, '..');
-    }
+    const rootDir = path.join(__dirname, '..');
 
     serverStartupTimeout = setTimeout(() => {
       if (!serverReady) {
