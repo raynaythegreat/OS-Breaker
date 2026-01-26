@@ -29,7 +29,7 @@
     "@github.com/cli/cli": "latest",
     "electron-store": "^8.1.0",
     "framer-motion": "^11.0.0",
-    "lucide-react": "^0.562.0",
+    "lucide-react": "^0.563.0",
     "next": "14.2.5",
     "openai": "^5.0.0",
     "react": "18.2.0",
