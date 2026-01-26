@@ -515,7 +515,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ setActiveTab }) => {
           <li>• <strong>Ngrok tunnel fails?</strong> Ensure ngrok CLI is installed and API key is valid.</li>
           <li>• <strong>Vercel deployment fails?</strong> Check that the repository exists and is connected to Vercel.</li>
           <li>• <strong>GitHub operations fail?</strong> Verify token has repo permissions.</li>
-          <li>• <strong>Connection lost?</strong> Click "Retry Failed" to re-test all connections.</li>
+          <li>• <strong>Connection lost?</strong> Click &quot;Retry Failed&quot; to re-test all connections.</li>
         </ul>
       </div>
 
