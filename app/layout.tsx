@@ -27,6 +27,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isRemoteMode = process.env.OS_REMOTE_MODE === 'true';
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -43,13 +45,13 @@ export default function RootLayout({
           })();
         `}} />
       </head>
-      <body className="antialiased overflow-x-hidden">
+      <body className={`antialiased overflow-x-hidden ${isRemoteMode ? 'mobile-mode' : 'desktop-mode'}`}>
         <ThemeProvider>
           <ChatHistoryProvider>
             <ApiUsageProvider>
               <DeploymentProvider>
                 <FileAccessProvider>
-                  <div className="min-h-screen bg-background text-foreground">
+                  <div className={`min-h-screen ${isRemoteMode ? 'bg-white dark:bg-surface-900' : 'bg-background text-foreground'}`}>
                     {children}
                   </div>
                 </FileAccessProvider>
