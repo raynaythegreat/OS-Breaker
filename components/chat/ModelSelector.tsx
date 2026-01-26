@@ -328,7 +328,7 @@ export default function ModelSelector({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 hover:bg-white dark:hover:bg-surface-800 hover:border-gold-500/50 transition-all shadow-sm group"
+        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 hover:bg-white dark:hover:bg-surface-800 hover:border-blue-500/50 transition-all shadow-sm group"
       >
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-lg group-hover:scale-110 transition-transform">
@@ -357,7 +357,7 @@ export default function ModelSelector({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search models..."
-              className="w-full px-3 py-2 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-foreground border border-surface-200 dark:border-surface-700 rounded-lg text-sm focus:outline-none focus:border-gold-500 transition-colors"
+              className="w-full px-3 py-2 bg-surface-50 dark:bg-surface-800 text-surface-900 dark:text-foreground border border-surface-200 dark:border-surface-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors"
               autoFocus
             />
           </div>
@@ -370,7 +370,7 @@ export default function ModelSelector({
                   {providerModels[provider as ModelProvider]?.error && (
                     <button
                       onClick={() => void refreshProviderModels(provider as ModelProvider)}
-                      className="text-[10px] text-gold-600 hover:text-gold-700 flex items-center gap-1 transition-colors"
+                      className="text-[10px] text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
                     >
                       {refreshing.has(provider as ModelProvider) ? (
                         <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -403,7 +403,7 @@ export default function ModelSelector({
                         }}
                         className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                           model.id === selectedModel
-                            ? "bg-gold-500/10 dark:bg-accent border-2 border-gold-500 shadow-md"
+                            ? "bg-blue-500/10 dark:bg-accent border-2 border-blue-500 shadow-md"
                             : "hover:bg-surface-100 dark:hover:bg-accent border-2 border-transparent"
                         }`}
                       >
@@ -436,7 +436,7 @@ export default function ModelSelector({
                           </div>
                         </div>
                         {model.id === selectedModel && (
-                          <div className="w-2 h-2 rounded-full bg-gold-500 flex-shrink-0" />
+                          <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
                         )}
                       </button>
                     ))
