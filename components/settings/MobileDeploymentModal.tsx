@@ -101,7 +101,7 @@ export default function MobileDeploymentModal({
       setResult(null);
       setError('');
       setPassword('');
-      setRepository(preForkedRepo || 'Raynaythegreat/OS-Athena-Mobile');
+      setRepository(preForkedRepo || 'raynaythegreat/OS-Athena-Mobile');
       setBranch('main');
     }
   }, [open, preForkedRepo]);
@@ -117,7 +117,7 @@ export default function MobileDeploymentModal({
             const github = new GitHubService(githubToken);
 
             // Check for existing fork of OS-Athena-Mobile
-            const fork = await github.findForkOfRepository('Raynaythegreat/OS-Athena-Mobile');
+            const fork = await github.findForkOfRepository('raynaythegreat/OS-Athena-Mobile');
             if (fork) {
               setDetectedFork(fork);
               if (!preForkedRepo) {
