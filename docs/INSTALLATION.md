@@ -20,12 +20,24 @@ This guide provides detailed installation instructions for each supported platfo
 
 For a fully automated setup that installs OS Athena and all dependencies:
 
+### Linux / macOS
+
 ```bash
 # Download and run the smart installer
 curl -fsSL https://raw.githubusercontent.com/raynaythegreat/OS-Athena/main/scripts/install-dependencies.sh -o install.sh
 chmod +x install.sh
 ./install.sh
 ```
+
+### Windows
+
+```powershell
+# Download and run the smart installer (run as Administrator)
+irm https://raw.githubusercontent.com/raynaythegreat/OS-Athena/main/scripts/install-dependencies.ps1 -outfile install.ps1
+.\install.ps1
+```
+
+Or download and run `scripts/install-dependencies.ps1` from the repository.
 
 This will:
 - **Detect and install OS Athena** (the desktop app)
