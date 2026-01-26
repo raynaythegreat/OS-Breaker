@@ -19,7 +19,7 @@ let mainWindow;
 let nextServer;
 let serverReady = false;
 let serverStartupTimeout = null;
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
 const PORT = 3456;
 const SERVER_STARTUP_TIMEOUT = 60000;
 const SERVER_POLL_INTERVAL = 1000;
